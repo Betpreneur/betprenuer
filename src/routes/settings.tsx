@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Settings — Terminal" }] }),
+  head: () => ({ meta: [{ title: "Settings — Betpreneur" }] }),
   component: SettingsPage,
 });
 
@@ -57,7 +57,7 @@ function SettingsPage() {
     <div className="max-w-md mx-auto space-y-5">
       <h1>Settings</h1>
 
-      <div className="bg-white border border-brand-border rounded-lg p-5 space-y-4">
+      <div className="bg-card border border-brand-border rounded-lg p-5 space-y-4">
         <Field label="Full name">
           <input value={name} onChange={(e) => setName(e.target.value)} className="ipt" disabled={saving} />
         </Field>
@@ -92,7 +92,7 @@ function SettingsPage() {
 
       <button
         onClick={() => void logout()}
-        className="w-full border border-brand-border bg-white text-body-text py-3 rounded-md"
+        className="w-full border border-brand-border bg-card text-body-text py-3 rounded-md"
       >
         Log out
       </button>

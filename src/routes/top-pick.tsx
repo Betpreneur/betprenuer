@@ -9,9 +9,9 @@ import { StakeGuide } from "@/components/StakeGuide";
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
     meta: [
-      { title: "Today's top pick — Terminal" },
+      { title: "Today's top pick — Betpreneur" },
       { name: "description", content: "The single highest-confidence football pick today." },
-      { property: "og:title", content: "Today's top pick — Terminal" },
+      { property: "og:title", content: "Today's top pick — Betpreneur" },
       { property: "og:description", content: "Highest-confidence pre-match pick. Subscribers see the full reasoning." },
     ],
   }),
@@ -27,13 +27,13 @@ function TopPickPage() {
   }, []);
 
   if (loading || !data) {
-    return <div className="h-64 bg-white border border-brand-border rounded-lg animate-pulse" />;
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
   if (data.locked) {
     return (
       <div className="space-y-5">
-        <header className="bg-white border-2 border-brand-green rounded-lg p-5">
+        <header className="bg-card border-2 border-brand-green rounded-lg p-5">
           <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-1">
             Best pick today
           </div>
@@ -47,7 +47,7 @@ function TopPickPage() {
           </div>
         </header>
 
-        <div className="bg-white border border-brand-border rounded-lg p-6 text-center">
+        <div className="bg-card border border-brand-border rounded-lg p-6 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-subtle-bg flex items-center justify-center text-brand-green text-xl">🔒</div>
           <h2 className="mt-3">Full analysis and stake guide</h2>
           <p className="text-[14px] text-muted-foreground mt-1">Subscribers only.</p>
@@ -68,7 +68,7 @@ function TopPickPage() {
 
   return (
     <div className="space-y-5">
-      <header className="bg-white border-2 border-brand-green rounded-lg p-5">
+      <header className="bg-card border-2 border-brand-green rounded-lg p-5">
         <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-1">
           Best pick today
         </div>
@@ -87,7 +87,7 @@ function TopPickPage() {
         <div className="mt-3 text-[12px] text-muted-foreground">{tierLabel(data.tier)} · Odds {data.odds.toFixed(2)}</div>
       </header>
 
-      <section className="bg-white border border-brand-border rounded-lg p-5">
+      <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-body-text">
           {data.goals_profile.map((g, i) => (

@@ -18,10 +18,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-subtle-bg">
-      <header className="sticky top-0 z-20 bg-white border-b border-brand-border">
+      <header className="sticky top-0 z-20 bg-card border-b border-brand-border">
         <div className="mx-auto max-w-3xl px-4 h-14 flex items-center justify-between">
           <Link to={isAuthed ? "/home" : "/record"} className="font-semibold tracking-tight text-brand-green text-[18px]">
-            Terminal
+            Betpreneur
           </Link>
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-5 text-[14px]">
@@ -56,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 mx-auto w-full max-w-3xl px-4 pb-24 md:pb-10 pt-4">{children}</main>
 
       {isAuthed && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-white border-t border-brand-border">
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-card border-t border-brand-border">
           <ul className="grid grid-cols-4">
             {navItems.map((n) => {
               const active =

@@ -7,9 +7,9 @@ import { tierLabel } from "@/lib/stake";
 export const Route = createFileRoute("/record")({
   head: () => ({
     meta: [
-      { title: "Track record — Terminal" },
-      { name: "description", content: "All Terminal picks from the last 90 days. Auto-settled. Nothing deleted." },
-      { property: "og:title", content: "Terminal — 90-day track record" },
+      { title: "Track record — Betpreneur" },
+      { name: "description", content: "All Betpreneur picks from the last 90 days. Auto-settled. Nothing deleted." },
+      { property: "og:title", content: "Betpreneur — 90-day track record" },
       { property: "og:description", content: "66.3% hit rate. +18.4% ROI. 358 picks." },
     ],
   }),
@@ -29,7 +29,7 @@ function SubscribeCta() {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white border border-brand-border rounded-lg p-4">
+    <div className="bg-card border border-brand-border rounded-lg p-4">
       <div className="text-[24px] font-semibold text-brand-green">{value}</div>
       <div className="text-[12px] text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</div>
     </div>
@@ -91,10 +91,10 @@ function RecordPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-20 bg-white border border-brand-border rounded-lg animate-pulse" />
+              <div key={i} className="h-20 bg-card border border-brand-border rounded-lg animate-pulse" />
             ))}
           </div>
-          <div className="h-40 bg-white border border-brand-border rounded-lg animate-pulse" />
+          <div className="h-40 bg-card border border-brand-border rounded-lg animate-pulse" />
         </div>
       ) : data.history.length === 0 ? (
         <p className="text-body-text">Record building — first picks posted soon.</p>
@@ -108,7 +108,7 @@ function RecordPage() {
 
           <section>
             <h2 className="mb-2">By market</h2>
-            <div className="bg-white border border-brand-border rounded-lg overflow-hidden">
+            <div className="bg-card border border-brand-border rounded-lg overflow-hidden">
               <table className="w-full text-[14px]">
                 <thead className="bg-subtle-bg text-muted-foreground text-[12px] uppercase">
                   <tr>
@@ -147,7 +147,7 @@ function RecordPage() {
               <select
                 value={marketFilter}
                 onChange={(e) => { setMarketFilter(e.target.value); setPage(1); }}
-                className="bg-white border border-brand-border rounded-md px-3 py-2 text-[13px]"
+                className="bg-card border border-brand-border rounded-md px-3 py-2 text-[13px]"
               >
                 <option value="all">All markets</option>
                 {[...new Set(data.history.map((h) => h.market))].map((m) => (
@@ -161,14 +161,14 @@ function RecordPage() {
                   className={`px-3 py-2 rounded-md text-[13px] border ${
                     resultFilter === r
                       ? "bg-brand-green text-primary-foreground border-brand-green"
-                      : "bg-white border-brand-border text-body-text"
+                      : "bg-card border-brand-border text-body-text"
                   }`}
                 >
                   {r === "all" ? "All results" : r[0].toUpperCase() + r.slice(1)}
                 </button>
               ))}
             </div>
-            <div className="bg-white border border-brand-border rounded-lg overflow-x-auto">
+            <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
                   <tr>
@@ -205,7 +205,7 @@ function RecordPage() {
                 <button
                   disabled={page === 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-2 rounded-md border border-brand-border bg-white disabled:opacity-50"
+                  className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
                 >
                   Previous
                 </button>
@@ -213,7 +213,7 @@ function RecordPage() {
                 <button
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="px-3 py-2 rounded-md border border-brand-border bg-white disabled:opacity-50"
+                  className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
                 >
                   Next
                 </button>

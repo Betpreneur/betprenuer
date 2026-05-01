@@ -12,7 +12,7 @@ export function StakeGuide({ odds, highlight }: { odds: number; highlight?: Tier
   const bankroll = user?.bankroll ?? 50000;
 
   return (
-    <div className="bg-white border border-brand-border rounded-lg overflow-hidden">
+    <div className="bg-card border border-brand-border rounded-lg overflow-hidden">
       <div className="px-4 py-3 border-b border-brand-border bg-subtle-bg">
         <h3 className="text-brand-green font-medium text-[15px]">Stake guide</h3>
         <p className="text-[12px] text-muted-foreground">

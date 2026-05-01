@@ -60,7 +60,7 @@ function MatchPage() {
   }
 
   if (!pick) {
-    return <div className="h-64 bg-white border border-brand-border rounded-lg animate-pulse" />;
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
   const stake = stakeFor(user?.bankroll ?? 50000, pick.tier);
@@ -86,7 +86,7 @@ function MatchPage() {
       const file = new File([blob], "terminal-pick.png", { type: "image/png" });
       const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean; share?: (d: ShareData) => Promise<void> };
       if (nav.canShare?.({ files: [file] }) && nav.share) {
-        await nav.share({ files: [file], title: "Today's pick — Terminal" });
+        await nav.share({ files: [file], title: "Today's pick — Betpreneur" });
         setShareMsg("Shared!");
       } else if (navigator.clipboard && "write" in navigator.clipboard) {
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
@@ -110,7 +110,7 @@ function MatchPage() {
       <Link to="/home" className="text-[13px] text-info-blue">← Back to today</Link>
 
       {/* Match header */}
-      <header className="bg-white border border-brand-border rounded-lg p-5">
+      <header className="bg-card border border-brand-border rounded-lg p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
@@ -132,7 +132,7 @@ function MatchPage() {
       </header>
 
       {/* Recent form */}
-      <section className="bg-white border border-brand-border rounded-lg p-5">
+      <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Recent form</h2>
         <div className="space-y-3">
           <Row team={pick.match.split(" vs ")[0]} form={pick.form_home} />
@@ -141,7 +141,7 @@ function MatchPage() {
       </section>
 
       {/* Goals profile */}
-      <section className="bg-white border border-brand-border rounded-lg p-5">
+      <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-body-text">
           {pick.goals_profile.map((g, i) => (
@@ -199,7 +199,7 @@ function MatchPage() {
           </button>
           <button
             onClick={handleShare}
-            className="min-h-[56px] rounded-md font-medium border border-brand-green text-brand-green bg-white"
+            className="min-h-[56px] rounded-md font-medium border border-brand-green text-brand-green bg-card"
           >
             Share this pick
           </button>

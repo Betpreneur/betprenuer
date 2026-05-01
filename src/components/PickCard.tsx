@@ -15,7 +15,7 @@ export function PickCard({ pick, top = false }: { pick: PickSummary; top?: boole
     <Link
       to="/match/$id"
       params={{ id: pick.id }}
-      className={`block bg-white rounded-lg border ${
+      className={`block bg-card rounded-lg border ${
         top ? "border-brand-green border-2" : "border-brand-border"
       } p-4 min-h-[56px] hover:shadow-sm transition-shadow`}
     >
