@@ -12,18 +12,18 @@ export const Route = createFileRoute("/match/$id")({
 });
 
 const tierBg = {
-  banker: "bg-brand-green-light text-brand-green",
-  gem: "bg-amber-bg text-amber-text",
-  wildcard: "bg-subtle-bg text-body-text",
+  banker:  "bg-win-green-bg text-win-green",
+  gem:     "bg-teal-bg text-teal-accent",
+  wildcard:"bg-amber-bg text-amber-text",
 } as const;
 
 function FormChip({ r }: { r: "W" | "D" | "L" }) {
   const cls =
     r === "W"
-      ? "bg-brand-green text-primary-foreground"
+      ? "bg-win-green text-jet-black"
       : r === "L"
       ? "bg-danger-red text-primary-foreground"
-      : "bg-brand-border text-body-text";
+      : "bg-white/10 text-foreground";
   return <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-[11px] font-semibold ${cls}`}>{r}</span>;
 }
 
@@ -54,7 +54,7 @@ function MatchPage() {
     return (
       <div className="text-center py-16">
         <p>Could not load this pick.</p>
-        <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-brand-green text-primary-foreground rounded-md">Back to today</button>
+        <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Back to today</button>
       </div>
     );
   }
@@ -122,12 +122,12 @@ function MatchPage() {
             {tierLabel(pick.tier)}
           </span>
         </div>
-        <div className="mt-3 inline-block bg-brand-green-light text-brand-green text-[14px] font-medium px-3 py-1.5 rounded">
+        <div className="mt-3 inline-block bg-teal-bg text-teal-accent text-[14px] font-medium px-3 py-1.5 rounded">
           {pick.market_plain}
         </div>
         <div className="mt-3 text-[13px] text-muted-foreground">
-          Confidence: <span className="font-medium text-brand-green">{pick.confidence.toFixed(1)}%</span>
-          {" · "}Odds: <span className="font-medium text-body-text">{pick.odds.toFixed(2)}</span>
+          Confidence: <span className="font-medium text-win-green">{pick.confidence.toFixed(1)}%</span>
+          {" · "}Odds: <span className="font-medium text-foreground">{pick.odds.toFixed(2)}</span>
         </div>
       </header>
 
@@ -143,10 +143,10 @@ function MatchPage() {
       {/* Goals profile */}
       <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Why this pick</h2>
-        <ul className="space-y-2 text-[14px] text-body-text">
+        <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile.map((g, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-brand-green mt-0.5">•</span>
+              <span className="text-win-green mt-0.5">•</span>
               <span>{g}</span>
             </li>
           ))}
@@ -173,9 +173,9 @@ function MatchPage() {
       {/* Settled state */}
       {pick.status === "settled" && pick.result && (
         <div className={`rounded-lg p-4 text-center font-medium ${
-          pick.result === "won" ? "bg-brand-green-light text-brand-green"
+          pick.result === "won" ? "bg-win-green-bg text-win-green"
           : pick.result === "lost" ? "bg-danger-bg text-danger-red"
-          : "bg-subtle-bg text-body-text"
+          : "bg-white/5 text-foreground"
         }`}>
           {pick.result === "won" && `Won +${naira(win)}`}
           {pick.result === "lost" && `Lost −${naira(stake)}`}
@@ -191,15 +191,15 @@ function MatchPage() {
             disabled={pick.user_backed || backing}
             className={`min-h-[56px] rounded-md font-medium ${
               pick.user_backed
-                ? "bg-subtle-bg text-muted-foreground cursor-default"
-                : "bg-brand-green text-primary-foreground"
+                ? "bg-white/10 text-muted-foreground cursor-default"
+                : "bg-win-green text-jet-black hover:opacity-90"
             }`}
           >
             {pick.user_backed ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
           </button>
           <button
             onClick={handleShare}
-            className="min-h-[56px] rounded-md font-medium border border-brand-green text-brand-green bg-card"
+            className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
           >
             Share this pick
           </button>
