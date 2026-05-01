@@ -30,7 +30,7 @@ function SubscribeCta() {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card border border-brand-border rounded-lg p-4">
-      <div className="text-[24px] font-semibold text-brand-green">{value}</div>
+      <div className="text-[24px] font-bold text-win-green">{value}</div>
       <div className="text-[12px] text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</div>
     </div>
   );
@@ -130,7 +130,7 @@ function RecordPage() {
                       </td>
                       <td className="px-4 py-3 text-right text-body-text">{m.picks}</td>
                       <td className={`px-4 py-3 text-right font-medium ${
-                        m.hit_rate >= 65 ? "text-brand-green" : "text-danger-red"
+                        m.hit_rate >= 65 ? "text-win-green" : "text-danger-red"
                       }`}>
                         {m.hit_rate.toFixed(1)}%
                       </td>
@@ -189,7 +189,7 @@ function RecordPage() {
                       <td className="px-3 py-2">{tierLabel(h.tier)}</td>
                       <td className="px-3 py-2 text-right">{h.odds.toFixed(2)}</td>
                       <td className={`px-3 py-2 text-right font-medium ${
-                        h.result === "won" ? "text-brand-green"
+                        h.result === "won" ? "text-win-green"
                         : h.result === "lost" ? "text-danger-red"
                         : "text-muted-foreground"
                       }`}>
