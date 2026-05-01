@@ -22,9 +22,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-20 bg-primary border-b border-primary">
         <div className="mx-auto max-w-3xl px-4 h-20 flex items-center justify-between">
           <Link
-            to={isAuthed ? "/home" : "/record"}
+            to="/"
             aria-label="Betpreneur — home"
-            className="flex items-center"
+            className="flex items-center rounded-md transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
           >
             <img
               src={logoHorizontal}
