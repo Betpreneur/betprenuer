@@ -3,6 +3,7 @@ import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
   { to: "/home", label: "Today", icon: Home },
@@ -17,11 +18,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = router.state.location.pathname;
 
   return (
-    <div className="min-h-screen flex flex-col bg-subtle-bg">
-      <header className="sticky top-0 z-20 bg-white border-b border-brand-border">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <header className="sticky top-0 z-20 bg-[#0D0D0D] border-b border-brand-border">
         <div className="mx-auto max-w-3xl px-4 h-14 flex items-center justify-between">
-          <Link to={isAuthed ? "/home" : "/record"} className="font-semibold tracking-tight text-brand-green text-[18px]">
-            Terminal
+          <Link
+            to={isAuthed ? "/home" : "/record"}
+            aria-label="Betpreneur — home"
+            className="flex items-center"
+          >
+            <img
+              src={logoHorizontal}
+              alt="Betpreneur"
+              className="h-7 w-auto select-none"
+              draggable={false}
+            />
           </Link>
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-5 text-[14px]">
@@ -30,33 +40,33 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className="text-body-text hover:text-brand-green"
-                  activeProps={{ className: "text-brand-green font-medium" }}
+                  className="text-pure-white-dim hover:text-white transition-colors"
+                  activeProps={{ className: "text-white font-semibold" }}
                 >
                   {n.label}
                 </Link>
               ))
             ) : (
               <>
-                <Link to="/record" className="text-body-text hover:text-brand-green" activeProps={{ className: "text-brand-green font-medium" }}>Record</Link>
-                <Link to="/top-pick" className="text-body-text hover:text-brand-green" activeProps={{ className: "text-brand-green font-medium" }}>Top Pick</Link>
+                <Link to="/record" className="text-white/70 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Record</Link>
+                <Link to="/top-pick" className="text-white/70 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Top Pick</Link>
                 <Link
                   to="/signup"
-                  className="bg-brand-green text-primary-foreground px-4 py-2 rounded-md text-[13px] font-medium hover:opacity-90"
+                  className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-[13px] font-semibold hover:opacity-90 uppercase tracking-wide"
                 >
                   Subscribe
                 </Link>
               </>
             )}
           </nav>
-          <span className="md:hidden text-[13px] text-muted-foreground">{todayLagos()}</span>
+          <span className="md:hidden text-[12px] text-muted-foreground">{todayLagos()}</span>
         </div>
       </header>
 
       <main className="flex-1 mx-auto w-full max-w-3xl px-4 pb-24 md:pb-10 pt-4">{children}</main>
 
       {isAuthed && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-white border-t border-brand-border">
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
           <ul className="grid grid-cols-4">
             {navItems.map((n) => {
               const active =
@@ -68,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Link
                     to={n.to}
                     className={`h-[56px] flex flex-col items-center justify-center gap-0.5 text-[11px] ${
-                      active ? "text-brand-green font-medium" : "text-muted-foreground"
+                      active ? "text-primary font-semibold" : "text-muted-foreground"
                     }`}
                   >
                     <Icon className="h-5 w-5" />

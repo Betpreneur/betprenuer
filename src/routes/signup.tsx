@@ -6,8 +6,8 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Subscribe — Terminal" },
-      { name: "description", content: "Subscribe to Terminal for ₦3,000/month and get daily picks." },
+      { title: "Subscribe — Betpreneur" },
+      { name: "description", content: "Subscribe to Betpreneur for ₦3,000/month and get daily picks." },
     ],
   }),
   component: SignupPage,
@@ -52,11 +52,11 @@ function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1>Subscribe to Terminal</h1>
+      <h1>Subscribe to Betpreneur</h1>
       <p className="text-[14px] text-muted-foreground mt-1 mb-6">
         ₦3,000/month. Daily picks posted by 06:30 WAT. Cancel anytime.
       </p>
-      <form onSubmit={onSubmit} className="space-y-4 bg-white border border-brand-border rounded-lg p-5">
+      <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
         <Field label="Full name">
           <input
             value={name}

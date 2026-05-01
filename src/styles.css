@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -76,37 +77,56 @@
 :root {
   --radius: 0.5rem;
 
-  --brand-green: oklch(0.31 0.06 145);
-  --brand-green-light: oklch(0.94 0.05 115);
-  --amber-text: oklch(0.36 0.07 55);
-  --amber-bg: oklch(0.94 0.04 80);
-  --info-blue: oklch(0.39 0.13 255);
-  --info-bg: oklch(0.95 0.03 245);
-  --danger-red: oklch(0.49 0.18 25);
-  --danger-bg: oklch(0.95 0.03 25);
-  --body-text: oklch(0.34 0.005 90);
-  --subtle-bg: oklch(0.95 0.01 90);
-  --brand-border: oklch(0.84 0.01 90);
+  /* ===== Betpreneur Brand Palette =====
+   * Primary  Betpreneur Red  #E8192C
+   * Secondary Jet Black      #0D0D0D
+   * Accent    Pure White     #FFFFFF
+   *
+   * Token names like --brand-green are kept for code stability
+   * but now hold the Betpreneur Red value as the primary brand color.
+   */
 
-  --background: oklch(1 0 0);
-  --foreground: var(--body-text);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--body-text);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--body-text);
-  --primary: var(--brand-green);
-  --primary-foreground: oklch(0.99 0.01 100);
-  --secondary: var(--subtle-bg);
-  --secondary-foreground: var(--brand-green);
-  --muted: var(--subtle-bg);
-  --muted-foreground: oklch(0.55 0.01 90);
-  --accent: var(--brand-green-light);
-  --accent-foreground: var(--brand-green);
-  --destructive: var(--danger-red);
-  --destructive-foreground: oklch(0.99 0.01 100);
-  --border: var(--brand-border);
-  --input: var(--brand-border);
-  --ring: var(--brand-green);
+  --betpreneur-red: oklch(0.598 0.224 26.5);     /* #E8192C */
+  --betpreneur-red-soft: oklch(0.32 0.13 27);    /* deep red tint for highlights on dark */
+  --jet-black: oklch(0.12 0 0);                  /* #0D0D0D */
+  --jet-surface: oklch(0.17 0.005 25);           /* card surface above jet-black */
+  --jet-surface-2: oklch(0.22 0.006 25);         /* elevated surface / inputs */
+  --pure-white: oklch(1 0 0);
+  --pure-white-dim: oklch(0.78 0.005 25);        /* secondary text */
+  --pure-white-muted: oklch(0.58 0.005 25);      /* tertiary text / labels */
+  --hairline: oklch(0.28 0.006 25);              /* subtle borders on dark */
+
+  --brand-green: var(--betpreneur-red);          /* primary accent (red) */
+  --brand-green-light: var(--betpreneur-red-soft); /* highlight band */
+  --amber-text: oklch(0.78 0.16 75);
+  --amber-bg: oklch(0.32 0.09 70);
+  --info-blue: oklch(0.72 0.13 240);
+  --info-bg: oklch(0.28 0.07 245);
+  --danger-red: var(--betpreneur-red);
+  --danger-bg: oklch(0.30 0.13 27);
+  --body-text: var(--pure-white);
+  --subtle-bg: var(--jet-black);
+  --brand-border: var(--hairline);
+
+  --background: var(--jet-black);
+  --foreground: var(--pure-white);
+  --card: var(--jet-surface);
+  --card-foreground: var(--pure-white);
+  --popover: var(--jet-surface);
+  --popover-foreground: var(--pure-white);
+  --primary: var(--betpreneur-red);
+  --primary-foreground: var(--pure-white);
+  --secondary: var(--jet-surface-2);
+  --secondary-foreground: var(--pure-white);
+  --muted: var(--jet-surface-2);
+  --muted-foreground: var(--pure-white-muted);
+  --accent: var(--betpreneur-red-soft);
+  --accent-foreground: var(--pure-white);
+  --destructive: var(--betpreneur-red);
+  --destructive-foreground: var(--pure-white);
+  --border: var(--hairline);
+  --input: var(--jet-surface-2);
+  --ring: var(--betpreneur-red);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -163,13 +183,21 @@
   }
 
   body {
-    background-color: var(--subtle-bg);
-    color: var(--body-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--jet-black);
+    color: var(--pure-white);
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  h1 { font-size: 24px; font-weight: 500; color: var(--brand-green); }
-  h2 { font-size: 18px; font-weight: 500; color: var(--brand-green); }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Montserrat", sans-serif;
+    color: var(--pure-white);
+    letter-spacing: -0.01em;
+  }
+  h1 { font-size: 28px; font-weight: 800; line-height: 1.15; }
+  h2 { font-size: 20px; font-weight: 700; line-height: 1.25; }
+  h3 { font-size: 16px; font-weight: 700; }
 }

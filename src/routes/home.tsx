@@ -8,7 +8,7 @@ import { PickCard } from "@/components/PickCard";
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Today's picks — Terminal" },
+      { title: "Today's picks — Betpreneur" },
       { name: "description", content: "Today's pre-match picks." },
     ],
   }),
@@ -66,9 +66,9 @@ function HomePage() {
   if (!data) {
     return (
       <div className="space-y-4">
-        <div className="h-6 w-48 bg-white border border-brand-border rounded animate-pulse" />
+        <div className="h-6 w-48 bg-card border border-brand-border rounded animate-pulse" />
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-32 bg-white border border-brand-border rounded-lg animate-pulse" />
+          <div key={i} className="h-32 bg-card border border-brand-border rounded-lg animate-pulse" />
         ))}
       </div>
     );
@@ -82,7 +82,7 @@ function HomePage() {
         </p>
         <div className="space-y-3 opacity-60">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-32 bg-white border border-brand-border rounded-lg animate-pulse" />
+            <div key={i} className="h-32 bg-card border border-brand-border rounded-lg animate-pulse" />
           ))}
         </div>
       </div>

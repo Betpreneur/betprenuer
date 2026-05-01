@@ -1,7 +1,7 @@
 import type { Tier } from "./stake";
 
 /**
- * Typed REST client for Project Terminal.
+ * Typed REST client for Project Betpreneur.
  *
  * Currently returns mock data so the frontend can be developed without a backend.
  * To plug in the real REST API, replace the body of each function with a `fetch()`
