@@ -19,8 +19,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-20 bg-[#0D0D0D] border-b border-brand-border">
-        <div className="mx-auto max-w-3xl px-4 h-14 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-primary border-b border-primary">
+        <div className="mx-auto max-w-3xl px-4 h-20 flex items-center justify-between">
           <Link
             to={isAuthed ? "/home" : "/record"}
             aria-label="Betpreneur — home"
@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <img
               src={logoHorizontal}
               alt="Betpreneur"
-              className="h-7 w-auto select-none"
+              className="h-12 md:h-14 w-auto select-none"
               draggable={false}
             />
           </Link>
@@ -40,26 +40,26 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className="text-pure-white-dim hover:text-white transition-colors"
-                  activeProps={{ className: "text-white font-semibold" }}
+                  className="text-white/80 hover:text-white transition-colors"
+                  activeProps={{ className: "text-white font-semibold underline underline-offset-8 decoration-2" }}
                 >
                   {n.label}
                 </Link>
               ))
             ) : (
               <>
-                <Link to="/record" className="text-white/70 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Record</Link>
-                <Link to="/top-pick" className="text-white/70 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Top Pick</Link>
+                <Link to="/record" className="text-white/80 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Record</Link>
+                <Link to="/top-pick" className="text-white/80 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Top Pick</Link>
                 <Link
                   to="/signup"
-                  className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-[13px] font-semibold hover:opacity-90 uppercase tracking-wide"
+                  className="bg-white text-primary px-4 py-2 rounded-md text-[13px] font-semibold hover:bg-white/90 uppercase tracking-wide"
                 >
                   Subscribe
                 </Link>
               </>
             )}
           </nav>
-          <span className="md:hidden text-[12px] text-muted-foreground">{todayLagos()}</span>
+          <span className="md:hidden text-[12px] text-white/80">{todayLagos()}</span>
         </div>
       </header>
 
