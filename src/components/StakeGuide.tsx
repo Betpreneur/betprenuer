@@ -13,8 +13,8 @@ export function StakeGuide({ odds, highlight }: { odds: number; highlight?: Tier
 
   return (
     <div className="bg-card border border-brand-border rounded-lg overflow-hidden">
-      <div className="px-4 py-3 border-b border-brand-border bg-subtle-bg">
-        <h3 className="text-brand-green font-medium text-[15px]">Stake guide</h3>
+      <div className="px-4 py-3 border-b border-brand-border bg-white/5">
+        <h3 className="text-foreground font-semibold text-[15px]">Stake guide</h3>
         <p className="text-[12px] text-muted-foreground">
           Based on your bankroll: {naira(bankroll)}
         </p>
@@ -36,15 +36,15 @@ export function StakeGuide({ odds, highlight }: { odds: number; highlight?: Tier
               <tr
                 key={r.tier}
                 className={`border-t border-brand-border ${
-                  isActive ? "bg-brand-green-light/40" : ""
+                isActive ? "bg-win-green-bg/40" : ""
                 }`}
               >
                 <td className="px-4 py-3">
-                  <div className="font-medium text-body-text">{r.label}</div>
+                <div className="font-medium text-foreground">{r.label}</div>
                   <div className="text-[11px] text-muted-foreground">{r.pct}</div>
                 </td>
-                <td className="px-4 py-3 font-medium text-[18px] text-body-text">{naira(stake)}</td>
-                <td className="px-4 py-3 text-body-text">{naira(win)}</td>
+              <td className="px-4 py-3 font-semibold text-[18px] text-foreground">{naira(stake)}</td>
+              <td className="px-4 py-3 text-win-green font-medium">{naira(win)}</td>
               </tr>
             );
           })}

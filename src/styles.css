@@ -72,6 +72,11 @@
   --color-body-text: var(--body-text);
   --color-subtle-bg: var(--subtle-bg);
   --color-brand-border: var(--brand-border);
+
+  --color-win-green: var(--win-green);
+  --color-win-green-bg: var(--win-green-bg);
+  --color-teal-accent: var(--teal-accent);
+  --color-teal-bg: var(--teal-bg);
 }
 
 :root {
@@ -96,11 +101,21 @@
   --pure-white-muted: oklch(0.58 0.005 25);      /* tertiary text / labels */
   --hairline: oklch(0.28 0.006 25);              /* subtle borders on dark */
 
+  /* ===== Supporting accents (used alongside Betpreneur Red) =====
+   * These are tuned for dark-UI legibility (high lightness, moderate chroma).
+   * Red stays the brand & danger color; these signal status / data tiers
+   * so the UI isn't only red+black.
+   */
+  --win-green: oklch(0.78 0.18 152);             /* confident, on-brand "winning" green */
+  --win-green-bg: oklch(0.30 0.09 152);          /* tinted surface for green panels */
+  --teal-accent: oklch(0.78 0.13 200);           /* cool cyan/teal for value/info */
+  --teal-bg: oklch(0.30 0.07 215);
+
   --brand-green: var(--betpreneur-red);          /* primary accent (red) */
   --brand-green-light: var(--betpreneur-red-soft); /* highlight band */
-  --amber-text: oklch(0.78 0.16 75);
+  --amber-text: oklch(0.84 0.16 80);             /* warm gold — wildcard / caution */
   --amber-bg: oklch(0.32 0.09 70);
-  --info-blue: oklch(0.72 0.13 240);
+  --info-blue: oklch(0.78 0.13 235);             /* info blue — model verdict */
   --info-bg: oklch(0.28 0.07 245);
   --danger-red: var(--betpreneur-red);
   --danger-bg: oklch(0.30 0.13 27);
