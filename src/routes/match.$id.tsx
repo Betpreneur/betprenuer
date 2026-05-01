@@ -20,7 +20,7 @@ const tierBg = {
 function FormChip({ r }: { r: "W" | "D" | "L" }) {
   const cls =
     r === "W"
-      ? "bg-win-green text-jet-black"
+      ? "bg-win-green text-background"
       : r === "L"
       ? "bg-danger-red text-primary-foreground"
       : "bg-white/10 text-foreground";
@@ -192,7 +192,7 @@ function MatchPage() {
             className={`min-h-[56px] rounded-md font-medium ${
               pick.user_backed
                 ? "bg-white/10 text-muted-foreground cursor-default"
-                : "bg-win-green text-jet-black hover:opacity-90"
+                : "bg-win-green text-background hover:opacity-90"
             }`}
           >
             {pick.user_backed ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
