@@ -239,8 +239,9 @@ function MatchPage() {
           style={{
             width: 1080,
             height: 1080,
-            padding: 72,
-            background: "linear-gradient(160deg, #0D0D0D 0%, #1a0608 60%, #2a0408 100%)",
+            padding: 64,
+            background:
+              "radial-gradient(circle at 85% 0%, rgba(232,25,44,0.35) 0%, transparent 55%), linear-gradient(160deg, #0D0D0D 0%, #1a0608 55%, #2a0408 100%)",
             color: "#FFFFFF",
             fontFamily: "Montserrat, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             display: "flex",
@@ -250,28 +251,26 @@ function MatchPage() {
             overflow: "hidden",
           }}
         >
+          {/* Decorative accent bar */}
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 8,
+              background: "linear-gradient(180deg, #E8192C 0%, #8a0d18 100%)",
+            }}
+          />
+
           {/* Top: brand bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 12,
-                  background: "#E8192C",
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 36,
-                  fontWeight: 900,
-                  letterSpacing: -1,
-                }}
-              >
-                B
-              </div>
-              <div style={{ fontSize: 32, fontWeight: 800, letterSpacing: 1 }}>BETPRENEUR</div>
-            </div>
+            <img
+              src={logoHorizontal}
+              alt="Betpreneur"
+              crossOrigin="anonymous"
+              style={{ height: 96, width: "auto", objectFit: "contain" }}
+            />
             <div
               style={{
                 fontSize: 22,
@@ -316,7 +315,15 @@ function MatchPage() {
           </div>
 
           {/* Bottom: confidence + URL */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              borderTop: "1px solid rgba(255,255,255,0.12)",
+              paddingTop: 32,
+            }}
+          >
             <div>
               <div style={{ fontSize: 22, fontWeight: 600, opacity: 0.7, textTransform: "uppercase", letterSpacing: 2 }}>
                 Confidence
@@ -326,8 +333,8 @@ function MatchPage() {
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 24, opacity: 0.7 }}>Daily picks</div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>betprenuer.lovable.app</div>
+              <div style={{ fontSize: 22, opacity: 0.7, textTransform: "uppercase", letterSpacing: 2 }}>Daily picks</div>
+              <div style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>betprenuer.lovable.app</div>
             </div>
           </div>
         </div>
