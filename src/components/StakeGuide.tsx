@@ -7,10 +7,15 @@ const rows: { tier: Tier; label: string; pct: string }[] = [
   { tier: "wildcard", label: "Wildcard", pct: "1%" },
 ];
 
-export function StakeGuide({ odds, highlight }: { odds: number; highlight?: Tier }) {
+export function StakeGuide(_props: { odds: number; highlight?: Tier }) {
+  // Bankroll/stake guide is suspended for now and intentionally hidden from the UI.
+  return null;
+
+  // Preserved (unreachable) implementation below for when bankroll is re-enabled.
+  // eslint-disable-next-line no-unreachable
   const { user } = useAuth();
   const bankroll = user?.bankroll ?? 50000;
-
+  const { odds, highlight } = _props;
   return (
     <div className="bg-card border border-brand-border rounded-lg overflow-hidden">
       <div className="px-4 py-3 border-b border-brand-border bg-white/5">
