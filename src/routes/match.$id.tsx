@@ -222,9 +222,9 @@ function MatchPage() {
           <button
             onClick={handleShare}
             className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
-            aria-label="Save share card image"
+            aria-label="Download share card image"
           >
-            Save card image
+            Download card
           </button>
         </div>
       )}
