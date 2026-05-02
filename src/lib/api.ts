@@ -14,6 +14,7 @@ import type { Tier } from "./stake";
 export interface User {
   id: string;
   name: string;
+  username: string;
   email: string;
   whatsapp: string;
   bankroll: number;
@@ -29,9 +30,11 @@ export interface AuthResponse {
 
 export interface SignupBody {
   name: string;
+  username: string;
+  password: string;
   email: string;
   whatsapp: string;
-  bankroll: number;
+  bankroll?: number;
 }
 
 export interface RecordStats {
@@ -379,9 +382,10 @@ export const api = {
     const user: User = {
       id: "u_" + Date.now(),
       name: body.name,
+      username: body.username,
       email: body.email,
       whatsapp: body.whatsapp,
-      bankroll: body.bankroll,
+      bankroll: body.bankroll ?? 50000,
       created_at: new Date().toISOString(),
     };
     session.setToken("mock-jwt-" + user.id);
@@ -395,13 +399,14 @@ export const api = {
   },
 
   /** POST /auth/login */
-  async login(email: string, _password: string): Promise<AuthResponse> {
+  async login(identifier: string, _password: string): Promise<AuthResponse> {
     const existing = readUser();
     const user: User =
       existing ?? {
         id: "u_demo",
         name: "Demo Subscriber",
-        email,
+        username: identifier.includes("@") ? "demo" : identifier,
+        email: identifier.includes("@") ? identifier : "demo@betpreneur.app",
         whatsapp: "+2348012345678",
         bankroll: 50000,
         created_at: new Date().toISOString(),
