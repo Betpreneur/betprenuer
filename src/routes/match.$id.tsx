@@ -93,27 +93,23 @@ function MatchPage() {
   async function handleShare() {
     if (!cardRef.current) return;
     try {
-      const canvas = await html2canvas(cardRef.current, { backgroundColor: "#0D0D0D", scale: 2 });
+      const canvas = await html2canvas(cardRef.current, { backgroundColor: "#0D0D0D", scale: 2, useCORS: true });
       const blob: Blob | null = await new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
       if (!blob) return;
-      const file = new File([blob], "betpreneur-pick.png", { type: "image/png" });
-      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean; share?: (d: ShareData) => Promise<void> };
-      if (nav.canShare?.({ files: [file] }) && nav.share) {
-        await nav.share({ files: [file], title: "Today's pick — Betpreneur", text: shareText() });
-        setShareMsg("Shared!");
-      } else if (navigator.clipboard && "write" in navigator.clipboard) {
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        setShareMsg("Card copied — paste into WhatsApp");
-      } else {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "betpreneur-pick.png";
-        a.click();
-        setShareMsg("Card downloaded");
-      }
+      // Always download the file to the user's device
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeName = pick?.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase() ?? "pick";
+      a.download = `betpreneur-${safeName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setShareMsg("Card downloaded ✓");
       setTimeout(() => setShareMsg(null), 2500);
     } catch {
-      setShareMsg("Could not share");
+      setShareMsg("Could not download card");
       setTimeout(() => setShareMsg(null), 2500);
     }
   }
