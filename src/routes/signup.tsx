@@ -17,9 +17,10 @@ function SignupPage() {
   const { isAuthed, loading, refresh } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("+234");
-  const [bankroll, setBankroll] = useState("50000");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,18 +30,27 @@ function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !email.trim() || !whatsapp.trim() || !bankroll) {
+    if (!name.trim() || !username.trim() || !password || !email.trim() || !whatsapp.trim()) {
       setError("Please fill in all fields.");
       return;
     }
-    const bankrollN = Number(bankroll);
-    if (!Number.isFinite(bankrollN) || bankrollN <= 0) {
-      setError("Bankroll must be a positive number.");
+    if (username.trim().length < 3) {
+      setError("Username must be at least 3 characters.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
     setSubmitting(true);
     try {
-      await api.signup({ name: name.trim(), email: email.trim(), whatsapp: whatsapp.trim(), bankroll: bankrollN });
+      await api.signup({
+        name: name.trim(),
+        username: username.trim(),
+        password,
+        email: email.trim(),
+        whatsapp: whatsapp.trim(),
+      });
       await refresh();
       router.navigate({ to: "/home" });
     } catch {
@@ -66,6 +76,28 @@ function SignupPage() {
             required
           />
         </Field>
+        <Field label="Username" hint="You'll use this to log in. Letters, numbers, and underscores.">
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="input"
+            autoComplete="username"
+            minLength={3}
+            maxLength={30}
+            required
+          />
+        </Field>
+        <Field label="Password" hint="At least 6 characters.">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input"
+            autoComplete="new-password"
+            minLength={6}
+            required
+          />
+        </Field>
         <Field label="Email address">
           <input
             type="email"
@@ -85,17 +117,6 @@ function SignupPage() {
             required
           />
         </Field>
-        <Field label="Starting bankroll (₦)" hint="The amount you're comfortable staking with overall. We use this to recommend stake sizes.">
-          <input
-            type="number"
-            min={1000}
-            step={1000}
-            value={bankroll}
-            onChange={(e) => setBankroll(e.target.value)}
-            className="input"
-            required
-          />
-        </Field>
 
         {error && (
           <div className="bg-danger-bg text-danger-red text-[13px] p-3 rounded-md">{error}</div>
@@ -104,20 +125,20 @@ function SignupPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-brand-green text-primary-foreground font-medium py-3 rounded-md disabled:opacity-60"
+          className="w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md disabled:opacity-60"
         >
           {submitting ? "Processing…" : "Subscribe — ₦3,000/month"}
         </button>
         <p className="text-[12px] text-muted-foreground text-center">
-          Already a subscriber?{" "}
-          <Link to="/record" className="text-info-blue underline">
-            View record
+          Already have an account?{" "}
+          <Link to="/login" className="text-info-blue underline">
+            Log in
           </Link>
         </p>
       </form>
       <style>{`
-        .input { display:block; width:100%; padding:10px 12px; border:1px solid var(--brand-border); border-radius:6px; font-size:15px; background:white; color:var(--body-text); }
-        .input:focus { outline:2px solid var(--brand-green); outline-offset:1px; }
+        .input { display:block; width:100%; padding:10px 12px; border:1px solid var(--brand-border); border-radius:6px; font-size:15px; background:var(--jet-surface-2); color:var(--pure-white); }
+        .input:focus { outline:2px solid var(--primary); outline-offset:1px; }
       `}</style>
     </div>
   );
@@ -126,7 +147,7 @@ function SignupPage() {
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-[13px] font-medium text-body-text mb-1">{label}</span>
+      <span className="block text-[13px] font-medium text-foreground mb-1">{label}</span>
       {children}
       {hint && <span className="block text-[12px] text-muted-foreground mt-1">{hint}</span>}
     </label>
