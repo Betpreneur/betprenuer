@@ -13,6 +13,7 @@ import { Route as TopPickRouteImport } from './routes/top-pick'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RecordRouteImport } from './routes/record'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
@@ -37,6 +38,11 @@ const RecordRoute = RecordRouteImport.update({
   path: '/record',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -56,6 +62,7 @@ const MatchIdRoute = MatchIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/record': typeof RecordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/home'
+    | '/login'
     | '/record'
     | '/settings'
     | '/signup'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/home'
+    | '/login'
     | '/record'
     | '/settings'
     | '/signup'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/home'
+    | '/login'
     | '/record'
     | '/settings'
     | '/signup'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
+  LoginRoute: typeof LoginRoute
   RecordRoute: typeof RecordRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
+  LoginRoute: LoginRoute,
   RecordRoute: RecordRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,

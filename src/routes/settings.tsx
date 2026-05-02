@@ -12,7 +12,6 @@ function SettingsPage() {
   const { user, isAuthed, loading, refresh, logout } = useAuth();
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [bankroll, setBankroll] = useState("");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +20,6 @@ function SettingsPage() {
     if (user) {
       setName(user.name);
       setWhatsapp(user.whatsapp);
-      setBankroll(String(user.bankroll));
     }
   }, [user]);
 
@@ -30,19 +28,13 @@ function SettingsPage() {
 
   const dirty =
     name !== user.name ||
-    whatsapp !== user.whatsapp ||
-    bankroll !== String(user.bankroll);
+    whatsapp !== user.whatsapp;
 
   async function save() {
     setError(null);
-    const bankrollN = Number(bankroll);
-    if (!Number.isFinite(bankrollN) || bankrollN <= 0) {
-      setError("Bankroll must be a positive number.");
-      return;
-    }
     setSaving(true);
     try {
-      await api.updateMe({ name, whatsapp, bankroll: bankrollN });
+      await api.updateMe({ name, whatsapp });
       await refresh();
       setToast("Saved.");
       setTimeout(() => setToast(null), 2000);
@@ -64,18 +56,15 @@ function SettingsPage() {
         <Field label="WhatsApp number">
           <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} className="ipt" disabled={saving} />
         </Field>
-        <Field label="Bankroll (₦)" hint="Updating this changes all future stake recommendations.">
-          <input
-            type="number"
-            value={bankroll}
-            onChange={(e) => setBankroll(e.target.value)}
-            className="ipt"
-            disabled={saving}
-          />
-        </Field>
+        {user.username && (
+          <div>
+            <span className="block text-[13px] font-medium text-foreground mb-1">Username</span>
+            <div className="text-[14px] text-foreground">@{user.username}</div>
+          </div>
+        )}
         <div>
-          <span className="block text-[13px] font-medium text-body-text mb-1">Email</span>
-          <div className="text-[14px] text-body-text">{user.email}</div>
+          <span className="block text-[13px] font-medium text-foreground mb-1">Email</span>
+          <div className="text-[14px] text-foreground">{user.email}</div>
           <p className="text-[12px] text-muted-foreground mt-1">To change your email, contact support.</p>
         </div>
 
@@ -104,8 +93,8 @@ function SettingsPage() {
       )}
 
       <style>{`
-        .ipt { display:block; width:100%; padding:10px 12px; border:1px solid var(--brand-border); border-radius:6px; font-size:15px; background:white; color:var(--body-text); }
-        .ipt:focus { outline:2px solid var(--brand-green); outline-offset:1px; }
+        .ipt { display:block; width:100%; padding:10px 12px; border:1px solid var(--brand-border); border-radius:6px; font-size:15px; background:var(--jet-surface-2); color:var(--pure-white); }
+        .ipt:focus { outline:2px solid var(--primary); outline-offset:1px; }
         .ipt:disabled { opacity:0.6; }
       `}</style>
     </div>
@@ -115,7 +104,7 @@ function SettingsPage() {
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-[13px] font-medium text-body-text mb-1">{label}</span>
+      <span className="block text-[13px] font-medium text-foreground mb-1">{label}</span>
       {children}
       {hint && <span className="block text-[12px] text-muted-foreground mt-1">{hint}</span>}
     </label>

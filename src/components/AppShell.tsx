@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <img
               src={logoHorizontal}
               alt="Betpreneur"
-              className="h-12 md:h-14 w-auto select-none"
+              className="h-14 md:h-16 w-auto select-none"
               draggable={false}
             />
           </Link>
@@ -50,6 +50,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               <>
                 <Link to="/record" className="text-white/80 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Record</Link>
                 <Link to="/top-pick" className="text-white/80 hover:text-white" activeProps={{ className: "text-white font-semibold" }}>Top Pick</Link>
+                <Link
+                  to="/login"
+                  className="text-white/90 hover:text-white border border-white/40 hover:border-white px-4 py-2 rounded-md text-[13px] font-semibold uppercase tracking-wide"
+                >
+                  Log in
+                </Link>
                 <Link
                   to="/signup"
                   className="bg-white text-primary px-4 py-2 rounded-md text-[13px] font-semibold hover:bg-white/90 uppercase tracking-wide"
