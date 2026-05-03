@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type RecordStats } from "@/lib/api";
 import { TrendingUp, ShieldCheck, Zap, BarChart3, ArrowRight, Trophy } from "lucide-react";
+import heroStadium from "@/assets/hero-stadium.jpg";
+import heroAnalytics from "@/assets/hero-analytics.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,7 +41,21 @@ function Landing() {
   return (
     <div className="space-y-12 pb-8">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-brand-border bg-gradient-to-br from-primary/30 via-card to-background px-6 py-12 md:py-16 md:px-10">
+      <section className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[560px] md:min-h-[620px]">
+        {/* Background image */}
+        <img
+          src={heroStadium}
+          alt=""
+          aria-hidden
+          width={1920}
+          height={1080}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Overlays */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/75 to-primary/40"
+        />
         <div
           aria-hidden
           className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/40 blur-3xl"
@@ -48,27 +64,28 @@ function Landing() {
           aria-hidden
           className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-teal-accent/20 blur-3xl"
         />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-wider text-white/80">
+        <div className="relative px-6 py-12 md:py-16 md:px-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-wider text-white/90">
             <span className="h-1.5 w-1.5 rounded-full bg-win-green animate-pulse" />
             Live · audited track record
           </div>
-          <h1 className="mt-5 text-[34px] md:text-[46px] font-extrabold leading-[1.05] tracking-tight">
+          <h1 className="mt-5 text-[34px] md:text-[52px] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
             Smarter football picks,
             <br />
             <span className="text-primary">every matchday.</span>
           </h1>
-          <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/80">
+          <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/90">
             Betpreneur publishes pre-match picks before kick-off, ranked by a
             transparent confidence model. No deleted losses. No tipster theatre.
-            Just an audited edge you can follow.
+            Just an audited edge you can follow — free while we're in beta.
           </p>
 
-          <div className="mt-7 flex flex-wrap gap-3">
+          {/* Primary auth CTAs — always visible */}
+          <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3">
             {isAuthed ? (
               <Link
                 to="/home"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90 transition-opacity"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold text-[16px] px-6 py-3.5 rounded-md hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
               >
                 Go to dashboard <ArrowRight className="h-4 w-4" />
               </Link>
@@ -76,13 +93,13 @@ function Landing() {
               <>
                 <Link
                   to="/signup"
-                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold text-[16px] px-6 py-3.5 rounded-md hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
                 >
-                  Sign up <ArrowRight className="h-4 w-4" />
+                  Sign up — free <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/login"
-                  className="inline-flex items-center gap-2 border border-white/30 hover:border-white text-white font-semibold px-5 py-3 rounded-md transition-colors"
+                  className="inline-flex items-center justify-center gap-2 bg-white text-primary font-bold text-[16px] px-6 py-3.5 rounded-md hover:bg-white/90 transition-colors shadow-lg"
                 >
                   Log in
                 </Link>
@@ -90,7 +107,7 @@ function Landing() {
             )}
             <Link
               to="/record"
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white font-medium px-2 py-3"
+              className="inline-flex items-center justify-center gap-2 text-white/90 hover:text-white font-medium px-2 py-3"
             >
               See the record <ArrowRight className="h-4 w-4" />
             </Link>
@@ -113,6 +130,42 @@ function Landing() {
               value={stats ? String(stats.total_picks) : "—"}
               tone="white"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Visual band */}
+      <section className="grid gap-4 md:grid-cols-2">
+        <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
+          <img
+            src={heroAnalytics}
+            alt="Audited performance trending upward"
+            loading="lazy"
+            width={1024}
+            height={1024}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="relative h-full flex flex-col justify-end p-5">
+            <div className="text-[11px] uppercase tracking-wider text-teal-accent font-semibold">Proof, not promises</div>
+            <h3 className="text-[20px] font-bold mt-1">90 days of audited results</h3>
+            <p className="text-[13px] text-white/80 mt-1">Wins, losses, voids — all logged, all visible.</p>
+          </div>
+        </div>
+        <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
+          <img
+            src={heroStadium}
+            alt="Football match under stadium lights"
+            loading="lazy"
+            width={1920}
+            height={1080}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="relative h-full flex flex-col justify-end p-5">
+            <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Pre-match · before kick-off</div>
+            <h3 className="text-[20px] font-bold mt-1">Picks posted by 06:30 WAT</h3>
+            <p className="text-[13px] text-white/80 mt-1">Bankers, Value Gems, and Wildcards — every matchday.</p>
           </div>
         </div>
       </section>
