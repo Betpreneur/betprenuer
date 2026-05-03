@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type RecordStats } from "@/lib/api";
@@ -35,7 +35,6 @@ function Landing() {
   }, []);
 
   if (loading) return null;
-  if (isAuthed) return <Navigate to="/home" />;
 
   return (
     <div className="space-y-12 pb-8">
@@ -66,18 +65,29 @@ function Landing() {
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90 transition-opacity"
-            >
-              Sign up <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 border border-white/30 hover:border-white text-white font-semibold px-5 py-3 rounded-md transition-colors"
-            >
-              Log in
-            </Link>
+            {isAuthed ? (
+              <Link
+                to="/home"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90 transition-opacity"
+              >
+                Go to dashboard <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90 transition-opacity"
+                >
+                  Sign up <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 border border-white/30 hover:border-white text-white font-semibold px-5 py-3 rounded-md transition-colors"
+                >
+                  Log in
+                </Link>
+              </>
+            )}
             <Link
               to="/record"
               className="inline-flex items-center gap-2 text-white/80 hover:text-white font-medium px-2 py-3"
