@@ -74,8 +74,6 @@ function RecordPage() {
         </p>
       </div>
 
-      <SubscribeCta />
-
       {!data ? (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
