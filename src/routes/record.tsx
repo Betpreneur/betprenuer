@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { api, type RecordResponse } from "@/lib/api";
 import { shortDate } from "@/lib/time";
@@ -15,17 +15,6 @@ export const Route = createFileRoute("/record")({
   }),
   component: RecordPage,
 });
-
-function SubscribeCta() {
-  return (
-    <Link
-      to="/signup"
-      className="block w-full bg-brand-green text-primary-foreground text-center font-medium py-3 rounded-md hover:opacity-90"
-    >
-      Subscribe — ₦3,000/month
-    </Link>
-  );
-}
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
