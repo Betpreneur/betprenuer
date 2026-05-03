@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <img
               src={logoHorizontal}
               alt="Betpreneur"
-              className="h-14 md:h-16 w-auto select-none"
+              className="h-10 md:h-11 w-auto select-none"
               draggable={false}
             />
           </Link>
@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   to="/signup"
                   className="bg-white text-primary px-4 py-2 rounded-md text-[13px] font-semibold hover:bg-white/90 uppercase tracking-wide"
                 >
-                  Subscribe
+                  Sign up
                 </Link>
               </>
             )}

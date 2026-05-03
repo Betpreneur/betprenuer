@@ -3,11 +3,59 @@ import type { Tier } from "./stake";
 /**
  * Typed REST client for Project Betpreneur.
  *
- * Currently returns mock data so the frontend can be developed without a backend.
- * To plug in the real REST API, replace the body of each function with a `fetch()`
- * call to BASE_URL + the endpoint shown in the JSDoc above the function.
- * Nothing else in the app needs to change.
+ * All app features are intended to be powered by a backend REST API.
+ * Set VITE_API_BASE_URL in your environment to point at the backend.
+ * When unset (e.g. local dev / preview), the client falls back to the
+ * mock implementations below so the UI stays fully functional.
+ *
+ * Endpoints are documented in the JSDoc above each function and are
+ * centralised in the ENDPOINTS map for easy auditing.
  */
+
+export const API_BASE_URL: string =
+  (import.meta as { env?: Record<string, string | undefined> }).env
+    ?.VITE_API_BASE_URL ?? "";
+
+export const ENDPOINTS = {
+  signup: "/auth/signup",
+  login: "/auth/login",
+  logout: "/auth/logout",
+  me: "/user/me",
+  record: "/record",
+  todayPicks: "/picks/today",
+  topPick: "/picks/today/top",
+  pick: (id: string) => `/picks/${id}`,
+  markBacked: (id: string) => `/picks/${id}/backed`,
+} as const;
+
+/** Build a fully-qualified URL for a backend endpoint. */
+export function apiUrl(path: string): string {
+  if (!API_BASE_URL) return path;
+  return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Returns true when a real backend is configured (vs mock fallback). */
+export function isBackendConfigured(): boolean {
+  return !!API_BASE_URL;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+  const res = await fetch(apiUrl(path), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Request failed: ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
 
 // ============== Types =================================================
 
@@ -379,6 +427,15 @@ function summary(p: PickDetail): PickSummary {
 export const api = {
   /** POST /auth/signup */
   async signup(body: SignupBody): Promise<AuthResponse> {
+    if (isBackendConfigured()) {
+      const res = await request<AuthResponse>(ENDPOINTS.signup, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      session.setToken(res.token);
+      writeUser(res.user);
+      return res;
+    }
     const user: User = {
       id: "u_" + Date.now(),
       name: body.name,
@@ -400,6 +457,15 @@ export const api = {
 
   /** POST /auth/login */
   async login(identifier: string, _password: string): Promise<AuthResponse> {
+    if (isBackendConfigured()) {
+      const res = await request<AuthResponse>(ENDPOINTS.login, {
+        method: "POST",
+        body: JSON.stringify({ identifier, password: _password }),
+      });
+      session.setToken(res.token);
+      writeUser(res.user);
+      return res;
+    }
     const existing = readUser();
     const user: User =
       existing ?? {
@@ -423,12 +489,24 @@ export const api = {
 
   /** POST /auth/logout */
   async logout(): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      try {
+        await request(ENDPOINTS.logout, { method: "POST" });
+      } catch {
+        /* ignore network errors on logout */
+      }
+    }
     session.clear();
     return delay({ success: true }, 100);
   },
 
   /** GET /user/me */
   async getMe(): Promise<User> {
+    if (isBackendConfigured()) {
+      const u = await request<User>(ENDPOINTS.me);
+      writeUser(u);
+      return u;
+    }
     const u = readUser();
     if (!u) throw new Error("unauthenticated");
     return delay(u);
@@ -436,6 +514,14 @@ export const api = {
 
   /** PATCH /user/me */
   async updateMe(patch: Partial<Pick<User, "name" | "whatsapp" | "bankroll">>): Promise<User> {
+    if (isBackendConfigured()) {
+      const u = await request<User>(ENDPOINTS.me, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      writeUser(u);
+      return u;
+    }
     const u = readUser();
     if (!u) throw new Error("unauthenticated");
     const next = { ...u, ...patch };
@@ -445,11 +531,13 @@ export const api = {
 
   /** GET /record */
   async getRecord(): Promise<RecordResponse> {
+    if (isBackendConfigured()) return request<RecordResponse>(ENDPOINTS.record);
     return delay(MOCK_RECORD, 500);
   },
 
   /** GET /picks/today */
   async getTodayPicks(): Promise<TodayPicksResponse> {
+    if (isBackendConfigured()) return request<TodayPicksResponse>(ENDPOINTS.todayPicks);
     return delay({
       date: new Date().toISOString().slice(0, 10),
       status: "live",
@@ -459,6 +547,7 @@ export const api = {
 
   /** GET /picks/today/top */
   async getTopPick(): Promise<TopPickResponse> {
+    if (isBackendConfigured()) return request<TopPickResponse>(ENDPOINTS.topPick);
     const top = MOCK_PICKS[0];
     if (!session.hasToken()) {
       return delay({
@@ -475,6 +564,7 @@ export const api = {
 
   /** GET /picks/:id */
   async getPick(id: string): Promise<PickDetail> {
+    if (isBackendConfigured()) return request<PickDetail>(ENDPOINTS.pick(id));
     const p = MOCK_PICKS.find((x) => x.id === id);
     if (!p) throw new Error("not_found");
     const backed = readBacked();
@@ -483,6 +573,12 @@ export const api = {
 
   /** POST /picks/:id/backed */
   async markBacked(id: string, staked_amount: number): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      return request<{ success: true }>(ENDPOINTS.markBacked(id), {
+        method: "POST",
+        body: JSON.stringify({ staked_amount }),
+      });
+    }
     const map = readBacked();
     map[id] = staked_amount;
     writeBacked(map);
