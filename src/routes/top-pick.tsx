@@ -50,17 +50,17 @@ function TopPickPage() {
         <div className="bg-card border border-brand-border rounded-lg p-6 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-subtle-bg flex items-center justify-center text-brand-green text-xl">🔒</div>
           <h2 className="mt-3">Full analysis and stake guide</h2>
-          <p className="text-[14px] text-muted-foreground mt-1">Subscribers only.</p>
+          <p className="text-[14px] text-muted-foreground mt-1">Sign up free to unlock.</p>
           <Link
             to="/signup"
             className="mt-4 inline-block w-full bg-brand-green text-primary-foreground font-medium py-3 rounded-md"
           >
-            Subscribe — ₦3,000/month
+            Sign up — free
           </Link>
         </div>
 
         <Link to="/record" className="block text-center text-info-blue text-[14px] underline">
-          See our 90-day track record before subscribing →
+          See our 90-day track record →
         </Link>
       </div>
     );
