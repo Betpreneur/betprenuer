@@ -6,8 +6,8 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
-      { title: "Subscribe — Betpreneur" },
-      { name: "description", content: "Subscribe to Betpreneur for ₦3,000/month and get daily picks." },
+      { title: "Sign up — Betpreneur" },
+      { name: "description", content: "Create your free Betpreneur account and get daily audited football picks." },
     ],
   }),
   component: SignupPage,
@@ -62,9 +62,9 @@ function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1>Subscribe to Betpreneur</h1>
+      <h1>Create your account</h1>
       <p className="text-[14px] text-muted-foreground mt-1 mb-6">
-        ₦3,000/month. Daily picks posted by 06:30 WAT. Cancel anytime.
+        Free while we're in beta. Daily picks posted by 06:30 WAT.
       </p>
       <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
         <Field label="Full name">
@@ -127,7 +127,7 @@ function SignupPage() {
           disabled={submitting}
           className="w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md disabled:opacity-60"
         >
-          {submitting ? "Processing…" : "Subscribe — ₦3,000/month"}
+          {submitting ? "Creating account…" : "Sign up — free"}
         </button>
         <p className="text-[12px] text-muted-foreground text-center">
           Already have an account?{" "}
