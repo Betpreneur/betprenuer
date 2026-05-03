@@ -84,7 +84,7 @@ function LoginPage() {
           {submitting ? "Logging in…" : "Log in"}
         </button>
         <p className="text-[12px] text-muted-foreground text-center">
-          Not subscribed yet?{" "}
+          Don't have an account?{" "}
           <Link to="/signup" className="text-info-blue underline">
             Create an account
           </Link>
