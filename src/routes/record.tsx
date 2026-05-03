@@ -207,8 +207,6 @@ function RecordPage() {
               </div>
             )}
           </section>
-
-          <SubscribeCta />
         </>
       )}
     </div>
