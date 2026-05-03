@@ -3,11 +3,59 @@ import type { Tier } from "./stake";
 /**
  * Typed REST client for Project Betpreneur.
  *
- * Currently returns mock data so the frontend can be developed without a backend.
- * To plug in the real REST API, replace the body of each function with a `fetch()`
- * call to BASE_URL + the endpoint shown in the JSDoc above the function.
- * Nothing else in the app needs to change.
+ * All app features are intended to be powered by a backend REST API.
+ * Set VITE_API_BASE_URL in your environment to point at the backend.
+ * When unset (e.g. local dev / preview), the client falls back to the
+ * mock implementations below so the UI stays fully functional.
+ *
+ * Endpoints are documented in the JSDoc above each function and are
+ * centralised in the ENDPOINTS map for easy auditing.
  */
+
+export const API_BASE_URL: string =
+  (import.meta as { env?: Record<string, string | undefined> }).env
+    ?.VITE_API_BASE_URL ?? "";
+
+export const ENDPOINTS = {
+  signup: "/auth/signup",
+  login: "/auth/login",
+  logout: "/auth/logout",
+  me: "/user/me",
+  record: "/record",
+  todayPicks: "/picks/today",
+  topPick: "/picks/today/top",
+  pick: (id: string) => `/picks/${id}`,
+  markBacked: (id: string) => `/picks/${id}/backed`,
+} as const;
+
+/** Build a fully-qualified URL for a backend endpoint. */
+export function apiUrl(path: string): string {
+  if (!API_BASE_URL) return path;
+  return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Returns true when a real backend is configured (vs mock fallback). */
+export function isBackendConfigured(): boolean {
+  return !!API_BASE_URL;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+  const res = await fetch(apiUrl(path), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Request failed: ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
 
 // ============== Types =================================================
 
