@@ -61,7 +61,12 @@ function LoginPage() {
           />
         </label>
         <label className="block">
-          <span className="block text-[13px] font-medium text-foreground mb-1">Password</span>
+          <span className="flex items-center justify-between text-[13px] font-medium text-foreground mb-1">
+            <span>Password</span>
+            <Link to="/forgot-password" className="text-info-blue text-[12px] font-normal underline">
+              Forgot password?
+            </Link>
+          </span>
           <input
             type="password"
             value={password}
