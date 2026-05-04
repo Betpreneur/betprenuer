@@ -83,7 +83,12 @@ function SettingsPage() {
       <button
         onClick={async () => {
           await logout();
-          router.navigate({ to: "/" });
+          // Hard redirect ensures we land on the marketing homepage with the hero
+          if (typeof window !== "undefined") {
+            window.location.href = "/";
+          } else {
+            router.navigate({ to: "/" });
+          }
         }}
         className="w-full border border-brand-border bg-card text-body-text py-3 rounded-md"
       >
