@@ -51,8 +51,7 @@ function SignupPage() {
         email: email.trim(),
         whatsapp: whatsapp.trim(),
       });
-      await refresh();
-      router.navigate({ to: "/home" });
+      router.navigate({ to: "/verify-email", search: { email: email.trim() } });
     } catch {
       setError("Could not complete signup. Try again.");
     } finally {

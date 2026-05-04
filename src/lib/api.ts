@@ -20,6 +20,10 @@ export const ENDPOINTS = {
   signup: "/auth/signup",
   login: "/auth/login",
   logout: "/auth/logout",
+  verifyEmail: "/auth/verify-email",
+  resendVerification: "/auth/verify-email/resend",
+  forgotPassword: "/auth/forgot-password",
+  resetPassword: "/auth/reset-password",
   me: "/user/me",
   record: "/record",
   todayPicks: "/picks/today",
@@ -583,5 +587,50 @@ export const api = {
     map[id] = staked_amount;
     writeBacked(map);
     return delay({ success: true }, 200);
+  },
+
+  /** POST /auth/verify-email — body: { email, code } */
+  async verifyEmail(email: string, code: string): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      return request<{ success: true }>(ENDPOINTS.verifyEmail, {
+        method: "POST",
+        body: JSON.stringify({ email, code }),
+      });
+    }
+    if (code !== "123456") throw new Error("invalid_code");
+    return delay({ success: true }, 250);
+  },
+
+  /** POST /auth/verify-email/resend — body: { email } */
+  async resendVerification(email: string): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      return request<{ success: true }>(ENDPOINTS.resendVerification, {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    }
+    return delay({ success: true }, 250);
+  },
+
+  /** POST /auth/forgot-password — body: { email } */
+  async forgotPassword(email: string): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      return request<{ success: true }>(ENDPOINTS.forgotPassword, {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    }
+    return delay({ success: true }, 300);
+  },
+
+  /** POST /auth/reset-password — body: { token, password } */
+  async resetPassword(token: string, password: string): Promise<{ success: true }> {
+    if (isBackendConfigured()) {
+      return request<{ success: true }>(ENDPOINTS.resetPassword, {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+      });
+    }
+    return delay({ success: true }, 300);
   },
 };
