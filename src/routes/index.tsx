@@ -67,18 +67,17 @@ function Landing() {
         <div className="relative px-6 py-12 md:py-16 md:px-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-wider text-white/90">
             <span className="h-1.5 w-1.5 rounded-full bg-win-green animate-pulse" />
-            Boom · audited track record, no jara
+            Boom · audited track record
           </div>
           <h1 className="mt-5 text-[34px] md:text-[52px] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-            Sharp picks. Sharp banker.
+            Sharper picks. Stronger bankers.
             <br />
             <span className="text-primary">Every matchday — Boom!</span>
           </h1>
           <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/90">
-            Betpreneur drops correct picks before kick-off, ranked by a
-            transparent confidence model. No long talk, no deleting cut soaps,
-            no tipster wahala — just sharp, audited edge wey you fit follow.
-            Free while we dey beta. Oya, gerrit!
+            Betpreneur publishes pre-match picks before kick-off, ranked by a
+            transparent confidence model. No deleted losses, no tipster theatre
+            — just an audited edge you can follow. Free while we're in beta.
           </p>
 
           {/* Primary auth CTAs — always visible */}
@@ -148,9 +147,9 @@ function Landing() {
           />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="relative h-full flex flex-col justify-end p-5">
-            <div className="text-[11px] uppercase tracking-wider text-teal-accent font-semibold">Receipts, no story</div>
-            <h3 className="text-[20px] font-bold mt-1">90 days of audited gbedu</h3>
-            <p className="text-[13px] text-white/80 mt-1">Wins, cuts, voids — everything dey logged, nothing hide.</p>
+            <div className="text-[11px] uppercase tracking-wider text-teal-accent font-semibold">Proof, not promises</div>
+            <h3 className="text-[20px] font-bold mt-1">90 days of audited results</h3>
+            <p className="text-[13px] text-white/80 mt-1">Wins, losses, voids — all logged, all visible.</p>
           </div>
         </div>
         <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
@@ -164,9 +163,9 @@ function Landing() {
           />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="relative h-full flex flex-col justify-end p-5">
-            <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Before kick-off · sharp sharp</div>
-            <h3 className="text-[20px] font-bold mt-1">Picks land by 06:30 WAT</h3>
-            <p className="text-[13px] text-white/80 mt-1">Bankers, Value Gems and Wildcards — daily, no excuse.</p>
+            <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Pre-match · before kick-off</div>
+            <h3 className="text-[20px] font-bold mt-1">Picks posted by 06:30 WAT</h3>
+            <p className="text-[13px] text-white/80 mt-1">Bankers, Value Gems and Wildcards — every matchday.</p>
           </div>
         </div>
       </section>
@@ -175,29 +174,29 @@ function Landing() {
       <section className="space-y-5">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-[22px] md:text-[26px] font-bold">
-            Wetin you go gain with Betpreneur
+            What you get with Betpreneur
           </h2>
           <p className="text-[14px] text-muted-foreground mt-2">
-            Built for punters wey want correct edge, no noise.
+            Built for bettors who want a real edge, not noise.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <Feature
             icon={<TrendingUp className="h-5 w-5" />}
-            title="Daily sharp picks"
-            body="Bankers, Value Gems and Wildcards drop every morning, ranked by model confidence. Oya, load am!"
+            title="Daily edge picks"
+            body="Bankers, Value Gems and Wildcards posted every morning, ranked by model confidence."
             tone="red"
           />
           <Feature
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Fully audited, no cut soap"
-            body="Every pick get timestamp before kick-off and auto-settle. We no dey delete loss — receipts dey."
+            title="Fully audited"
+            body="Every pick is timestamped before kick-off and auto-settled. Losses are never deleted."
             tone="green"
           />
           <Feature
             icon={<Zap className="h-5 w-5" />}
-            title="Top Pick — the banker"
-            body="One call wey carry the highest confidence, with reasoning, form and risk flags. Pure gbedu."
+            title="Top Pick of the day"
+            body="The single highest-confidence call, with reasoning, form and risk flags broken down."
             tone="teal"
           />
         </div>
@@ -205,12 +204,12 @@ function Landing() {
 
       {/* How it works */}
       <section className="rounded-2xl border border-brand-border bg-card p-6 md:p-8">
-        <h2 className="text-[20px] md:text-[24px] font-bold mb-5">How e dey work</h2>
+        <h2 className="text-[20px] md:text-[24px] font-bold mb-5">How it works</h2>
         <ol className="grid gap-4 md:grid-cols-3">
           {[
-            { n: 1, t: "Sign up sharp", b: "Open account under one minute, no stress." },
-            { n: 2, t: "Collect the picks", b: "Open the app each matchday — fresh, ranked picks dey wait." },
-            { n: 3, t: "Track the gbedu", b: "Every result auto-settle and join the public record." },
+            { n: 1, t: "Sign up", b: "Create an account in under a minute." },
+            { n: 2, t: "Get the picks", b: "Open the app each matchday for fresh, ranked picks." },
+            { n: 3, t: "Track results", b: "Every result is auto-settled and added to the public record." },
           ].map((s) => (
             <li key={s.n} className="rounded-xl border border-brand-border bg-background/40 p-4">
               <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center">
