@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const { user, isAuthed, loading, refresh, logout } = useAuth();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [saving, setSaving] = useState(false);
@@ -80,7 +81,10 @@ function SettingsPage() {
       </div>
 
       <button
-        onClick={() => void logout()}
+        onClick={async () => {
+          await logout();
+          router.navigate({ to: "/" });
+        }}
         className="w-full border border-brand-border bg-card text-body-text py-3 rounded-md"
       >
         Log out
