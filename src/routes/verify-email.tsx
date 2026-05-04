@@ -85,7 +85,7 @@ function VerifyEmailPage() {
           <div className="bg-danger-bg text-danger-red text-[13px] p-3 rounded-md">{error}</div>
         )}
         {resent && !error && (
-          <div className="bg-success-bg text-success-green text-[13px] p-3 rounded-md">
+          <div className="bg-jet-surface-2 text-info-blue text-[13px] p-3 rounded-md border border-brand-border">
             New code sent. Check your inbox.
           </div>
         )}
