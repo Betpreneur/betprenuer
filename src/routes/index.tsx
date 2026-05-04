@@ -67,17 +67,18 @@ function Landing() {
         <div className="relative px-6 py-12 md:py-16 md:px-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 backdrop-blur px-3 py-1 text-[11px] uppercase tracking-wider text-white/90">
             <span className="h-1.5 w-1.5 rounded-full bg-win-green animate-pulse" />
-            Live · audited track record
+            Boom · audited track record, no jara
           </div>
           <h1 className="mt-5 text-[34px] md:text-[52px] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
-            Smarter football picks,
+            Sharp picks. Sharp banker.
             <br />
-            <span className="text-primary">every matchday.</span>
+            <span className="text-primary">Every matchday — Boom!</span>
           </h1>
           <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/90">
-            Betpreneur publishes pre-match picks before kick-off, ranked by a
-            transparent confidence model. No deleted losses. No tipster theatre.
-            Just an audited edge you can follow — free while we're in beta.
+            Betpreneur drops correct picks before kick-off, ranked by a
+            transparent confidence model. No long talk, no deleting cut soaps,
+            no tipster wahala — just sharp, audited edge wey you fit follow.
+            Free while we dey beta. Oya, gerrit!
           </p>
 
           {/* Primary auth CTAs — always visible */}
@@ -95,7 +96,7 @@ function Landing() {
                   to="/signup"
                   className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold text-[16px] px-6 py-3.5 rounded-md hover:opacity-90 transition-opacity shadow-lg shadow-primary/30"
                 >
-                  Sign up — free <ArrowRight className="h-4 w-4" />
+                  Sign up — Boom! <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/login"
@@ -109,7 +110,7 @@ function Landing() {
               to="/record"
               className="inline-flex items-center justify-center gap-2 text-white/90 hover:text-white font-medium px-2 py-3"
             >
-              See the record <ArrowRight className="h-4 w-4" />
+              Check the record <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -147,9 +148,9 @@ function Landing() {
           />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="relative h-full flex flex-col justify-end p-5">
-            <div className="text-[11px] uppercase tracking-wider text-teal-accent font-semibold">Proof, not promises</div>
-            <h3 className="text-[20px] font-bold mt-1">90 days of audited results</h3>
-            <p className="text-[13px] text-white/80 mt-1">Wins, losses, voids — all logged, all visible.</p>
+            <div className="text-[11px] uppercase tracking-wider text-teal-accent font-semibold">Receipts, no story</div>
+            <h3 className="text-[20px] font-bold mt-1">90 days of audited gbedu</h3>
+            <p className="text-[13px] text-white/80 mt-1">Wins, cuts, voids — everything dey logged, nothing hide.</p>
           </div>
         </div>
         <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
@@ -163,9 +164,9 @@ function Landing() {
           />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="relative h-full flex flex-col justify-end p-5">
-            <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Pre-match · before kick-off</div>
-            <h3 className="text-[20px] font-bold mt-1">Picks posted by 06:30 WAT</h3>
-            <p className="text-[13px] text-white/80 mt-1">Bankers, Value Gems, and Wildcards — every matchday.</p>
+            <div className="text-[11px] uppercase tracking-wider text-primary font-semibold">Before kick-off · sharp sharp</div>
+            <h3 className="text-[20px] font-bold mt-1">Picks land by 06:30 WAT</h3>
+            <p className="text-[13px] text-white/80 mt-1">Bankers, Value Gems and Wildcards — daily, no excuse.</p>
           </div>
         </div>
       </section>
@@ -174,29 +175,29 @@ function Landing() {
       <section className="space-y-5">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-[22px] md:text-[26px] font-bold">
-            What you get with Betpreneur
+            Wetin you go gain with Betpreneur
           </h2>
           <p className="text-[14px] text-muted-foreground mt-2">
-            Built for bettors who care about edge, not noise.
+            Built for punters wey want correct edge, no noise.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <Feature
             icon={<TrendingUp className="h-5 w-5" />}
-            title="Daily edge picks"
-            body="Bankers, Value Gems, and Wildcards posted every morning, ranked by model confidence."
+            title="Daily sharp picks"
+            body="Bankers, Value Gems and Wildcards drop every morning, ranked by model confidence. Oya, load am!"
             tone="red"
           />
           <Feature
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Fully audited"
-            body="Every pick is timestamped before kick-off and auto-settled. Nothing is ever deleted."
+            title="Fully audited, no cut soap"
+            body="Every pick get timestamp before kick-off and auto-settle. We no dey delete loss — receipts dey."
             tone="green"
           />
           <Feature
             icon={<Zap className="h-5 w-5" />}
-            title="Top Pick of the day"
-            body="The single highest-confidence call, with reasoning, form, and risk flags broken down."
+            title="Top Pick — the banker"
+            body="One call wey carry the highest confidence, with reasoning, form and risk flags. Pure gbedu."
             tone="teal"
           />
         </div>
@@ -204,12 +205,12 @@ function Landing() {
 
       {/* How it works */}
       <section className="rounded-2xl border border-brand-border bg-card p-6 md:p-8">
-        <h2 className="text-[20px] md:text-[24px] font-bold mb-5">How it works</h2>
+        <h2 className="text-[20px] md:text-[24px] font-bold mb-5">How e dey work</h2>
         <ol className="grid gap-4 md:grid-cols-3">
           {[
-            { n: 1, t: "Sign up", b: "Create an account in under a minute." },
-            { n: 2, t: "Get the picks", b: "Open the app each matchday for fresh, ranked picks." },
-            { n: 3, t: "Track results", b: "Every result auto-settled and added to the public record." },
+            { n: 1, t: "Sign up sharp", b: "Open account under one minute, no stress." },
+            { n: 2, t: "Collect the picks", b: "Open the app each matchday — fresh, ranked picks dey wait." },
+            { n: 3, t: "Track the gbedu", b: "Every result auto-settle and join the public record." },
           ].map((s) => (
             <li key={s.n} className="rounded-xl border border-brand-border bg-background/40 p-4">
               <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center">
@@ -226,23 +227,23 @@ function Landing() {
       <section className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/20 to-card p-8 text-center">
         <Trophy className="h-8 w-8 text-primary mx-auto" />
         <h2 className="mt-3 text-[22px] md:text-[26px] font-bold">
-          Stop guessing. Start tracking.
+          Stop to dey guess. Start to dey cash out.
         </h2>
         <p className="mt-2 text-[14px] text-white/80 max-w-md mx-auto">
-          Join Betpreneur and follow an audited edge built for serious bettors.
+          Join Betpreneur, follow audited edge wey serious punters dey ride. Boom!
         </p>
         <div className="mt-5 flex flex-wrap gap-3 justify-center">
           <Link
             to="/signup"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-5 py-3 rounded-md hover:opacity-90"
           >
-            Sign up <ArrowRight className="h-4 w-4" />
+            Sign up — Boom! <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             to="/record"
             className="inline-flex items-center gap-2 border border-white/30 hover:border-white text-white font-semibold px-5 py-3 rounded-md"
           >
-            <BarChart3 className="h-4 w-4" /> View record
+            <BarChart3 className="h-4 w-4" /> Check record
           </Link>
         </div>
       </section>
