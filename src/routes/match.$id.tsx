@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
+import logoIcon from "@/assets/betpreneur-icon.png";
 
 export const Route = createFileRoute("/match/$id")({
   component: MatchPage,
@@ -241,120 +242,154 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
-  // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, "#0D0D0D");
-  bg.addColorStop(0.55, "#1a0608");
-  bg.addColorStop(1, "#2a0408");
-  ctx.fillStyle = bg;
+  // Palette
+  const RED = "#E8192C";
+  const BLACK = "#0D0D0D";
+  const INK = "#1f2937";
+  const MUTED = "#6b7280";
+  const SOFT = "#f5f5f7";
+  const BORDER = "#e5e7eb";
+
+  // White background
+  ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, W, H);
 
-  // Radial red glow top-right
-  const glow = ctx.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, W * 0.7);
-  glow.addColorStop(0, "rgba(232,25,44,0.35)");
-  glow.addColorStop(1, "rgba(232,25,44,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  // Top red header band
+  const HEADER_H = 180;
+  ctx.fillStyle = RED;
+  ctx.fillRect(0, 0, W, HEADER_H);
 
-  // Left accent bar
-  const accent = ctx.createLinearGradient(0, 0, 0, H);
-  accent.addColorStop(0, "#E8192C");
-  accent.addColorStop(1, "#8a0d18");
-  ctx.fillStyle = accent;
-  ctx.fillRect(0, 0, 10, H);
+  // Bottom black footer band
+  const FOOTER_H = 110;
+  ctx.fillStyle = BLACK;
+  ctx.fillRect(0, H - FOOTER_H, W, FOOTER_H);
 
   const PAD = 72;
-
-  // Brand wordmark (text, no logo dependency)
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "900 44px Montserrat, -apple-system, 'Segoe UI', sans-serif";
   ctx.textBaseline = "top";
-  ctx.fillText("BETPRENEUR", PAD, PAD);
 
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "600 18px Montserrat, sans-serif";
-  ctx.fillText("DAILY EDGE PICKS", PAD, PAD + 52);
+  // Logo top-left in red header
+  try {
+    const logo = await loadImage(logoIcon);
+    const lh = 110;
+    const lw = (logo.width / logo.height) * lh;
+    ctx.drawImage(logo, PAD, (HEADER_H - lh) / 2, lw, lh);
+  } catch {
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "900 56px Montserrat, sans-serif";
+    ctx.fillText("BETPRENEUR", PAD, (HEADER_H - 56) / 2);
+  }
 
-  // Tier pill (top-right)
+  // Tier pill top-right (white on red)
   const tier = tierLabel(pick.tier).toUpperCase();
-  ctx.font = "700 22px Montserrat, sans-serif";
+  ctx.font = "800 24px Montserrat, sans-serif";
   const tw = ctx.measureText(tier).width;
-  const pillW = tw + 40;
-  const pillH = 50;
+  const pillW = tw + 44;
+  const pillH = 56;
   const pillX = W - PAD - pillW;
-  const pillY = PAD;
-  roundRect(ctx, pillX, pillY, pillW, pillH, 8);
-  ctx.fillStyle = "#E8192C";
-  ctx.fill();
+  const pillY = (HEADER_H - pillH) / 2;
+  roundRect(ctx, pillX, pillY, pillW, pillH, 28);
   ctx.fillStyle = "#FFFFFF";
-  ctx.fillText(tier, pillX + 20, pillY + 14);
+  ctx.fill();
+  ctx.fillStyle = RED;
+  ctx.fillText(tier, pillX + 22, pillY + 16);
+
+  // Body content
+  let y = HEADER_H + 56;
 
   // League / kickoff
-  let y = 280;
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "600 26px Montserrat, sans-serif";
+  ctx.fillStyle = MUTED;
+  ctx.font = "600 24px Montserrat, sans-serif";
   ctx.fillText(`${pick.league} · ${formatKickoff(pick.kickoff_wat)}`, PAD, y);
+  y += 46;
 
-  // Match title (wrap)
-  y += 50;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "900 72px Montserrat, sans-serif";
-  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 78);
-
-  // Market box
+  // Match title
+  ctx.fillStyle = BLACK;
+  ctx.font = "900 64px Montserrat, sans-serif";
+  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 72);
   y += 24;
-  const marketText = `${pick.market_plain}  @  ${pick.odds.toFixed(2)}`;
-  ctx.font = "700 34px Montserrat, sans-serif";
-  const mw = ctx.measureText(marketText).width;
-  const mPadX = 28;
-  const mPadY = 18;
-  const mBoxW = mw + mPadX * 2;
-  const mBoxH = 34 + mPadY * 2;
-  roundRect(ctx, PAD, y, mBoxW, mBoxH, 10);
-  ctx.fillStyle = "rgba(232,25,44,0.18)";
+
+  // Red underline accent
+  ctx.fillStyle = RED;
+  ctx.fillRect(PAD, y, 80, 6);
+  y += 36;
+
+  // Market card
+  const marketBoxH = 130;
+  roundRect(ctx, PAD, y, W - PAD * 2, marketBoxH, 14);
+  ctx.fillStyle = SOFT;
   ctx.fill();
   ctx.lineWidth = 2;
-  ctx.strokeStyle = "#E8192C";
+  ctx.strokeStyle = BORDER;
   ctx.stroke();
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillText(marketText, PAD + mPadX, y + mPadY);
-  y += mBoxH + 32;
+
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 20px Montserrat, sans-serif";
+  ctx.fillText("MARKET", PAD + 28, y + 22);
+  ctx.fillStyle = INK;
+  ctx.font = "800 36px Montserrat, sans-serif";
+  ctx.fillText(pick.market_plain, PAD + 28, y + 52);
+
+  // Odds (right side of market box)
+  const oddsLabel = "ODDS";
+  const oddsVal = pick.odds.toFixed(2);
+  ctx.font = "700 20px Montserrat, sans-serif";
+  const olw = ctx.measureText(oddsLabel).width;
+  ctx.fillStyle = MUTED;
+  ctx.fillText(oddsLabel, W - PAD - 28 - olw, y + 22);
+  ctx.fillStyle = RED;
+  ctx.font = "900 44px Montserrat, sans-serif";
+  const ovw = ctx.measureText(oddsVal).width;
+  ctx.fillText(oddsVal, W - PAD - 28 - ovw, y + 48);
+
+  y += marketBoxH + 36;
 
   // Reason quote
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.fillStyle = INK;
   ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-  y = wrapText(ctx, `"${pick.one_line_reason}"`, PAD, y, W - PAD * 2, 38);
+  y = wrapText(ctx, `“${pick.one_line_reason}”`, PAD, y, W - PAD * 2, 38);
+  y += 24;
 
-  // Bottom divider
-  const bottomY = H - 220;
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(PAD, bottomY);
-  ctx.lineTo(W - PAD, bottomY);
-  ctx.stroke();
+  // Confidence block (left) above footer
+  const confY = H - FOOTER_H - 180;
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 22px Montserrat, sans-serif";
+  ctx.fillText("CONFIDENCE", PAD, confY);
+  ctx.fillStyle = RED;
+  ctx.font = "900 96px Montserrat, sans-serif";
+  ctx.fillText(`${pick.confidence.toFixed(1)}%`, PAD, confY + 32);
 
-  // Confidence
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  // Confidence bar
+  const barY = confY + 150;
+  const barW = W - PAD * 2;
+  roundRect(ctx, PAD, barY, barW, 14, 7);
+  ctx.fillStyle = SOFT;
+  ctx.fill();
+  const fillW = Math.max(20, Math.min(100, pick.confidence) / 100 * barW);
+  roundRect(ctx, PAD, barY, fillW, 14, 7);
+  ctx.fillStyle = RED;
+  ctx.fill();
+
+  // Footer text
+  ctx.fillStyle = "rgba(255,255,255,0.6)";
   ctx.font = "600 22px Montserrat, sans-serif";
-  ctx.fillText("CONFIDENCE", PAD, bottomY + 28);
-  ctx.fillStyle = "#E8192C";
-  ctx.font = "900 92px Montserrat, sans-serif";
-  ctx.fillText(`${pick.confidence.toFixed(1)}%`, PAD, bottomY + 60);
-
-  // URL right side
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "600 22px Montserrat, sans-serif";
-  const lbl = "GET DAILY PICKS";
-  const lblW = ctx.measureText(lbl).width;
-  ctx.fillText(lbl, W - PAD - lblW, bottomY + 28);
+  ctx.fillText("DAILY EDGE PICKS", PAD, H - FOOTER_H + 40);
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 28px Montserrat, sans-serif";
-  const urlText = "betprenuer.lovable.app";
-  const urlW = ctx.measureText(urlText).width;
-  ctx.fillText(urlText, W - PAD - urlW, bottomY + 60);
+  ctx.font = "800 26px Montserrat, sans-serif";
+  const url = "betprenuer.lovable.app";
+  const uw = ctx.measureText(url).width;
+  ctx.fillText(url, W - PAD - uw, H - FOOTER_H + 38);
 
   return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
