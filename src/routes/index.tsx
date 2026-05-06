@@ -39,7 +39,7 @@ function Landing() {
   if (loading) return null;
 
   return (
-    <div className="space-y-12 pb-8">
+    <div className="space-y-12 pb-8 px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 mx-auto w-full max-w-[1600px]">
       {/* Hero */}
       <section className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[560px] md:min-h-[620px]">
         {/* Background image */}
