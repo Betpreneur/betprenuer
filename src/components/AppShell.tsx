@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 mx-auto w-full max-w-3xl px-4 pb-24 md:pb-10 pt-4">{children}</main>
+      <main className={`flex-1 w-full pb-24 md:pb-10 pt-4 ${path === "/" ? "" : "mx-auto max-w-3xl px-4"}`}>{children}</main>
 
       {isAuthed && (
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
