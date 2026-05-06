@@ -242,142 +242,168 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
-  // Palette
+  // Spotify-style palette: rich dark base, single vivid accent
   const RED = "#E8192C";
-  const BLACK = "#0D0D0D";
-  const INK = "#1f2937";
-  const MUTED = "#6b7280";
-  const SOFT = "#f5f5f7";
-  const BORDER = "#e5e7eb";
-
-  // White background
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillRect(0, 0, W, H);
-
-  // Top red header band
-  const HEADER_H = 180;
-  ctx.fillStyle = RED;
-  ctx.fillRect(0, 0, W, HEADER_H);
-
-  // Bottom black footer band
-  const FOOTER_H = 110;
-  ctx.fillStyle = BLACK;
-  ctx.fillRect(0, H - FOOTER_H, W, FOOTER_H);
-
+  const RED_DEEP = "#7a0a14";
+  const INK = "#0a0a0a";
+  const WHITE = "#ffffff";
+  const MUTED = "rgba(255,255,255,0.62)";
+  const FAINT = "rgba(255,255,255,0.10)";
   const PAD = 72;
   ctx.textBaseline = "top";
 
-  // Logo top-left in red header
-  try {
-    const logo = await loadImage(logoIcon);
-    const lh = 110;
-    const lw = (logo.width / logo.height) * lh;
-    ctx.drawImage(logo, PAD, (HEADER_H - lh) / 2, lw, lh);
-  } catch {
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "900 56px Montserrat, sans-serif";
-    ctx.fillText("BETPRENEUR", PAD, (HEADER_H - 56) / 2);
+  // Background: deep diagonal gradient (top-left red glow → near-black)
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#1a0307");
+  bg.addColorStop(0.55, "#0d0d0f");
+  bg.addColorStop(1, "#000000");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Soft red radial glow top-left for depth
+  const glow = ctx.createRadialGradient(180, 160, 40, 180, 160, 760);
+  glow.addColorStop(0, "rgba(232,25,44,0.55)");
+  glow.addColorStop(1, "rgba(232,25,44,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle noise grid lines (very faint) for texture
+  ctx.strokeStyle = "rgba(255,255,255,0.025)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < W; i += 40) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, H);
+    ctx.stroke();
   }
 
-  // Tier pill top-right (white on red)
+  // ---- Header: full logo + tier pill ----
+  try {
+    const logo = await loadImage(logoFull);
+    const lh = 84;
+    const lw = (logo.width / logo.height) * lh;
+    ctx.drawImage(logo, PAD, PAD, lw, lh);
+  } catch {
+    ctx.fillStyle = WHITE;
+    ctx.font = "900 48px Montserrat, sans-serif";
+    ctx.fillText("BETPRENEUR", PAD, PAD + 18);
+  }
+
   const tier = tierLabel(pick.tier).toUpperCase();
-  ctx.font = "800 24px Montserrat, sans-serif";
+  ctx.font = "800 22px Montserrat, sans-serif";
   const tw = ctx.measureText(tier).width;
-  const pillW = tw + 44;
-  const pillH = 56;
+  const pillW = tw + 40;
+  const pillH = 48;
   const pillX = W - PAD - pillW;
-  const pillY = (HEADER_H - pillH) / 2;
-  roundRect(ctx, pillX, pillY, pillW, pillH, 28);
-  ctx.fillStyle = "#FFFFFF";
+  const pillY = PAD + (84 - pillH) / 2;
+  roundRect(ctx, pillX, pillY, pillW, pillH, 24);
+  ctx.fillStyle = RED;
   ctx.fill();
-  ctx.fillStyle = RED;
-  ctx.fillText(tier, pillX + 22, pillY + 16);
+  ctx.fillStyle = WHITE;
+  ctx.fillText(tier, pillX + 20, pillY + 14);
 
-  // Body content
-  let y = HEADER_H + 56;
+  // ---- Hero block: huge match title (Spotify "Now Playing" energy) ----
+  let y = 280;
 
-  // League / kickoff
-  ctx.fillStyle = MUTED;
-  ctx.font = "600 24px Montserrat, sans-serif";
-  ctx.fillText(`${pick.league} · ${formatKickoff(pick.kickoff_wat)}`, PAD, y);
-  y += 46;
-
-  // Match title
-  ctx.fillStyle = BLACK;
-  ctx.font = "900 64px Montserrat, sans-serif";
-  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 72);
-  y += 24;
-
-  // Red underline accent
-  ctx.fillStyle = RED;
-  ctx.fillRect(PAD, y, 80, 6);
-  y += 36;
-
-  // Market card
-  const marketBoxH = 130;
-  roundRect(ctx, PAD, y, W - PAD * 2, marketBoxH, 14);
-  ctx.fillStyle = SOFT;
-  ctx.fill();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = BORDER;
-  ctx.stroke();
-
-  ctx.fillStyle = MUTED;
-  ctx.font = "700 20px Montserrat, sans-serif";
-  ctx.fillText("MARKET", PAD + 28, y + 22);
-  ctx.fillStyle = INK;
-  ctx.font = "800 36px Montserrat, sans-serif";
-  ctx.fillText(pick.market_plain, PAD + 28, y + 52);
-
-  // Odds (right side of market box)
-  const oddsLabel = "ODDS";
-  const oddsVal = pick.odds.toFixed(2);
-  ctx.font = "700 20px Montserrat, sans-serif";
-  const olw = ctx.measureText(oddsLabel).width;
-  ctx.fillStyle = MUTED;
-  ctx.fillText(oddsLabel, W - PAD - 28 - olw, y + 22);
-  ctx.fillStyle = RED;
-  ctx.font = "900 44px Montserrat, sans-serif";
-  const ovw = ctx.measureText(oddsVal).width;
-  ctx.fillText(oddsVal, W - PAD - 28 - ovw, y + 48);
-
-  y += marketBoxH + 36;
-
-  // Reason quote
-  ctx.fillStyle = INK;
-  ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-  y = wrapText(ctx, `“${pick.one_line_reason}”`, PAD, y, W - PAD * 2, 38);
-  y += 24;
-
-  // Confidence block (left) above footer
-  const confY = H - FOOTER_H - 180;
   ctx.fillStyle = MUTED;
   ctx.font = "700 22px Montserrat, sans-serif";
-  ctx.fillText("CONFIDENCE", PAD, confY);
-  ctx.fillStyle = RED;
-  ctx.font = "900 96px Montserrat, sans-serif";
-  ctx.fillText(`${pick.confidence.toFixed(1)}%`, PAD, confY + 32);
+  ctx.fillText(`${pick.league.toUpperCase()}  ·  ${formatKickoff(pick.kickoff_wat).toUpperCase()}`, PAD, y);
+  y += 44;
 
-  // Confidence bar
-  const barY = confY + 150;
-  const barW = W - PAD * 2;
-  roundRect(ctx, PAD, barY, barW, 14, 7);
-  ctx.fillStyle = SOFT;
-  ctx.fill();
-  const fillW = Math.max(20, Math.min(100, pick.confidence) / 100 * barW);
-  roundRect(ctx, PAD, barY, fillW, 14, 7);
+  ctx.fillStyle = WHITE;
+  ctx.font = "900 88px Montserrat, sans-serif";
+  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 96);
+  y += 18;
+
+  // Red accent bar
   ctx.fillStyle = RED;
+  roundRect(ctx, PAD, y, 96, 8, 4);
+  ctx.fill();
+  y += 48;
+
+  // ---- Glass pick card ----
+  const cardX = PAD;
+  const cardY = y;
+  const cardW = W - PAD * 2;
+  const cardH = 220;
+  roundRect(ctx, cardX, cardY, cardW, cardH, 28);
+  ctx.fillStyle = "rgba(255,255,255,0.06)";
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.stroke();
+
+  // Pick label
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 18px Montserrat, sans-serif";
+  ctx.fillText("THE PICK", cardX + 36, cardY + 32);
+
+  ctx.fillStyle = WHITE;
+  ctx.font = "800 42px Montserrat, sans-serif";
+  wrapText(ctx, pick.market_plain, cardX + 36, cardY + 64, cardW - 280, 50);
+
+  // Odds — right side, large
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 18px Montserrat, sans-serif";
+  const oLab = "ODDS";
+  const oLabW = ctx.measureText(oLab).width;
+  ctx.fillText(oLab, cardX + cardW - 36 - oLabW, cardY + 32);
+
+  ctx.fillStyle = RED;
+  ctx.font = "900 76px Montserrat, sans-serif";
+  const oVal = pick.odds.toFixed(2);
+  const oValW = ctx.measureText(oVal).width;
+  ctx.fillText(oVal, cardX + cardW - 36 - oValW, cardY + 60);
+
+  // Divider inside card
+  ctx.fillStyle = FAINT;
+  ctx.fillRect(cardX + 36, cardY + 160, cardW - 72, 1);
+
+  // Confidence row inside card
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 16px Montserrat, sans-serif";
+  ctx.fillText("CONFIDENCE", cardX + 36, cardY + 178);
+
+  const conf = Math.max(0, Math.min(100, pick.confidence));
+  ctx.fillStyle = WHITE;
+  ctx.font = "800 20px Montserrat, sans-serif";
+  const cTxt = `${conf.toFixed(1)}%`;
+  const cTxtW = ctx.measureText(cTxt).width;
+  ctx.fillText(cTxt, cardX + cardW - 36 - cTxtW, cardY + 176);
+
+  // Mini bar
+  const barX = cardX + 200;
+  const barY = cardY + 188;
+  const barW = cardW - 200 - 36 - cTxtW - 24;
+  roundRect(ctx, barX, barY, barW, 6, 3);
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fill();
+  const fillGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+  fillGrad.addColorStop(0, RED_DEEP);
+  fillGrad.addColorStop(1, RED);
+  roundRect(ctx, barX, barY, (barW * conf) / 100, 6, 3);
+  ctx.fillStyle = fillGrad;
   ctx.fill();
 
-  // Footer text
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.font = "600 22px Montserrat, sans-serif";
-  ctx.fillText("DAILY EDGE PICKS", PAD, H - FOOTER_H + 40);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "800 26px Montserrat, sans-serif";
+  y = cardY + cardH + 44;
+
+  // ---- Reason quote ----
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
+  wrapText(ctx, `“${pick.one_line_reason}”`, PAD, y, W - PAD * 2, 40);
+
+  // ---- Footer ----
+  ctx.fillStyle = MUTED;
+  ctx.font = "700 20px Montserrat, sans-serif";
+  ctx.fillText("DAILY EDGE PICKS", PAD, H - PAD - 24);
+  ctx.fillStyle = WHITE;
+  ctx.font = "800 22px Montserrat, sans-serif";
   const url = "betprenuer.lovable.app";
   const uw = ctx.measureText(url).width;
-  ctx.fillText(url, W - PAD - uw, H - FOOTER_H + 38);
+  ctx.fillText(url, W - PAD - uw, H - PAD - 25);
+
+  // suppress unused warnings
+  void INK;
 
   return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
 }
