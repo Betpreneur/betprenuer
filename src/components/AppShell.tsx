@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 bg-primary border-b border-primary">
-        <div className="mx-auto max-w-3xl px-4 h-20 flex items-center justify-between">
+        <div className={`mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 ${path === "/" ? "max-w-[1600px]" : "max-w-3xl"}`}>
           <Link
             to="/"
             aria-label="Betpreneur — home"
