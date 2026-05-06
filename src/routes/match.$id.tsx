@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
-import logoIcon from "@/assets/betpreneur-icon.png";
+import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 export const Route = createFileRoute("/match/$id")({
   component: MatchPage,
