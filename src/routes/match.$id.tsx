@@ -1,12 +1,10 @@
 import { createFileRoute, Link, Navigate, useRouter } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
+import { useEffect, useState } from "react";
 import { api, type PickDetail } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
-import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 export const Route = createFileRoute("/match/$id")({
   component: MatchPage,
@@ -36,7 +34,6 @@ function MatchPage() {
   const [error, setError] = useState(false);
   const [backing, setBacking] = useState(false);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const load = () => {
     setError(false);
@@ -91,24 +88,23 @@ function MatchPage() {
   }
 
   async function handleShare() {
-    if (!cardRef.current) return;
+    if (!pick) return;
     try {
-      const canvas = await html2canvas(cardRef.current, { backgroundColor: "#0D0D0D", scale: 2, useCORS: true });
-      const blob: Blob | null = await new Promise((res) => canvas.toBlob((b) => res(b), "image/png"));
-      if (!blob) return;
-      // Always download the file to the user's device
+      const blob = await renderShareCard(pick);
+      if (!blob) throw new Error("no blob");
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const safeName = pick?.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase() ?? "pick";
+      const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
       a.download = `betpreneur-${safeName}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setShareMsg("Card downloaded ✓");
-      setTimeout(() => setShareMsg(null), 2500);
-    } catch {
+      setShareMsg("Card downloaded ✓ Share it on WhatsApp");
+      setTimeout(() => setShareMsg(null), 3000);
+    } catch (e) {
+      console.error(e);
       setShareMsg("Could not download card");
       setTimeout(() => setShareMsg(null), 2500);
     }
@@ -231,116 +227,176 @@ function MatchPage() {
       {shareMsg && (
         <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
       )}
-
-      {/* Off-screen WhatsApp share card — square 1080x1080 for chat-friendly preview */}
-      <div className="fixed -left-[9999px] top-0" aria-hidden="true">
-        <div
-          ref={cardRef}
-          style={{
-            width: 1080,
-            height: 1080,
-            padding: 64,
-            background:
-              "radial-gradient(circle at 85% 0%, rgba(232,25,44,0.35) 0%, transparent 55%), linear-gradient(160deg, #0D0D0D 0%, #1a0608 55%, #2a0408 100%)",
-            color: "#FFFFFF",
-            fontFamily: "Montserrat, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Decorative accent bar */}
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 8,
-              background: "linear-gradient(180deg, #E8192C 0%, #8a0d18 100%)",
-            }}
-          />
-
-          {/* Top: brand bar */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <img
-              src={logoHorizontal}
-              alt="Betpreneur"
-              crossOrigin="anonymous"
-              style={{ height: 96, width: "auto", objectFit: "contain" }}
-            />
-            <div
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: 2,
-                background: "#E8192C",
-                color: "#fff",
-                padding: "10px 18px",
-                borderRadius: 8,
-              }}
-            >
-              {tierLabel(pick.tier)}
-            </div>
-          </div>
-
-          {/* Middle: match + market */}
-          <div>
-            <div style={{ fontSize: 28, fontWeight: 600, opacity: 0.7, marginBottom: 12 }}>
-              {pick.league} · {formatKickoff(pick.kickoff_wat)}
-            </div>
-            <div style={{ fontSize: 76, fontWeight: 900, lineHeight: 1.05, marginBottom: 36 }}>
-              {pick.match}
-            </div>
-            <div
-              style={{
-                display: "inline-block",
-                fontSize: 38,
-                fontWeight: 700,
-                background: "rgba(232,25,44,0.18)",
-                border: "2px solid #E8192C",
-                color: "#fff",
-                padding: "16px 28px",
-                borderRadius: 10,
-              }}
-            >
-              {pick.market_plain} @ {pick.odds.toFixed(2)}
-            </div>
-            <div style={{ fontSize: 30, fontStyle: "italic", opacity: 0.85, marginTop: 32, lineHeight: 1.35 }}>
-              "{pick.one_line_reason}"
-            </div>
-          </div>
-
-          {/* Bottom: confidence + URL */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              borderTop: "1px solid rgba(255,255,255,0.12)",
-              paddingTop: 32,
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 600, opacity: 0.7, textTransform: "uppercase", letterSpacing: 2 }}>
-                Confidence
-              </div>
-              <div style={{ fontSize: 96, fontWeight: 900, color: "#E8192C", lineHeight: 1 }}>
-                {pick.confidence.toFixed(1)}%
-              </div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 22, opacity: 0.7, textTransform: "uppercase", letterSpacing: 2 }}>Daily picks</div>
-              <div style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>betprenuer.lovable.app</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
+}
+
+// ---- Custom canvas renderer for the WhatsApp share card ----
+async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
+  const W = 1080;
+  const H = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#0D0D0D");
+  bg.addColorStop(0.55, "#1a0608");
+  bg.addColorStop(1, "#2a0408");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Radial red glow top-right
+  const glow = ctx.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, W * 0.7);
+  glow.addColorStop(0, "rgba(232,25,44,0.35)");
+  glow.addColorStop(1, "rgba(232,25,44,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // Left accent bar
+  const accent = ctx.createLinearGradient(0, 0, 0, H);
+  accent.addColorStop(0, "#E8192C");
+  accent.addColorStop(1, "#8a0d18");
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, 10, H);
+
+  const PAD = 72;
+
+  // Brand wordmark (text, no logo dependency)
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "900 44px Montserrat, -apple-system, 'Segoe UI', sans-serif";
+  ctx.textBaseline = "top";
+  ctx.fillText("BETPRENEUR", PAD, PAD);
+
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "600 18px Montserrat, sans-serif";
+  ctx.fillText("DAILY EDGE PICKS", PAD, PAD + 52);
+
+  // Tier pill (top-right)
+  const tier = tierLabel(pick.tier).toUpperCase();
+  ctx.font = "700 22px Montserrat, sans-serif";
+  const tw = ctx.measureText(tier).width;
+  const pillW = tw + 40;
+  const pillH = 50;
+  const pillX = W - PAD - pillW;
+  const pillY = PAD;
+  roundRect(ctx, pillX, pillY, pillW, pillH, 8);
+  ctx.fillStyle = "#E8192C";
+  ctx.fill();
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText(tier, pillX + 20, pillY + 14);
+
+  // League / kickoff
+  let y = 280;
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "600 26px Montserrat, sans-serif";
+  ctx.fillText(`${pick.league} · ${formatKickoff(pick.kickoff_wat)}`, PAD, y);
+
+  // Match title (wrap)
+  y += 50;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "900 72px Montserrat, sans-serif";
+  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 78);
+
+  // Market box
+  y += 24;
+  const marketText = `${pick.market_plain}  @  ${pick.odds.toFixed(2)}`;
+  ctx.font = "700 34px Montserrat, sans-serif";
+  const mw = ctx.measureText(marketText).width;
+  const mPadX = 28;
+  const mPadY = 18;
+  const mBoxW = mw + mPadX * 2;
+  const mBoxH = 34 + mPadY * 2;
+  roundRect(ctx, PAD, y, mBoxW, mBoxH, 10);
+  ctx.fillStyle = "rgba(232,25,44,0.18)";
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "#E8192C";
+  ctx.stroke();
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText(marketText, PAD + mPadX, y + mPadY);
+  y += mBoxH + 32;
+
+  // Reason quote
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
+  y = wrapText(ctx, `"${pick.one_line_reason}"`, PAD, y, W - PAD * 2, 38);
+
+  // Bottom divider
+  const bottomY = H - 220;
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(PAD, bottomY);
+  ctx.lineTo(W - PAD, bottomY);
+  ctx.stroke();
+
+  // Confidence
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "600 22px Montserrat, sans-serif";
+  ctx.fillText("CONFIDENCE", PAD, bottomY + 28);
+  ctx.fillStyle = "#E8192C";
+  ctx.font = "900 92px Montserrat, sans-serif";
+  ctx.fillText(`${pick.confidence.toFixed(1)}%`, PAD, bottomY + 60);
+
+  // URL right side
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "600 22px Montserrat, sans-serif";
+  const lbl = "GET DAILY PICKS";
+  const lblW = ctx.measureText(lbl).width;
+  ctx.fillText(lbl, W - PAD - lblW, bottomY + 28);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "700 28px Montserrat, sans-serif";
+  const urlText = "betprenuer.lovable.app";
+  const urlW = ctx.measureText(urlText).width;
+  ctx.fillText(urlText, W - PAD - urlW, bottomY + 60);
+
+  return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+): number {
+  const words = text.split(" ");
+  let line = "";
+  let curY = y;
+  for (const word of words) {
+    const test = line ? line + " " + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, curY);
+      line = word;
+      curY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  if (line) {
+    ctx.fillText(line, x, curY);
+    curY += lineHeight;
+  }
+  return curY;
 }
 
 function Row({ team, form }: { team: string; form: ("W" | "D" | "L")[] }) {
