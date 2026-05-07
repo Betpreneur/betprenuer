@@ -1,65 +1,76 @@
 import type { Tier } from "./stake";
 
 /**
- * Typed REST client for Project Betpreneur.
- *
- * All app features are intended to be powered by a backend REST API.
- * Set VITE_API_BASE_URL in your environment to point at the backend.
- * When unset (e.g. local dev / preview), the client falls back to the
- * mock implementations below so the UI stays fully functional.
- *
- * Endpoints are documented in the JSDoc above each function and are
- * centralised in the ENDPOINTS map for easy auditing.
+ * Typed REST client for Betpreneur backend.
+ * Base URL: https://backend.betpreneur.ng/api
  */
 
 export const API_BASE_URL: string =
-  (import.meta as { env?: Record<string, string | undefined> }).env
-    ?.VITE_API_BASE_URL ?? "";
+  ((import.meta as { env?: Record<string, string | undefined> }).env
+    ?.VITE_API_BASE_URL as string | undefined) ??
+  "https://backend.betpreneur.ng/api";
 
 export const ENDPOINTS = {
-  signup: "/auth/signup",
-  login: "/auth/login",
-  logout: "/auth/logout",
-  verifyEmail: "/auth/verify-email",
-  resendVerification: "/auth/verify-email/resend",
-  forgotPassword: "/auth/forgot-password",
-  resetPassword: "/auth/reset-password",
-  me: "/user/me",
-  record: "/record",
-  todayPicks: "/picks/today",
-  topPick: "/picks/today/top",
-  pick: (id: string) => `/picks/${id}`,
-  markBacked: (id: string) => `/picks/${id}/backed`,
+  signup: "/auth/signup/",
+  login: "/auth/login/",
+  logout: "/auth/logout/",
+  verifyEmail: "/auth/verify-email/",
+  resendVerification: "/auth/resend-verification/",
+  forgotPassword: "/auth/forgot-password/",
+  resetPassword: "/auth/reset-password/",
+  changePassword: "/auth/change-password/",
+  refresh: "/auth/token/refresh/",
+  me: "/auth/me/",
+  record: "/record/",
+  todayPicks: "/picks/today/",
+  topPick: "/picks/today/top/",
+  pick: (id: string) => `/picks/${id}/`,
+  markBacked: (id: string) => `/picks/${id}/backed/`,
 } as const;
 
-/** Build a fully-qualified URL for a backend endpoint. */
 export function apiUrl(path: string): string {
   if (!API_BASE_URL) return path;
   return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-/** Returns true when a real backend is configured (vs mock fallback). */
 export function isBackendConfigured(): boolean {
   return !!API_BASE_URL;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
-  const res = await fetch(apiUrl(path), {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(text || `Request failed: ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
+const TOKEN_KEY = "terminal.token";
+const REFRESH_KEY = "terminal.refresh";
+const USER_KEY = "terminal.user";
+const BACKED_KEY = "terminal.backed";
+
+export const session = {
+  hasToken(): boolean {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem(TOKEN_KEY);
+  },
+  getToken(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(TOKEN_KEY);
+  },
+  getRefresh(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(REFRESH_KEY);
+  },
+  setTokens(access: string, refresh?: string) {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(TOKEN_KEY, access);
+    if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
+  },
+  // Back-compat alias
+  setToken(t: string) {
+    this.setTokens(t);
+  },
+  clear() {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(USER_KEY);
+  },
+};
 
 // ============== Types =================================================
 
@@ -71,6 +82,47 @@ export interface User {
   whatsapp: string;
   bankroll: number;
   created_at: string;
+  is_email_verified?: boolean;
+}
+
+interface BackendUser {
+  id: number;
+  username: string;
+  email: string;
+  is_email_verified?: boolean;
+  whatsapp_country_code?: string;
+  whatsapp_number?: string;
+  full_whatsapp?: string;
+  date_joined: string;
+}
+
+function mapUser(u: BackendUser): User {
+  return {
+    id: String(u.id),
+    name: u.username,
+    username: u.username,
+    email: u.email,
+    whatsapp: u.full_whatsapp ?? `${u.whatsapp_country_code ?? ""}${u.whatsapp_number ?? ""}`,
+    bankroll: 0,
+    created_at: u.date_joined,
+    is_email_verified: u.is_email_verified,
+  };
+}
+
+function writeUser(u: User) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(USER_KEY, JSON.stringify(u));
+}
+
+function readBacked(): Record<string, number> {
+  if (typeof window === "undefined") return {};
+  const raw = localStorage.getItem(BACKED_KEY);
+  return raw ? (JSON.parse(raw) as Record<string, number>) : {};
+}
+
+function writeBacked(map: Record<string, number>) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(BACKED_KEY, JSON.stringify(map));
 }
 
 export interface AuthResponse {
@@ -89,12 +141,84 @@ export interface SignupBody {
   bankroll?: number;
 }
 
+// ============== HTTP helpers ==========================================
+
+function splitWhatsapp(raw: string): { code: string; number: string } {
+  const trimmed = raw.trim().replace(/\s+/g, "");
+  const m = trimmed.match(/^(\+\d{1,4})(.*)$/);
+  if (m) return { code: m[1].slice(0, 5), number: m[2].replace(/\D/g, "").slice(0, 15) };
+  return { code: "+234", number: trimmed.replace(/\D/g, "").slice(0, 15) };
+}
+
+function extractError(payload: unknown, fallback: string): string {
+  if (!payload || typeof payload !== "object") return fallback;
+  const obj = payload as Record<string, unknown>;
+  if (typeof obj.detail === "string") return obj.detail;
+  if (typeof obj.message === "string") return obj.message;
+  if (typeof obj.error === "string") return obj.error;
+  // DRF-style: { field: ["msg"] }
+  for (const v of Object.values(obj)) {
+    if (Array.isArray(v) && typeof v[0] === "string") return v[0];
+    if (typeof v === "string") return v;
+  }
+  return fallback;
+}
+
+async function tryRefresh(): Promise<boolean> {
+  const refresh = session.getRefresh();
+  if (!refresh) return false;
+  try {
+    const res = await fetch(apiUrl(ENDPOINTS.refresh), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+    });
+    if (!res.ok) return false;
+    const data = (await res.json()) as { access?: string; refresh?: string };
+    if (!data.access) return false;
+    session.setTokens(data.access, data.refresh ?? refresh);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit, retry = true): Promise<T> {
+  const token = session.getToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...((init?.headers as Record<string, string>) ?? {}),
+  };
+  const res = await fetch(apiUrl(path), { ...init, headers });
+  if (res.status === 401 && retry && session.getRefresh()) {
+    const ok = await tryRefresh();
+    if (ok) return request<T>(path, init, false);
+  }
+  if (!res.ok) {
+    let payload: unknown = null;
+    try {
+      payload = await res.json();
+    } catch {
+      try {
+        payload = await res.text();
+      } catch {
+        /* noop */
+      }
+    }
+    throw new Error(extractError(payload, `Request failed (${res.status})`));
+  }
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
+}
+
+// ============== Pick types (kept from previous design) ================
+
 export interface RecordStats {
   hit_rate: number;
   roi: number;
   total_picks: number;
 }
-
 export interface MarketRow {
   market: string;
   picks: number;
@@ -102,7 +226,6 @@ export interface MarketRow {
   status: "active" | "paused";
   note?: string;
 }
-
 export interface HistoryRow {
   date: string;
   match: string;
@@ -112,13 +235,11 @@ export interface HistoryRow {
   result: "won" | "lost" | "void";
   posted_at: string;
 }
-
 export interface RecordResponse {
   stats: RecordStats;
   by_market: MarketRow[];
   history: HistoryRow[];
 }
-
 export interface PickSummary {
   id: string;
   fixture_id: string;
@@ -132,13 +253,11 @@ export interface PickSummary {
   one_line_reason: string;
   is_top_pick: boolean;
 }
-
 export interface TodayPicksResponse {
   date: string;
   status: "live" | "pending" | "no_picks";
   picks: PickSummary[];
 }
-
 export interface PickDetail {
   id: string;
   match: string;
@@ -159,7 +278,6 @@ export interface PickDetail {
   user_backed: boolean;
   one_line_reason: string;
 }
-
 export type TopPickResponse =
   | {
       locked: true;
@@ -170,258 +288,38 @@ export type TopPickResponse =
     }
   | (PickDetail & { locked: false });
 
-// ============== Mock store ============================================
-
-const TOKEN_KEY = "terminal.token";
-const USER_KEY = "terminal.user";
-const BACKED_KEY = "terminal.backed";
-
-function readUser(): User | null {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(USER_KEY);
-  return raw ? (JSON.parse(raw) as User) : null;
-}
-
-function writeUser(u: User) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(USER_KEY, JSON.stringify(u));
-}
-
-function readBacked(): Record<string, number> {
-  if (typeof window === "undefined") return {};
-  const raw = localStorage.getItem(BACKED_KEY);
-  return raw ? (JSON.parse(raw) as Record<string, number>) : {};
-}
-
-function writeBacked(map: Record<string, number>) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(BACKED_KEY, JSON.stringify(map));
-}
-
-export const session = {
-  hasToken(): boolean {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem(TOKEN_KEY);
-  },
-  setToken(t: string) {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(TOKEN_KEY, t);
-  },
-  clear() {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-  },
-};
+// ============== Mock picks (still used; backend pick endpoints TBD) ===
 
 function delay<T>(value: T, ms = 350): Promise<T> {
   return new Promise((res) => setTimeout(() => res(value), ms));
 }
-
-// ============== Mock fixtures =========================================
-
-const today = new Date();
-today.setHours(19, 45, 0, 0);
 const isoToday = (h: number, m = 0) => {
   const d = new Date();
   d.setHours(h, m, 0, 0);
   return d.toISOString();
 };
-
 const MOCK_PICKS: PickDetail[] = [
   {
-    id: "p1",
-    match: "Arsenal vs Chelsea",
-    league: "Premier League",
-    kickoff_wat: isoToday(19, 45),
-    market: "BTTS_YES",
-    market_plain: "Both teams to score",
-    confidence: 79.3,
-    tier: "banker",
-    form_home: ["W", "W", "D", "W", "L", "W"],
-    form_away: ["D", "W", "L", "L", "W", "D"],
-    goals_profile: [
-      "Arsenal scored in 7 of their last 8 home games.",
-      "Chelsea conceded in 5 of their last 6 away games.",
-      "Both teams scored in 4 of their last 5 meetings.",
-    ],
-    risk_flag: "Arsenal may rotate midweek — watch team news before kick-off.",
-    model_verdict:
-      "Arsenal's home attacking output combined with Chelsea's leaky away defence makes BTTS a strong, repeatable edge here. The model rates it well above the bookmaker price.",
-    odds: 1.85,
-    status: "live",
-    result: null,
-    user_backed: false,
+    id: "p1", match: "Arsenal vs Chelsea", league: "Premier League",
+    kickoff_wat: isoToday(19, 45), market: "BTTS_YES",
+    market_plain: "Both teams to score", confidence: 79.3, tier: "banker",
+    form_home: ["W","W","D","W","L","W"], form_away: ["D","W","L","L","W","D"],
+    goals_profile: ["Arsenal scored in 7 of their last 8 home games."],
+    risk_flag: null,
+    model_verdict: "Strong attacking edge for both sides.",
+    odds: 1.85, status: "live", result: null, user_backed: false,
     one_line_reason: "Arsenal score at home, Chelsea concede on the road.",
   },
-  {
-    id: "p2",
-    match: "Man City vs Brighton",
-    league: "Premier League",
-    kickoff_wat: isoToday(17, 30),
-    market: "OVER_2_5",
-    market_plain: "Over 2.5 goals",
-    confidence: 74.1,
-    tier: "banker",
-    form_home: ["W", "W", "W", "W", "D", "W"],
-    form_away: ["L", "W", "D", "W", "L", "L"],
-    goals_profile: [
-      "City have scored 2+ in 9 of their last 10 home games.",
-      "Brighton concede first in 60% of away fixtures.",
-      "Over 2.5 has landed in 7 of City's last 8 home matches.",
-    ],
-    risk_flag: null,
-    model_verdict:
-      "City at home is a goals machine and Brighton tend to chase games. The total has comfortably cleared 2.5 in nearly every recent meeting.",
-    odds: 1.55,
-    status: "live",
-    result: null,
-    user_backed: false,
-    one_line_reason: "City at home rarely fail to clear two and a half.",
-  },
-  {
-    id: "p3",
-    match: "Real Sociedad vs Valencia",
-    league: "La Liga",
-    kickoff_wat: isoToday(20, 0),
-    market: "HOME_WIN",
-    market_plain: "Real Sociedad to win",
-    confidence: 70.2,
-    tier: "gem",
-    form_home: ["W", "D", "W", "W", "L", "D"],
-    form_away: ["L", "L", "D", "W", "L", "L"],
-    goals_profile: [
-      "Sociedad unbeaten at home in 6.",
-      "Valencia have lost 4 of their last 5 on the road.",
-    ],
-    risk_flag: null,
-    model_verdict:
-      "Solid home form against a struggling Valencia side travelling without their first-choice keeper. The price represents value.",
-    odds: 1.95,
-    status: "live",
-    result: null,
-    user_backed: false,
-    one_line_reason: "Strong home side against a struggling traveller.",
-  },
-  {
-    id: "p4",
-    match: "Lazio vs Atalanta",
-    league: "Serie A",
-    kickoff_wat: isoToday(21, 45),
-    market: "BTTS_YES",
-    market_plain: "Both teams to score",
-    confidence: 69.4,
-    tier: "gem",
-    form_home: ["D", "W", "L", "W", "D", "W"],
-    form_away: ["W", "W", "D", "W", "L", "W"],
-    goals_profile: [
-      "Atalanta have scored in 11 of their last 12.",
-      "BTTS in 5 of last 6 between these clubs.",
-    ],
-    risk_flag: "Lazio missing their first-choice centre-back.",
-    model_verdict:
-      "Two attacking sides with reliable scoring records and historical BTTS pattern between them.",
-    odds: 1.75,
-    status: "live",
-    result: null,
-    user_backed: false,
-    one_line_reason: "Two attack-first sides with a clear BTTS history.",
-  },
-  {
-    id: "p5",
-    match: "Wolves vs Brentford",
-    league: "Premier League",
-    kickoff_wat: isoToday(15, 0),
-    market: "DRAW",
-    market_plain: "Match to end in a draw",
-    confidence: 64.8,
-    tier: "wildcard",
-    form_home: ["D", "L", "D", "W", "D", "L"],
-    form_away: ["D", "D", "L", "W", "D", "D"],
-    goals_profile: [
-      "Wolves have drawn 4 of last 7.",
-      "Brentford have drawn 5 of last 8.",
-    ],
-    risk_flag: null,
-    model_verdict:
-      "Two evenly matched sides with high recent draw frequency. The price on the draw is generous.",
-    odds: 3.4,
-    status: "live",
-    result: null,
-    user_backed: false,
-    one_line_reason: "Both sides drawing often at a generous price.",
-  },
 ];
-
 const MOCK_RECORD: RecordResponse = {
   stats: { hit_rate: 66.3, roi: 18.4, total_picks: 358 },
-  by_market: [
-    { market: "Both teams to score", picks: 79, hit_rate: 72.1, status: "active" },
-    { market: "Over 2.5 goals", picks: 86, hit_rate: 68.9, status: "active" },
-    { market: "Match result (1X2)", picks: 102, hit_rate: 64.2, status: "active" },
-    { market: "Asian handicap", picks: 41, hit_rate: 70.7, status: "active" },
-    {
-      market: "Both teams to score & win",
-      picks: 28,
-      hit_rate: 53.1,
-      status: "paused",
-      note: "Paused after audit — threshold raised.",
-    },
-    { market: "Correct score", picks: 22, hit_rate: 58.0, status: "active" },
-  ],
-  history: Array.from({ length: 47 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const matches = [
-      "Arsenal vs Chelsea",
-      "Man City vs Brighton",
-      "Real Madrid vs Sevilla",
-      "Bayern vs Dortmund",
-      "PSG vs Lyon",
-      "Inter vs Roma",
-      "Liverpool vs Newcastle",
-      "Atletico vs Villarreal",
-    ];
-    const markets = [
-      "Both teams to score",
-      "Over 2.5 goals",
-      "Home win",
-      "Asian handicap −1",
-      "Draw no bet",
-    ];
-    const tiers: Tier[] = ["banker", "gem", "wildcard"];
-    const results: ("won" | "lost" | "void")[] = [
-      "won",
-      "won",
-      "won",
-      "lost",
-      "won",
-      "void",
-    ];
-    return {
-      date: d.toISOString(),
-      match: matches[i % matches.length],
-      market: markets[i % markets.length],
-      tier: tiers[i % tiers.length],
-      odds: 1.5 + ((i % 7) * 0.15),
-      result: results[i % results.length],
-      posted_at: d.toISOString(),
-    };
-  }),
+  by_market: [], history: [],
 };
-
 function summary(p: PickDetail): PickSummary {
   return {
-    id: p.id,
-    fixture_id: p.id,
-    match: p.match,
-    league: p.league,
-    market: p.market,
-    market_plain: p.market_plain,
-    kickoff_wat: p.kickoff_wat,
-    confidence: p.confidence,
-    tier: p.tier,
-    one_line_reason: p.one_line_reason,
+    id: p.id, fixture_id: p.id, match: p.match, league: p.league,
+    market: p.market, market_plain: p.market_plain, kickoff_wat: p.kickoff_wat,
+    confidence: p.confidence, tier: p.tier, one_line_reason: p.one_line_reason,
     is_top_pick: p.id === "p1",
   };
 }
@@ -429,129 +327,150 @@ function summary(p: PickDetail): PickSummary {
 // ============== API ==================================================
 
 export const api = {
-  /** POST /auth/signup */
-  async signup(body: SignupBody): Promise<AuthResponse> {
-    if (isBackendConfigured()) {
-      const res = await request<AuthResponse>(ENDPOINTS.signup, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
-      session.setToken(res.token);
-      writeUser(res.user);
-      return res;
-    }
-    const user: User = {
-      id: "u_" + Date.now(),
-      name: body.name,
+  /** POST /auth/signup/ — returns the created user (no tokens). */
+  async signup(body: SignupBody): Promise<{ user: User }> {
+    const { code, number } = splitWhatsapp(body.whatsapp);
+    const payload = {
       username: body.username,
       email: body.email,
-      whatsapp: body.whatsapp,
-      bankroll: body.bankroll ?? 50000,
-      created_at: new Date().toISOString(),
+      password: body.password,
+      whatsapp_country_code: code,
+      whatsapp_number: number,
     };
-    session.setToken("mock-jwt-" + user.id);
-    writeUser(user);
-    return delay({
-      success: true,
-      token: "mock-jwt-" + user.id,
-      refresh_token: "mock-refresh-" + user.id,
-      user,
+    const raw = await request<BackendUser>(ENDPOINTS.signup, {
+      method: "POST",
+      body: JSON.stringify(payload),
     });
+    return { user: mapUser(raw) };
   },
 
-  /** POST /auth/login */
-  async login(identifier: string, _password: string): Promise<AuthResponse> {
-    if (isBackendConfigured()) {
-      const res = await request<AuthResponse>(ENDPOINTS.login, {
+  /** POST /auth/login/ — returns access+refresh tokens and the user. */
+  async login(identifier: string, password: string): Promise<AuthResponse> {
+    const raw = await request<{ access: string; refresh: string; user: BackendUser }>(
+      ENDPOINTS.login,
+      {
         method: "POST",
-        body: JSON.stringify({ identifier, password: _password }),
-      });
-      session.setToken(res.token);
-      writeUser(res.user);
-      return res;
-    }
-    const existing = readUser();
-    const user: User =
-      existing ?? {
-        id: "u_demo",
-        name: "Demo Subscriber",
-        username: identifier.includes("@") ? "demo" : identifier,
-        email: identifier.includes("@") ? identifier : "demo@betpreneur.app",
-        whatsapp: "+2348012345678",
-        bankroll: 50000,
-        created_at: new Date().toISOString(),
-      };
-    session.setToken("mock-jwt-" + user.id);
+        body: JSON.stringify({ username: identifier, password }),
+      },
+    );
+    const user = mapUser(raw.user);
+    session.setTokens(raw.access, raw.refresh);
     writeUser(user);
-    return delay({
-      success: true,
-      token: "mock-jwt-" + user.id,
-      refresh_token: "mock-refresh",
-      user,
-    });
+    return { success: true, token: raw.access, refresh_token: raw.refresh, user };
   },
 
-  /** POST /auth/logout */
+  /** POST /auth/logout/ — blacklists the refresh token. */
   async logout(): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      try {
-        await request(ENDPOINTS.logout, { method: "POST" });
-      } catch {
-        /* ignore network errors on logout */
-      }
+    const refresh = session.getRefresh();
+    try {
+      await request(ENDPOINTS.logout, {
+        method: "POST",
+        body: JSON.stringify(refresh ? { refresh } : {}),
+      });
+    } catch {
+      /* ignore network errors on logout */
     }
     session.clear();
-    return delay({ success: true }, 100);
+    return { success: true };
   },
 
-  /** GET /user/me */
+  /** GET /auth/me/ */
   async getMe(): Promise<User> {
-    if (isBackendConfigured()) {
-      const u = await request<User>(ENDPOINTS.me);
-      writeUser(u);
-      return u;
-    }
-    const u = readUser();
-    if (!u) throw new Error("unauthenticated");
-    return delay(u);
+    const raw = await request<BackendUser>(ENDPOINTS.me);
+    const u = mapUser(raw);
+    writeUser(u);
+    return u;
   },
 
-  /** PATCH /user/me */
+  /** PATCH /auth/me/ */
   async updateMe(patch: Partial<Pick<User, "name" | "whatsapp" | "bankroll">>): Promise<User> {
-    if (isBackendConfigured()) {
-      const u = await request<User>(ENDPOINTS.me, {
-        method: "PATCH",
-        body: JSON.stringify(patch),
-      });
-      writeUser(u);
-      return u;
+    const body: Record<string, unknown> = {};
+    if (patch.name !== undefined) body.username = patch.name;
+    if (patch.whatsapp !== undefined) {
+      const { code, number } = splitWhatsapp(patch.whatsapp);
+      body.whatsapp_country_code = code;
+      body.whatsapp_number = number;
     }
-    const u = readUser();
-    if (!u) throw new Error("unauthenticated");
-    const next = { ...u, ...patch };
-    writeUser(next);
-    return delay(next);
+    const raw = await request<BackendUser>(ENDPOINTS.me, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+    const u = mapUser(raw);
+    writeUser(u);
+    return u;
   },
 
-  /** GET /record */
+  /** POST /auth/verify-email/ — body: { code } */
+  async verifyEmail(_email: string, code: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.verifyEmail, {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+    return { success: true };
+  },
+
+  /** POST /auth/resend-verification/ — body: { email } */
+  async resendVerification(email: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.resendVerification, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return { success: true };
+  },
+
+  /** POST /auth/forgot-password/ — body: { email } */
+  async forgotPassword(email: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.forgotPassword, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return { success: true };
+  },
+
+  /** POST /auth/reset-password/ — body: { token, user_id, new_password, confirm_password } */
+  async resetPassword(
+    token: string,
+    password: string,
+    user_id?: string,
+  ): Promise<{ success: true }> {
+    await request(ENDPOINTS.resetPassword, {
+      method: "POST",
+      body: JSON.stringify({
+        token,
+        user_id: user_id ?? "",
+        new_password: password,
+        confirm_password: password,
+      }),
+    });
+    return { success: true };
+  },
+
+  /** POST /auth/change-password/ */
+  async changePassword(old_password: string, new_password: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.changePassword, {
+      method: "POST",
+      body: JSON.stringify({
+        old_password,
+        new_password,
+        confirm_password: new_password,
+      }),
+    });
+    return { success: true };
+  },
+
+  // ============== Picks (mock fallback until backend exposes them) ====
+
   async getRecord(): Promise<RecordResponse> {
-    if (isBackendConfigured()) return request<RecordResponse>(ENDPOINTS.record);
-    return delay(MOCK_RECORD, 500);
+    return delay(MOCK_RECORD, 200);
   },
-
-  /** GET /picks/today */
   async getTodayPicks(): Promise<TodayPicksResponse> {
-    if (isBackendConfigured()) return request<TodayPicksResponse>(ENDPOINTS.todayPicks);
     return delay({
       date: new Date().toISOString().slice(0, 10),
       status: "live",
       picks: MOCK_PICKS.map(summary),
     });
   },
-
-  /** GET /picks/today/top */
   async getTopPick(): Promise<TopPickResponse> {
-    if (isBackendConfigured()) return request<TopPickResponse>(ENDPOINTS.topPick);
     const top = MOCK_PICKS[0];
     if (!session.hasToken()) {
       return delay({
@@ -565,72 +484,16 @@ export const api = {
     const backed = readBacked();
     return delay({ ...top, user_backed: !!backed[top.id], locked: false });
   },
-
-  /** GET /picks/:id */
   async getPick(id: string): Promise<PickDetail> {
-    if (isBackendConfigured()) return request<PickDetail>(ENDPOINTS.pick(id));
     const p = MOCK_PICKS.find((x) => x.id === id);
     if (!p) throw new Error("not_found");
     const backed = readBacked();
     return delay({ ...p, user_backed: !!backed[id] });
   },
-
-  /** POST /picks/:id/backed */
   async markBacked(id: string, staked_amount: number): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      return request<{ success: true }>(ENDPOINTS.markBacked(id), {
-        method: "POST",
-        body: JSON.stringify({ staked_amount }),
-      });
-    }
     const map = readBacked();
     map[id] = staked_amount;
     writeBacked(map);
-    return delay({ success: true }, 200);
-  },
-
-  /** POST /auth/verify-email — body: { email, code } */
-  async verifyEmail(email: string, code: string): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      return request<{ success: true }>(ENDPOINTS.verifyEmail, {
-        method: "POST",
-        body: JSON.stringify({ email, code }),
-      });
-    }
-    if (code !== "123456") throw new Error("invalid_code");
-    return delay({ success: true }, 250);
-  },
-
-  /** POST /auth/verify-email/resend — body: { email } */
-  async resendVerification(email: string): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      return request<{ success: true }>(ENDPOINTS.resendVerification, {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      });
-    }
-    return delay({ success: true }, 250);
-  },
-
-  /** POST /auth/forgot-password — body: { email } */
-  async forgotPassword(email: string): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      return request<{ success: true }>(ENDPOINTS.forgotPassword, {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      });
-    }
-    return delay({ success: true }, 300);
-  },
-
-  /** POST /auth/reset-password — body: { token, password } */
-  async resetPassword(token: string, password: string): Promise<{ success: true }> {
-    if (isBackendConfigured()) {
-      return request<{ success: true }>(ENDPOINTS.resetPassword, {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
-    }
-    return delay({ success: true }, 300);
+    return delay({ success: true }, 150);
   },
 };

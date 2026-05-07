@@ -2,11 +2,12 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
 
-type Search = { token?: string };
+type Search = { token?: string; user_id?: string };
 
 export const Route = createFileRoute("/reset-password")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     token: typeof s.token === "string" ? s.token : undefined,
+    user_id: typeof s.user_id === "string" ? s.user_id : undefined,
   }),
   head: () => ({
     meta: [
@@ -18,8 +19,10 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPasswordPage() {
-  const { token } = Route.useSearch();
+  const { token, user_id } = Route.useSearch();
   const router = useRouter();
+  const [tokenInput, setTokenInput] = useState(token ?? "");
+  const [userIdInput, setUserIdInput] = useState(user_id ?? "");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,11 +42,11 @@ function ResetPasswordPage() {
     }
     setSubmitting(true);
     try {
-      await api.resetPassword(token ?? "", password);
+      await api.resetPassword(tokenInput.trim(), password, userIdInput.trim());
       setDone(true);
       setTimeout(() => router.navigate({ to: "/login" }), 1500);
-    } catch {
-      setError("Could not reset password. The link may have expired.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reset password. The link may have expired.");
     } finally {
       setSubmitting(false);
     }
@@ -56,6 +59,29 @@ function ResetPasswordPage() {
         Choose a strong password you haven't used before.
       </p>
       <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
+        {!token && (
+          <label className="block">
+            <span className="block text-[13px] font-medium text-foreground mb-1">Reset code</span>
+            <input
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              className="input"
+              maxLength={6}
+              required
+            />
+          </label>
+        )}
+        {!user_id && (
+          <label className="block">
+            <span className="block text-[13px] font-medium text-foreground mb-1">User ID (from email)</span>
+            <input
+              value={userIdInput}
+              onChange={(e) => setUserIdInput(e.target.value)}
+              className="input"
+              required
+            />
+          </label>
+        )}
         <label className="block">
           <span className="block text-[13px] font-medium text-foreground mb-1">New password</span>
           <input

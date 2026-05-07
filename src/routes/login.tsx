@@ -36,8 +36,8 @@ function LoginPage() {
       await api.login(identifier.trim(), password);
       await refresh();
       router.navigate({ to: "/home" });
-    } catch {
-      setError("Could not log you in. Check your details and try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not log you in. Check your details and try again.");
     } finally {
       setSubmitting(false);
     }

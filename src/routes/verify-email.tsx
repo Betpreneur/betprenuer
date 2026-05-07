@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { api } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
 
 type Search = { email?: string };
 
@@ -21,7 +20,6 @@ export const Route = createFileRoute("/verify-email")({
 function VerifyEmailPage() {
   const { email } = Route.useSearch();
   const router = useRouter();
-  const { refresh } = useAuth();
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +35,9 @@ function VerifyEmailPage() {
     setSubmitting(true);
     try {
       await api.verifyEmail(email ?? "", code.trim());
-      await refresh();
-      router.navigate({ to: "/home" });
-    } catch {
-      setError("That code didn't match. Try again.");
+      router.navigate({ to: "/login" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "That code didn't match. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -51,8 +48,8 @@ function VerifyEmailPage() {
     try {
       await api.resendVerification(email ?? "");
       setResent(true);
-    } catch {
-      setError("Couldn't resend the code. Try again in a moment.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't resend the code. Try again in a moment.");
     }
   }
 
@@ -77,7 +74,7 @@ function VerifyEmailPage() {
             required
           />
           <span className="block text-[12px] text-muted-foreground mt-1">
-            Demo code: <code>123456</code>
+            We sent a 6-digit code to your email.
           </span>
         </label>
 
