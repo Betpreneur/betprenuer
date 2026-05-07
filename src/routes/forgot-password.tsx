@@ -29,8 +29,8 @@ function ForgotPasswordPage() {
     try {
       await api.forgotPassword(email.trim());
       setSent(true);
-    } catch {
-      setError("Couldn't send a reset link. Try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't send a reset link. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -50,10 +50,10 @@ function ForgotPasswordPage() {
           </p>
           <Link
             to="/reset-password"
-            search={{ token: "demo-token" }}
+            search={{ token: undefined, user_id: undefined }}
             className="block text-center w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md"
           >
-            Continue to reset (demo)
+            I have my reset code
           </Link>
           <Link to="/login" className="block text-center text-info-blue underline text-[13px]">
             Back to log in

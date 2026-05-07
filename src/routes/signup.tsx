@@ -52,8 +52,8 @@ function SignupPage() {
         whatsapp: whatsapp.trim(),
       });
       router.navigate({ to: "/verify-email", search: { email: email.trim() } });
-    } catch {
-      setError("Could not complete signup. Try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not complete signup. Try again.");
     } finally {
       setSubmitting(false);
     }
