@@ -112,8 +112,44 @@ function MatchPage() {
   }
 
   function handleWhatsApp() {
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    void shareToWhatsApp();
+  }
+
+  async function shareToWhatsApp() {
+    if (!pick) return;
+    try {
+      const blob = await renderShareCard(pick);
+      const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      const file = blob ? new File([blob], `betpreneur-${safeName}.png`, { type: "image/png" }) : null;
+      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+      if (file && nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({
+          files: [file],
+          text: shareText(),
+          title: "Betpreneur pick",
+        });
+        return;
+      }
+      // Fallback: download the card, then open WhatsApp with the text so the user can attach it
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `betpreneur-${safeName}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setShareMsg("Card saved ✓ Attach it in WhatsApp");
+        setTimeout(() => setShareMsg(null), 3500);
+      }
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      console.error(e);
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    }
   }
 
   return (
