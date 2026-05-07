@@ -35,6 +35,12 @@ function MatchPage() {
   const [error, setError] = useState(false);
   const [backing, setBacking] = useState(false);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{
+    url: string;
+    blob: Blob;
+    fileName: string;
+  } | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   const load = () => {
     setError(false);
@@ -75,6 +81,7 @@ function MatchPage() {
 
   function shareText(): string {
     if (!pick) return "";
+    const signupUrl = "https://betprenuer.lovable.app/signup";
     return [
       `🎯 Betpreneur pick`,
       ``,
@@ -84,45 +91,51 @@ function MatchPage() {
       ``,
       `"${pick.one_line_reason}"`,
       ``,
-      `More picks → https://betprenuer.lovable.app`,
+      `Get daily picks → ${signupUrl}`,
     ].join("\n");
   }
 
-  async function handleShare() {
-    if (!pick) return;
+  async function openPreview() {
+    if (!pick || generating) return;
+    setGenerating(true);
     try {
       const blob = await renderShareCard(pick);
       if (!blob) throw new Error("no blob");
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
       const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      a.download = `betpreneur-${safeName}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setShareMsg("Card downloaded ✓ Share it on WhatsApp");
-      setTimeout(() => setShareMsg(null), 3000);
+      setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
     } catch (e) {
       console.error(e);
-      setShareMsg("Could not download card");
+      setShareMsg("Could not generate card");
       setTimeout(() => setShareMsg(null), 2500);
+    } finally {
+      setGenerating(false);
     }
   }
 
-  function handleWhatsApp() {
-    void shareToWhatsApp();
+  function closePreview() {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
   }
 
-  async function shareToWhatsApp() {
-    if (!pick) return;
+  function downloadFromPreview() {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setShareMsg("Card downloaded ✓");
+    setTimeout(() => setShareMsg(null), 2500);
+  }
+
+  async function shareFromPreview() {
+    if (!preview) return;
+    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
     try {
-      const blob = await renderShareCard(pick);
-      const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      const file = blob ? new File([blob], `betpreneur-${safeName}.png`, { type: "image/png" }) : null;
-      const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-      if (file && nav.canShare && nav.canShare({ files: [file] })) {
+      if (nav.canShare && nav.canShare({ files: [file] })) {
         await nav.share({
           files: [file],
           text: shareText(),
@@ -130,26 +143,15 @@ function MatchPage() {
         });
         return;
       }
-      // Fallback: download the card, then open WhatsApp with the text so the user can attach it
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `betpreneur-${safeName}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setShareMsg("Card saved ✓ Attach it in WhatsApp");
-        setTimeout(() => setShareMsg(null), 3500);
-      }
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
-      window.open(waUrl, "_blank", "noopener,noreferrer");
     } catch (e) {
       console.error(e);
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
-      window.open(waUrl, "_blank", "noopener,noreferrer");
     }
+    // Fallback: save the PNG, then open WhatsApp web with the message
+    downloadFromPreview();
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+    setShareMsg("Card saved ✓ Attach it in WhatsApp");
+    setTimeout(() => setShareMsg(null), 3500);
   }
 
   return (
@@ -245,24 +247,76 @@ function MatchPage() {
             {pick.user_backed ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
           </button>
           <button
-            onClick={handleWhatsApp}
+            onClick={openPreview}
+            disabled={generating}
             className="min-h-[56px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
             aria-label="Share on WhatsApp"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44ZM12.06 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.72.97.99-3.62-.23-.37a9.85 9.85 0 0 1-1.51-5.27c0-5.45 4.44-9.89 9.9-9.89 2.64 0 5.13 1.03 7 2.9a9.83 9.83 0 0 1 2.9 7c0 5.46-4.44 9.9-9.93 9.9Zm5.43-7.41c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/></svg>
-            Share on WhatsApp
+            {generating ? "Preparing…" : "Share on WhatsApp"}
           </button>
           <button
-            onClick={handleShare}
+            onClick={openPreview}
+            disabled={generating}
             className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
             aria-label="Download share card image"
           >
-            Download card
+            {generating ? "Preparing…" : "Preview & download"}
           </button>
         </div>
       )}
       {shareMsg && (
         <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
+      )}
+
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          onClick={closePreview}
+        >
+          <div
+            className="bg-card border border-brand-border rounded-2xl max-w-md w-full max-h-full overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-3 border-b border-brand-border">
+              <h2 className="!text-[16px] !leading-none">Card preview</h2>
+              <button
+                onClick={closePreview}
+                className="text-muted-foreground hover:text-foreground text-[20px] leading-none px-2"
+                aria-label="Close preview"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <img
+                src={preview.url}
+                alt="Share card preview"
+                className="w-full h-auto rounded-lg block"
+              />
+              <p className="text-[12px] text-muted-foreground text-center mt-3">
+                Sent at 1080×1080 with a signup link to Betpreneur.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 pb-4">
+              <button
+                onClick={shareFromPreview}
+                className="min-h-[52px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44Z"/></svg>
+                Share on WhatsApp
+              </button>
+              <button
+                onClick={downloadFromPreview}
+                className="min-h-[52px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
+              >
+                Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -431,10 +485,10 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
   // ---- Footer ----
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
-  ctx.fillText("DAILY EDGE PICKS", PAD, H - PAD - 24);
+  ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
-  const url = "betprenuer.lovable.app";
+  const url = "betprenuer.lovable.app/signup";
   const uw = ctx.measureText(url).width;
   ctx.fillText(url, W - PAD - uw, H - PAD - 25);
 
