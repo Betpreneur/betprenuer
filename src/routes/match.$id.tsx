@@ -485,10 +485,10 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
   // ---- Footer ----
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
-  ctx.fillText("DAILY EDGE PICKS", PAD, H - PAD - 24);
+  ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
-  const url = "betprenuer.lovable.app";
+  const url = "betprenuer.lovable.app/signup";
   const uw = ctx.measureText(url).width;
   ctx.fillText(url, W - PAD - uw, H - PAD - 25);
 
