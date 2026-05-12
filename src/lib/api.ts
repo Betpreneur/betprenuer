@@ -400,11 +400,11 @@ export const api = {
     return u;
   },
 
-  /** POST /auth/verify-email/ — body: { code } */
-  async verifyEmail(_email: string, code: string): Promise<{ success: true }> {
+  /** POST /auth/verify-email/ — body: { email, code } */
+  async verifyEmail(email: string, code: string): Promise<{ success: true }> {
     await request(ENDPOINTS.verifyEmail, {
       method: "POST",
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ email, code }),
     });
     return { success: true };
   },
