@@ -44,7 +44,7 @@ function VerifyEmailPage() {
     }
     setSubmitting(true);
     try {
-      await api.verifyEmail(code.trim());
+      await api.verifyEmail(email.trim(), code.trim());
       router.navigate({ to: "/login" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "That code didn't match. Try again.");
