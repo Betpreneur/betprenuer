@@ -18,7 +18,8 @@ export const Route = createFileRoute("/verify-email")({
 });
 
 function VerifyEmailPage() {
-  const { email } = Route.useSearch();
+  const search = Route.useSearch();
+  const [email, setEmail] = useState(search.email ?? "");
   const router = useRouter();
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -28,13 +29,22 @@ function VerifyEmailPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!email.trim()) {
+      setError("Enter your email address.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Enter a valid email address.");
+      return;
+    }
     if (code.trim().length !== 6) {
       setError("Enter the 6-digit code we sent you.");
       return;
     }
     setSubmitting(true);
     try {
-      await api.verifyEmail(email ?? "", code.trim());
+      await api.verifyEmail(code.trim());
       router.navigate({ to: "/login" });
     } catch (e) {
       setError(e instanceof Error ? e.message : "That code didn't match. Try again.");
@@ -46,7 +56,7 @@ function VerifyEmailPage() {
   async function onResend() {
     setError(null);
     try {
-      await api.resendVerification(email ?? "");
+      await api.resendVerification(email.trim());
       setResent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't resend the code. Try again in a moment.");
@@ -58,10 +68,24 @@ function VerifyEmailPage() {
       <h1>Verify your email</h1>
       <p className="text-[14px] text-muted-foreground mt-1 mb-6">
         We sent a 6-digit verification code to{" "}
-        <span className="text-foreground font-medium">{email ?? "your email"}</span>.
+        <span className="text-foreground font-medium">{email || "your email"}</span>.
         Enter it below to activate your account.
       </p>
       <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
+        {!search.email && (
+          <label className="block">
+            <span className="block text-[13px] font-medium text-foreground mb-1">Email address</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="input"
+              required
+            />
+          </label>
+        )}
+
         <label className="block">
           <span className="block text-[13px] font-medium text-foreground mb-1">Verification code</span>
           <input
