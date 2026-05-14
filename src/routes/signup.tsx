@@ -20,7 +20,6 @@ function SignupPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [whatsapp, setWhatsapp] = useState("+234");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +29,7 @@ function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !username.trim() || !password || !email.trim() || !whatsapp.trim()) {
+    if (!name.trim() || !username.trim() || !password || !email.trim()) {
       setError("Please fill in all fields.");
       return;
     }
@@ -48,8 +47,7 @@ function SignupPage() {
         name: name.trim(),
         username: username.trim(),
         password,
-        email: email.trim(),
-        whatsapp: whatsapp.trim(),
+        email: email.trim()
       });
       router.navigate({ to: "/verify-email", search: { email: email.trim() } });
     } catch (err) {
@@ -104,15 +102,6 @@ function SignupPage() {
             onChange={(e) => setEmail(e.target.value)}
             className="input"
             autoComplete="email"
-            required
-          />
-        </Field>
-        <Field label="WhatsApp number">
-          <input
-            type="tel"
-            value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
-            className="input"
             required
           />
         </Field>

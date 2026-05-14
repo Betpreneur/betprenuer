@@ -179,14 +179,14 @@ function ConfidenceBar({ confidence, cleared }: { confidence: number; cleared: b
   }
   
   return (
-    <div className="flex items-center gap-2 min-w-[140px]">
-      <div className="flex-1 h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+    <div className="flex items-center gap-2 min-w-[100px] md:min-w-[140px]">
+      <div className="flex-1 h-1.5 md:h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
         <div 
           className={`h-full ${barColor} rounded-full transition-all duration-500 ${glow}`} 
           style={{ width: `${confidence}%` }}
         />
       </div>
-      <span className={`text-[11px] font-semibold ${textColor} w-10 text-right`}>
+      <span className={`text-[10px] md:text-[11px] font-semibold ${textColor} w-8 md:w-10 text-right`}>
         {confidence}%
       </span>
     </div>
@@ -210,44 +210,45 @@ function GameCard({ game, isLast }: { game: GameRow; isLast: boolean }) {
   const leagueColor = leagueColors[game.league] || "#22c55e";
   
   return (
-    <div className={`group bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl overflow-hidden hover:border-brand-green/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] ${!isLast ? 'mb-4' : ''}`}>
+    <div className={`group bg-[#0f0f0f] border border-[#1a1a1a] rounded-xl overflow-hidden hover:border-brand-green/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(34,197,94,0.1)] ${!isLast ? 'mb-3 md:mb-4' : ''}`}>
       <div 
-        className="px-6 py-4 border-b border-[#1a1a1a] flex items-center justify-between"
+        className="px-3 md:px-6 py-3 md:py-4 border-b border-[#1a1a1a] flex items-center justify-between"
         style={{ background: `linear-gradient(90deg, ${leagueColor}15 0%, transparent 100%)` }}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <div 
-            className="px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider"
+            className="px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[9px] md:text-[11px] font-semibold uppercase tracking-wider"
             style={{ backgroundColor: `${leagueColor}25`, color: leagueColor }}
           >
-            {game.league}
+            <span className="hidden md:inline">{game.league}</span>
+            <span className="md:hidden">{game.league.split(' ')[0]}</span>
           </div>
           <div>
-            <h3 className="text-[17px] font-semibold text-white">{game.match}</h3>
-            <p className="text-[12px] text-muted-foreground">{formatKickoff(game.kickoff_wat)}</p>
+            <h3 className="text-[14px] md:text-[17px] font-semibold text-white">{game.match}</h3>
+            <p className="text-[11px] md:text-[12px] text-muted-foreground">{formatKickoff(game.kickoff_wat)}</p>
           </div>
         </div>
         <Link
           to="/match/$id"
           params={{ id: game.id }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-brand-green hover:underline flex items-center gap-1 text-[12px]"
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-brand-green hover:underline flex items-center gap-1 text-[11px] md:text-[12px]"
         >
-          View picks <ChevronRight className="w-4 h-4" />
+          <span className="hidden sm:inline">View picks</span> <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
       
-      <div className="p-5 bg-[#0a0a0a]/50">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+      <div className="p-3 md:p-5 bg-[#0a0a0a]/50">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 md:gap-x-8 gap-y-2 md:gap-y-3">
           {marketRows.map((row, rowIdx) => (
             <div key={rowIdx} className="contents">
               {row.map((m) => (
-                <div key={m.market_id} className="flex items-center gap-3 py-1">
+                <div key={m.market_id} className="flex items-center gap-2 md:gap-3 py-1">
                   {m.cleared ? (
-                    <CheckCircle2 className="w-4 h-4 text-brand-green flex-shrink-0" />
+                    <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-brand-green flex-shrink-0" />
                   ) : (
-                    <Circle className="w-4 h-4 text-[#333] flex-shrink-0" />
+                    <Circle className="w-3 h-3 md:w-4 md:h-4 text-[#333] flex-shrink-0" />
                   )}
-                  <span className="text-[12px] text-muted-foreground w-28 truncate">{m.market_label}</span>
+                  <span className="text-[11px] md:text-[12px] text-muted-foreground w-20 md:w-28 truncate">{m.market_label}</span>
                   <ConfidenceBar confidence={m.confidence} cleared={m.cleared} />
                 </div>
               ))}
@@ -277,56 +278,57 @@ function DashboardPage() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-green/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px]" />
         
-        <div className="relative max-w-6xl mx-auto px-6 py-10">
-          <div className="flex items-center justify-between mb-8">
+        <div className="relative max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <TrendingUp className="w-6 h-6 text-brand-green" />
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-brand-green" />
+                <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                   FULL MARKET SCORECARD
                 </h1>
               </div>
-              <p className="text-muted-foreground text-[14px]">
+              <p className="text-muted-foreground text-[12px] md:text-[14px]">
                 Every fixture analysed today with confidence across all markets
               </p>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground text-[13px]">
-              <Calendar className="w-4 h-4" />
-              {todayLagos()}
+            <div className="flex items-center gap-2 text-muted-foreground text-[11px] md:text-[13px]">
+              <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">{todayLagos()}</span>
+              <span className="sm:hidden">{todayLagos().split(' ').slice(0,3).join(' ')}</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#111] border border-[#222] rounded-xl p-5">
-              <div className="text-3xl font-bold text-white mb-1">{games.length}</div>
-              <div className="text-[12px] text-muted-foreground uppercase tracking-wide">Fixtures</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6 md:mb-8">
+            <div className="bg-[#111] border border-[#222] rounded-lg md:rounded-xl p-3 md:p-5">
+              <div className="text-2xl md:text-3xl font-bold text-white mb-1">{games.length}</div>
+              <div className="text-[10px] md:text-[12px] text-muted-foreground uppercase tracking-wide">Fixtures</div>
             </div>
-            <div className="bg-[#111] border border-[#222] rounded-xl p-5">
-              <div className="text-3xl font-bold text-brand-green mb-1">{totalMarkets}</div>
-              <div className="text-[12px] text-muted-foreground uppercase tracking-wide">Markets</div>
+            <div className="bg-[#111] border border-[#222] rounded-lg md:rounded-xl p-3 md:p-5">
+              <div className="text-2xl md:text-3xl font-bold text-brand-green mb-1">{totalMarkets}</div>
+              <div className="text-[10px] md:text-[12px] text-muted-foreground uppercase tracking-wide">Markets</div>
             </div>
-            <div className="bg-[#111] border border-[#222] rounded-xl p-5">
-              <div className="text-3xl font-bold text-green-400 mb-1">{highConfCount}</div>
-              <div className="text-[12px] text-muted-foreground uppercase tracking-wide">High Confidence (70%+)</div>
+            <div className="bg-[#111] border border-[#222] rounded-lg md:rounded-xl p-3 md:p-5">
+              <div className="text-2xl md:text-3xl font-bold text-green-400 mb-1">{highConfCount}</div>
+              <div className="text-[10px] md:text-[12px] text-muted-foreground uppercase tracking-wide">70%+</div>
             </div>
-            <div className="bg-[#111] border border-[#222] rounded-xl p-5">
-              <div className="text-3xl font-bold text-amber-400 mb-1">{clearedCount}</div>
-              <div className="text-[12px] text-muted-foreground uppercase tracking-wide">Above Threshold (65%+)</div>
+            <div className="bg-[#111] border border-[#222] rounded-lg md:rounded-xl p-3 md:p-5">
+              <div className="text-2xl md:text-3xl font-bold text-amber-400 mb-1">{clearedCount}</div>
+              <div className="text-[10px] md:text-[12px] text-muted-foreground uppercase tracking-wide">65%+</div>
             </div>
           </div>
 
-          <div className="bg-[#111] border border-[#222] rounded-xl p-4 flex items-center gap-4">
-            <Activity className="w-5 h-5 text-brand-green flex-shrink-0" />
-            <p className="text-[13px] text-muted-foreground">
-              Markets highlighted with <span className="text-brand-green font-medium">green</span> have cleared their quality threshold (65%). 
-              <span className="text-green-400 font-medium ml-2">70%+ confidence</span> is highlighted with a glow effect.
-              <span className="text-red-400/70 font-medium ml-2">Below 50%</span> is highlighted in red.
+          <div className="bg-[#111] border border-[#222] rounded-lg md:rounded-xl p-3 md:p-4 flex flex-col md:flex-row md:items-center gap-3">
+            <Activity className="w-4 h-4 md:w-5 md:h-5 text-brand-green flex-shrink-0" />
+            <p className="text-[11px] md:text-[13px] text-muted-foreground leading-relaxed">
+              <span className="text-brand-green font-medium">Green</span> = cleared threshold (65%).
+              <span className="text-green-400 font-medium ml-1 md:ml-2">Glow</span> = 70%+ conf.
+              <span className="text-red-400/70 font-medium ml-1 md:ml-2">Red</span> = below 50%.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 pb-16">
+      <div className="max-w-6xl mx-auto px-3 md:px-6 pb-12 md:pb-16">
         <div className="space-y-2">
           {games.map((game, idx) => (
             <GameCard key={game.id} game={game} isLast={idx === games.length - 1} />

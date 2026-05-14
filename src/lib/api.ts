@@ -137,7 +137,7 @@ export interface SignupBody {
   username: string;
   password: string;
   email: string;
-  whatsapp: string;
+  whatsapp?: string;
   bankroll?: number;
 }
 
