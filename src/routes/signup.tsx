@@ -25,7 +25,7 @@ function SignupPage() {
   const [error, setError] = useState<string | null>(null);
 
   if (loading) return null;
-  if (isAuthed) return <Navigate to="/dashboard" />;
+  if (isAuthed) return <Navigate to="/home" />;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();

@@ -1,12 +1,11 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
-import { LayoutDashboard, Trophy, BarChart3, Settings as SettingsIcon } from "lucide-react";
+import { Trophy, BarChart3, Settings as SettingsIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/home", label: "Today", icon: Trophy },
   { to: "/top-pick", label: "Top Pick", icon: Trophy },
   { to: "/record", label: "Record", icon: BarChart3 },
@@ -21,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 bg-primary border-b border-primary">
-        <div className={`mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 ${path === "/" ? "max-w-[1600px]" : "max-w-3xl"}`}>
+        <div className={`mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-24 ${path === "/" ? "max-w-[1600px]" : path === "/dashboard" ? "max-w-[1400px]" : "max-w-3xl"}`}>
           <Link
             to="/"
             aria-label="Betpreneur — home"
@@ -70,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className={`flex-1 w-full pb-24 md:pb-10 pt-4 ${path === "/" ? "" : "mx-auto max-w-3xl px-4"}`}>{children}</main>
+      <main className={`flex-1 w-full pb-24 md:pb-10 pt-4 ${path === "/" ? "" : path === "/dashboard" ? "max-w-[1400px] mx-auto px-6" : "mx-auto max-w-3xl px-4"}`}>{children}</main>
 
       {isAuthed && (
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
