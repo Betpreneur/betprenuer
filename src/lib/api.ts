@@ -11,21 +11,21 @@ export const API_BASE_URL: string =
   "https://backend.betpreneur.ng/api";
 
 export const ENDPOINTS = {
-  signup: "/api/auth/signup/",
-  login: "/api/auth/login/",
-  logout: "/api/auth/logout/",
-  verifyEmail: "/api/auth/verify-email/",
-  resendVerification: "/api/auth/resend-verification/",
-  forgotPassword: "/api/auth/forgot-password/",
-  resetPassword: "/api/auth/reset-password/",
-  changePassword: "/api/auth/change-password/",
-  refresh: "/api/auth/token/refresh/",
-  me: "/api/auth/me/",
-  record: "/api/record/",
-  todayPicks: "/api/picks/today/",
-  topPick: "/api/picks/today/top/",
-  pick: (id: string) => `/api/picks/${id}/`,
-  markBacked: (id: string) => `/api/picks/${id}/backed/`,
+  signup: "/auth/signup/",
+  login: "/auth/login/",
+  logout: "/auth/logout/",
+  verifyEmail: "/auth/verify-email/",
+  resendVerification: "/auth/resend-verification/",
+  forgotPassword: "/auth/forgot-password/",
+  resetPassword: "/auth/reset-password/",
+  changePassword: "/auth/change-password/",
+  refresh: "/auth/token/refresh/",
+  me: "/auth/me/",
+  record: "/record/",
+  todayPicks: "/picks/today/",
+  topPick: "/picks/today/top/",
+  pick: (id: string) => `/picks/${id}/`,
+  markBacked: (id: string) => `/picks/${id}/backed/`,
 } as const;
 
 export function apiUrl(path: string): string {

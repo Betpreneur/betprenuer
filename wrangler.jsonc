@@ -6,5 +6,8 @@
   "main": "./dist/server/server.js",
   "assets": {
     "directory": "./dist/client"
+  },
+  "vars": {
+    "VITE_API_BASE_URL": "https://backend.betpreneur.ng/api"
   }
 }
