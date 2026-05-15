@@ -133,7 +133,6 @@ export interface AuthResponse {
 }
 
 export interface SignupBody {
-  name: string;
   username: string;
   password: string;
   email: string;
@@ -329,7 +328,7 @@ function summary(p: PickDetail): PickSummary {
 export const api = {
   /** POST /auth/signup/ — returns the created user (no tokens). */
   async signup(body: SignupBody): Promise<{ user: User }> {
-    const { code, number } = splitWhatsapp(body.whatsapp);
+    const { code, number } = splitWhatsapp(body.whatsapp ?? "");
     const payload = {
       username: body.username,
       email: body.email,

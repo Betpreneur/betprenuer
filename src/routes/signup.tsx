@@ -16,7 +16,6 @@ export const Route = createFileRoute("/signup")({
 function SignupPage() {
   const { isAuthed, loading, refresh } = useAuth();
   const router = useRouter();
-  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -29,7 +28,7 @@ function SignupPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !username.trim() || !password || !email.trim()) {
+    if (!username.trim() || !password || !email.trim()) {
       setError("Please fill in all fields.");
       return;
     }
@@ -44,7 +43,6 @@ function SignupPage() {
     setSubmitting(true);
     try {
       await api.signup({
-        name: name.trim(),
         username: username.trim(),
         password,
         email: email.trim()
@@ -64,15 +62,6 @@ function SignupPage() {
         Free while we're in beta. Daily picks posted by 06:30 WAT.
       </p>
       <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
-        <Field label="Full name">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input"
-            autoComplete="name"
-            required
-          />
-        </Field>
         <Field label="Email address">
           <input
             type="email"
