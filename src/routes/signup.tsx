@@ -73,6 +73,16 @@ function SignupPage() {
             required
           />
         </Field>
+        <Field label="Email address">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+            autoComplete="email"
+            required
+          />
+        </Field>
         <Field label="Username" hint="You'll use this to log in. Letters, numbers, and underscores.">
           <input
             value={username}
@@ -92,16 +102,6 @@ function SignupPage() {
             className="input"
             autoComplete="new-password"
             minLength={6}
-            required
-          />
-        </Field>
-        <Field label="Email address">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input"
-            autoComplete="email"
             required
           />
         </Field>
