@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "betpreneur",
+  "name": "tanstack-start-app",
   "compatibility_date": "2025-05-13",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./dist/server/server.js",
