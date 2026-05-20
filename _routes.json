@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "rules": [
+    { "pattern": "/api/*", "url": "https://backend.betpreneur.ng/api/*", "method": "GET" },
+    { "pattern": "/api/*", "url": "https://backend.betpreneur.ng/api/*", "method": "POST" }
+  ]
+}
