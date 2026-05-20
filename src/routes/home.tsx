@@ -27,6 +27,7 @@ interface GameMarket {
   market_label: string;
   confidence: number;
   cleared: boolean;
+  odds?: number;
 }
 
 interface GameRow {
@@ -43,7 +44,7 @@ function generateMockScorecard(): GameRow[] {
     {
       id: "g1",
       match: "Aston Villa vs Liverpool",
-      kickoff_wat: new Date().setHours(20, 0, 0, 0).toString(),
+      kickoff_wat: (() => { const d = new Date(); d.setHours(20, 0, 0, 0); return d.toISOString(); })(),
       league: "Premier League",
       markets: [
         { market_id: "dc_12", market_label: "DC: 12", confidence: 82, cleared: true },
@@ -71,7 +72,7 @@ function generateMockScorecard(): GameRow[] {
     {
       id: "g2",
       match: "CF Pachuca vs U.N.A.M. - Pumas",
-      kickoff_wat: new Date().setHours(2, 0, 0, 0).toString(),
+      kickoff_wat: (() => { const d = new Date(); d.setHours(2, 0, 0, 0); return d.toISOString(); })(),
       league: "Liga MX",
       markets: [
         { market_id: "over_1.5", market_label: "Over 1.5", confidence: 87, cleared: true },
@@ -100,7 +101,7 @@ function generateMockScorecard(): GameRow[] {
     {
       id: "g3",
       match: "Real Madrid vs Barcelona",
-      kickoff_wat: new Date().setHours(21, 0, 0, 0).toString(),
+      kickoff_wat: (() => { const d = new Date(); d.setHours(21, 0, 0, 0); return d.toISOString(); })(),
       league: "La Liga",
       markets: [
         { market_id: "over_1.5", market_label: "Over 1.5", confidence: 91, cleared: true },
@@ -129,7 +130,7 @@ function generateMockScorecard(): GameRow[] {
     {
       id: "g4",
       match: " PSG vs Monaco",
-      kickoff_wat: new Date().setHours(20, 45, 0, 0).toString(),
+      kickoff_wat: (() => { const d = new Date(); d.setHours(20, 45, 0, 0); return d.toISOString(); })(),
       league: "Ligue 1",
       markets: [
         { market_id: "gg", market_label: "BTTS Yes", confidence: 89, cleared: true },
@@ -248,7 +249,10 @@ function GameCard({ game, isLast }: { game: GameRow; isLast: boolean }) {
                   ) : (
                     <Circle className="w-3 h-3 md:w-4 md:h-4 text-[#333] flex-shrink-0" />
                   )}
-                  <span className="text-[11px] md:text-[12px] text-muted-foreground w-20 md:w-28 truncate">{m.market_label}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] md:text-[12px] text-muted-foreground truncate">{m.market_label}</div>
+                    {m.odds && <div className="text-[10px] md:text-[11px] text-amber-500">{Number(m.odds).toFixed(2)}</div>}
+                  </div>
                   <ConfidenceBar confidence={m.confidence} cleared={m.cleared} />
                 </div>
               ))}
@@ -262,7 +266,36 @@ function GameCard({ game, isLast }: { game: GameRow; isLast: boolean }) {
 
 function DashboardPage() {
   const { isAuthed, loading } = useAuth();
-  const [games] = useState<GameRow[]>(generateMockScorecard);
+  const [data, setData] = useState<TodayPicksResponse | null>(null);
+  const [loadingPicks, setLoadingPicks] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    setLoadingPicks(true);
+    api.getTodayPicks()
+      .then(setData)
+      .catch(() => setError(true))
+      .finally(() => setLoadingPicks(false));
+  }, [isAuthed]);
+
+  if (loading) return null;
+  if (!isAuthed) return <Navigate to="/record" />;
+
+  // Transform API data to view format
+  const games: GameRow[] = data?.fixtures?.map((fg) => ({
+    id: String(fg.match_id),
+    match: fg.fixture,
+    kickoff_wat: fg.kickoff,
+    league: fg.league,
+    markets: fg.picks.map((p) => ({
+      market_id: String(p.id),
+      market_label: p.market,
+      confidence: p.confidence,
+      cleared: p.status !== "pending",
+      odds: p.odds,
+    })),
+  })) || [];
   
   if (loading) return null;
   if (!isAuthed) return <Navigate to="/record" />;

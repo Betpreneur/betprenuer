@@ -62,16 +62,6 @@ function SignupPage() {
         Free while we're in beta. Daily picks posted by 06:30 WAT.
       </p>
       <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
-        <Field label="Email address">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="input"
-            autoComplete="email"
-            required
-          />
-        </Field>
         <Field label="Username" hint="You'll use this to log in. Letters, numbers, and underscores.">
           <input
             value={username}
@@ -80,6 +70,16 @@ function SignupPage() {
             autoComplete="username"
             minLength={3}
             maxLength={30}
+            required
+          />
+        </Field>
+        <Field label="Email address">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+            autoComplete="email"
             required
           />
         </Field>

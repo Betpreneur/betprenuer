@@ -21,11 +21,14 @@ export const ENDPOINTS = {
   changePassword: "/auth/change-password/",
   refresh: "/auth/token/refresh/",
   me: "/auth/me/",
-  record: "/record/",
-  todayPicks: "/picks/today/",
-  topPick: "/picks/today/top/",
-  pick: (id: string) => `/picks/${id}/`,
-  markBacked: (id: string) => `/picks/${id}/backed/`,
+  // Picks
+  algoPicks: "/algo/picks/",
+  algoPick: (id: string) => `/algo/picks/${id}/`,
+  algoBackPick: (id: string) => `/algo/picks/${id}/back/`,
+  algoTopPick: "/algo/top-pick/",
+  // Public
+  algoPublicRecord: "/algo/public/record/",
+  algoPublicSummary: "/algo/public/summary/",
 } as const;
 
 export function apiUrl(path: string): string {
@@ -211,81 +214,91 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   return (await res.json()) as T;
 }
 
-// ============== Pick types (kept from previous design) ================
+// ============== Pick types from new API ================
 
-export interface RecordStats {
+export interface PublicSummary {
   hit_rate: number;
-  roi: number;
-  total_picks: number;
+  roi_flat: number;
+  picks_logged: number;
+  wins: number;
+  losses: number;
+  voids: number;
+  pending: number;
+  window_days: number;
 }
-export interface MarketRow {
-  market: string;
-  picks: number;
-  hit_rate: number;
-  status: "active" | "paused";
-  note?: string;
-}
-export interface HistoryRow {
-  date: string;
-  match: string;
-  market: string;
-  tier: Tier;
-  odds: number;
-  result: "won" | "lost" | "void";
-  posted_at: string;
-}
-export interface RecordResponse {
-  stats: RecordStats;
-  by_market: MarketRow[];
-  history: HistoryRow[];
-}
-export interface PickSummary {
-  id: string;
-  fixture_id: string;
-  match: string;
+export interface Pick {
+  id: number;
+  match_date: string | null;
+  fixture: string;
+  home_team: string;
+  away_team: string;
   league: string;
-  market: string;
-  market_plain: string;
-  kickoff_wat: string;
-  confidence: number;
+  kickoff: string;
+  match_id: string;
   tier: Tier;
-  one_line_reason: string;
-  is_top_pick: boolean;
+  market: string;
+  meaning?: string;
+  reasoning?: string;
+  model_verdict?: string;
+  home_recent_form?: string[];
+  away_recent_form?: string[];
+  risk_flags?: string[];
+  confidence: number;
+  odds: number;
+  ev?: number;
+  stake?: number | null;
+  score?: string;
+  result?: string;
+  pnl?: number | null;
+  status: PickStatusEnum;
+  source?: string;
+  settled_at?: string | null;
+  created_at: string;
+  backed_count: number;
+  backed_by_me: boolean;
+}
+export type PickStatusEnum = "pending" | "win" | "loss" | "void";
+export interface TierEnum extends Tier {}
+
+export interface RecordResponse {
+  summary: PublicSummary;
+  picks: Pick[];
+}
+
+export interface FixturePickGroup {
+  fixture: string;
+  home_team: string;
+  away_team: string;
+  league: string;
+  kickoff: string;
+  match_id: string;
+  market_count: number;
+  markets_70_plus: number;
+  markets_65_plus: number;
+  picks: Pick[];
+}
+export interface DailyPicksSummary {
+  fixture_count: number;
+  market_count: number;
+  selected_pick_count: number;
+  picks_70_plus: number;
+  picks_65_plus: number;
+  markets_70_plus: number;
+  markets_65_plus: number;
 }
 export interface TodayPicksResponse {
   date: string;
-  status: "live" | "pending" | "no_picks";
-  picks: PickSummary[];
+  published: boolean;
+  run_id: number | null;
+  posted_at: string | null;
+  summary: DailyPicksSummary;
+  fixtures: FixturePickGroup[];
 }
-export interface PickDetail {
-  id: string;
-  match: string;
-  league: string;
-  kickoff_wat: string;
-  market: string;
-  market_plain: string;
-  confidence: number;
-  tier: Tier;
-  form_home: ("W" | "D" | "L")[];
-  form_away: ("W" | "D" | "L")[];
-  goals_profile: string[];
-  risk_flag: string | null;
-  model_verdict: string;
-  odds: number;
-  status: "pending" | "live" | "settled";
-  result: "won" | "lost" | "void" | null;
-  user_backed: boolean;
-  one_line_reason: string;
+export interface TopPickResponse {
+  date: string;
+  published: boolean;
+  pick: Pick | null;
 }
-export type TopPickResponse =
-  | {
-      locked: true;
-      match: string;
-      market_plain: string;
-      confidence: number;
-      kickoff_wat: string;
-    }
-  | (PickDetail & { locked: false });
 
 // ============== Mock picks (still used; backend pick endpoints TBD) ===
 
@@ -457,42 +470,39 @@ export const api = {
     return { success: true };
   },
 
-  // ============== Picks (mock fallback until backend exposes them) ====
+  // ============== Picks API (real endpoints) ====
 
-  async getRecord(): Promise<RecordResponse> {
-    return delay(MOCK_RECORD, 200);
-  },
-  async getTodayPicks(): Promise<TodayPicksResponse> {
-    return delay({
-      date: new Date().toISOString().slice(0, 10),
-      status: "live",
-      picks: MOCK_PICKS.map(summary),
+  /** GET /algo/public/record/ — Public audited pick record */
+  async getRecord(days = 90): Promise<RecordResponse> {
+    return request<RecordResponse>(ENDPOINTS.algoPublicRecord, {
+      search: { days: String(days) },
     });
   },
-  async getTopPick(): Promise<TopPickResponse> {
-    const top = MOCK_PICKS[0];
-    if (!session.hasToken()) {
-      return delay({
-        locked: true,
-        match: top.match,
-        market_plain: top.market_plain,
-        confidence: top.confidence,
-        kickoff_wat: top.kickoff_wat,
-      });
-    }
-    const backed = readBacked();
-    return delay({ ...top, user_backed: !!backed[top.id], locked: false });
+
+  /** GET /algo/public/summary/ — Public summary for landing page */
+  async getPublicSummary(): Promise<PublicSummary> {
+    return request<PublicSummary>(ENDPOINTS.algoPublicSummary);
   },
-  async getPick(id: string): Promise<PickDetail> {
-    const p = MOCK_PICKS.find((x) => x.id === id);
-    if (!p) throw new Error("not_found");
-    const backed = readBacked();
-    return delay({ ...p, user_backed: !!backed[id] });
+
+  /** GET /algo/picks/ — Daily picks (optional date) */
+  async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
+    return request<TodayPicksResponse>(ENDPOINTS.algoPicks, date ? { search: { date } } : {});
   },
-  async markBacked(id: string, staked_amount: number): Promise<{ success: true }> {
-    const map = readBacked();
-    map[id] = staked_amount;
-    writeBacked(map);
-    return delay({ success: true }, 150);
+
+  /** GET /algo/top-pick/ — Top pick of the day */
+  async getTopPick(date?: string): Promise<TopPickResponse> {
+    return request<TopPickResponse>(ENDPOINTS.algoTopPick, date ? { search: { date } } : {});
+  },
+
+  /** GET /algo/picks/:id/ — Get a specific pick */
+  async getPick(id: number): Promise<Pick> {
+    return request<Pick>(ENDPOINTS.algoPick(String(id)));
+  },
+
+  /** POST /algo/picks/:id/back/ — Mark that user backed this pick */
+  async markBacked(id: number): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoBackPick(String(id)), { method: "POST" });
+    return { success: true };
   },
 };
+

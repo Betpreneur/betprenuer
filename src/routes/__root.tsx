@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
+import faviconUrl from "@/assets/favicon.svg?url";
 
 import appCss from "../styles.css?url";
 
@@ -45,6 +46,7 @@ export const Route = createRootRoute({
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c1d819c8-b8ab-4a30-915b-d2b3b4139a7b/id-preview-879ff483--dd03e80d-9415-405e-983e-73f6a243c9d5.lovable.app-1777551394453.png" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: faviconUrl },
       {
         rel: "stylesheet",
         href: appCss,

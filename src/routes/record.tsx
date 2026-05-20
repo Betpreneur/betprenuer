@@ -1,15 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { api, type RecordResponse } from "@/lib/api";
-import { shortDate } from "@/lib/time";
-import { tierLabel } from "@/lib/stake";
+import { api, type RecordResponse, type Pick } from "@/lib/api";
 
 export const Route = createFileRoute("/record")({
   head: () => ({
     meta: [
-      { title: "Track record — Betpreneur" },
+      { title: "Track record � Betpreneur" },
       { name: "description", content: "All Betpreneur picks from the last 90 days. Auto-settled. Nothing deleted." },
-      { property: "og:title", content: "Betpreneur — 90-day track record" },
+      { property: "og:title", content: "Betpreneur � 90-day track record" },
       { property: "og:description", content: "66.3% hit rate. +18.4% ROI. 358 picks." },
     ],
   }),
@@ -25,41 +23,72 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function TierBadge({ tier }: { tier: string }) {
+  const colors: Record<string, string> = {
+    banker: "bg-brand-green text-primary-foreground",
+    value_gem: "bg-teal-600 text-white",
+    wild_card: "bg-purple-600 text-white",
+  };
+  return (
+    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tier] || "bg-gray-600 text-white"}`}>
+      {tier?.replace("_", " ") || ""}
+    </span>
+  );
+}
+
+function ResultBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    won: "text-win-green",
+    loss: "text-danger-red",
+    void: "text-muted-foreground",
+    pending: "text-amber-500",
+  };
+  return (
+    <span className={`text-[12px] font-medium ${styles[status] || "text-muted-foreground"}`}>
+      {status?.toUpperCase() || ""}
+    </span>
+  );
+}
+
 function RecordPage() {
   const [data, setData] = useState<RecordResponse | null>(null);
   const [error, setError] = useState(false);
-  const [marketFilter, setMarketFilter] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
   const [resultFilter, setResultFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const PER_PAGE = 20;
 
   const load = () => {
+    setLoading(true);
     setError(false);
-    api
-      .getRecord()
+    api.getRecord()
       .then(setData)
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   };
+
   useEffect(load, []);
 
   const filtered = useMemo(() => {
-    if (!data) return [];
-    return data.history.filter((h) => {
-      if (marketFilter !== "all" && h.market !== marketFilter) return false;
-      if (resultFilter !== "all" && h.result !== resultFilter) return false;
+    if (!data?.picks) return [];
+    return data.picks.filter((p: Pick) => {
+      if (resultFilter !== "all" && p.status !== resultFilter) return false;
       return true;
     });
-  }, [data, marketFilter, resultFilter]);
+  }, [data, resultFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
+  const stats = data?.summary;
+  const hasPicks = data && data.picks && data.picks.length > 0;
+
   if (error) {
     return (
       <div className="text-center py-16">
-        <p className="text-body-text">Unable to load record — tap to retry.</p>
+        <p className="text-body-text">Unable to load record.</p>
         <button onClick={load} className="mt-4 px-4 py-2 bg-brand-green text-primary-foreground rounded-md">
-          Retry
+          Tap to retry
         </button>
       </div>
     );
@@ -68,145 +97,112 @@ function RecordPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1>Track record — last 90 days.</h1>
+        <h1>Track record</h1>
         <p className="text-[14px] text-muted-foreground mt-1">
-          All picks posted before kick-off. Results auto-settled. Nothing deleted.
+          All picks posted before kick-off. Results auto-settled.
         </p>
       </div>
 
-      {!data ? (
+      {loading ? (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="h-20 bg-card border border-brand-border rounded-lg animate-pulse" />
             ))}
           </div>
-          <div className="h-40 bg-card border border-brand-border rounded-lg animate-pulse" />
         </div>
-      ) : data.history.length === 0 ? (
-        <p className="text-body-text">Record building — first picks posted soon.</p>
+      ) : !hasPicks ? (
+        <div className="text-center py-12 bg-card border border-brand-border rounded-lg">
+          <p className="text-muted-foreground">Record building � picks will appear here soon.</p>
+          <Link to="/signup" className="mt-4 inline-block text-brand-green underline">
+            Sign up to get started ?
+          </Link>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">
-            <StatCard label="Hit rate" value={`${data.stats.hit_rate.toFixed(1)}%`} />
-            <StatCard label="ROI flat" value={`+${data.stats.roi.toFixed(1)}%`} />
-            <StatCard label="Total picks" value={String(data.stats.total_picks)} />
+            <StatCard label="Hit rate" value={stats ? `${stats.hit_rate.toFixed(1)}%` : "�"} />
+            <StatCard label="ROI flat" value={stats ? `${stats.roi_flat >= 0 ? "+" : ""}${stats.roi_flat.toFixed(1)}%` : "�"} />
+            <StatCard label="Picks logged" value={stats ? String(stats.picks_logged) : "�"} />
           </div>
 
-          <section>
-            <h2 className="mb-2">By market</h2>
-            <div className="bg-card border border-brand-border rounded-lg overflow-hidden">
-              <table className="w-full text-[14px]">
-                <thead className="bg-subtle-bg text-muted-foreground text-[12px] uppercase">
-                  <tr>
-                    <th className="text-left px-4 py-2 font-medium">Market</th>
-                    <th className="text-right px-4 py-2 font-medium">Picks</th>
-                    <th className="text-right px-4 py-2 font-medium">Hit rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.by_market.map((m) => (
-                    <tr key={m.market} className="border-t border-brand-border align-top">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-body-text">{m.market}</div>
-                        {m.status === "paused" && m.note && (
-                          <div className="mt-1 text-[12px] text-amber-text bg-amber-bg inline-block px-2 py-0.5 rounded">
-                            {m.note}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right text-body-text">{m.picks}</td>
-                      <td className={`px-4 py-3 text-right font-medium ${
-                        m.hit_rate >= 65 ? "text-win-green" : "text-danger-red"
-                      }`}>
-                        {m.hit_rate.toFixed(1)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-2">Pick history</h2>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <select
-                value={marketFilter}
-                onChange={(e) => { setMarketFilter(e.target.value); setPage(1); }}
-                className="bg-card border border-brand-border rounded-md px-3 py-2 text-[13px]"
+          <div className="flex flex-wrap gap-2">
+            {(["all", "won", "loss", "void", "pending"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => { setResultFilter(r); setPage(1); }}
+                className={`px-3 py-2 rounded-md text-[13px] border ${
+                  resultFilter === r
+                    ? "bg-brand-green text-primary-foreground border-brand-green"
+                    : "bg-card border-brand-border text-body-text"
+                }`}
               >
-                <option value="all">All markets</option>
-                {[...new Set(data.history.map((h) => h.market))].map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              {(["all", "won", "lost", "void"] as const).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => { setResultFilter(r); setPage(1); }}
-                  className={`px-3 py-2 rounded-md text-[13px] border ${
-                    resultFilter === r
-                      ? "bg-brand-green text-primary-foreground border-brand-green"
-                      : "bg-card border-brand-border text-body-text"
-                  }`}
-                >
-                  {r === "all" ? "All results" : r[0].toUpperCase() + r.slice(1)}
-                </button>
-              ))}
-            </div>
-            <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
-                  <tr>
-                    <th className="text-left px-3 py-2 font-medium">Date</th>
-                    <th className="text-left px-3 py-2 font-medium">Match</th>
-                    <th className="text-left px-3 py-2 font-medium">Market</th>
-                    <th className="text-left px-3 py-2 font-medium">Tier</th>
-                    <th className="text-right px-3 py-2 font-medium">Odds</th>
-                    <th className="text-right px-3 py-2 font-medium">Result</th>
+                {r === "all" ? "All" : r[0].toUpperCase() + r.slice(1)}
+                {r !== "all" && stats && (
+                  <span className="ml-1.5 opacity-70">
+                    ({r === "won" ? stats.wins : r === "loss" ? stats.losses : r === "void" ? stats.voids : stats.pending})
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
+            <table className="w-full text-[13px]">
+              <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
+                <tr>
+                  <th className="text-left px-3 py-2 font-medium">Date</th>
+                  <th className="text-left px-3 py-2 font-medium">Match</th>
+                  <th className="text-left px-3 py-2 font-medium">Market</th>
+                  <th className="text-left px-3 py-2 font-medium">Tier</th>
+                  <th className="text-right px-3 py-2 font-medium">Odds</th>
+                  <th className="text-right px-3 py-2 font-medium">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((pick: Pick) => (
+                  <tr key={pick.id} className="border-t border-brand-border">
+                    <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
+                      {pick.match_date ? new Date(pick.match_date).toLocaleDateString() : "�"}
+                    </td>
+                    <td className="px-3 py-2">
+                      <Link to={`/match/${pick.id}`} className="hover:text-brand-green">
+                        {pick.fixture}
+                      </Link>
+                    </td>
+                    <td className="px-3 py-2">{pick.market}</td>
+                    <td className="px-3 py-2">
+                      <TierBadge tier={pick.tier} />
+                    </td>
+                    <td className="px-3 py-2 text-right">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</td>
+                    <td className="px-3 py-2 text-right">
+                      <ResultBadge status={pick.status} />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {visible.map((h, i) => (
-                    <tr key={i} className="border-t border-brand-border">
-                      <td className="px-3 py-2 whitespace-nowrap">{shortDate(h.date)}</td>
-                      <td className="px-3 py-2">{h.match}</td>
-                      <td className="px-3 py-2">{h.market}</td>
-                      <td className="px-3 py-2">{tierLabel(h.tier)}</td>
-                      <td className="px-3 py-2 text-right">{h.odds.toFixed(2)}</td>
-                      <td className={`px-3 py-2 text-right font-medium ${
-                        h.result === "won" ? "text-win-green"
-                        : h.result === "lost" ? "text-danger-red"
-                        : "text-muted-foreground"
-                      }`}>
-                        {h.result.toUpperCase()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between text-[13px]">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-muted-foreground">Page {page} of {totalPages}</span>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-3 text-[13px]">
-                <button
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span className="text-muted-foreground">Page {page} of {totalPages}</span>
-                <button
-                  disabled={page === totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </section>
+          )}
         </>
       )}
     </div>

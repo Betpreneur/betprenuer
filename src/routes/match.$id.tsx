@@ -86,8 +86,8 @@ function MatchPage() {
       `🎯 Betpreneur pick`,
       ``,
       `${pick.match}`,
-      `${pick.market_plain} @ ${pick.odds.toFixed(2)}`,
-      `Confidence: ${pick.confidence.toFixed(1)}% · ${tierLabel(pick.tier)}`,
+      `${pick.market_plain} @ ${Number(pick.odds).toFixed(2)}`,
+      `Confidence: ${pick.confidence.toFixed(1)}% · ${tierLabel(pick.tier)}`,  
       ``,
       `"${pick.one_line_reason}"`,
       ``,
@@ -176,7 +176,7 @@ function MatchPage() {
         </div>
         <div className="mt-3 text-[13px] text-muted-foreground">
           Confidence: <span className="font-medium text-win-green">{pick.confidence.toFixed(1)}%</span>
-          {" · "}Odds: <span className="font-medium text-foreground">{pick.odds.toFixed(2)}</span>
+          {" · "}Odds: <span className="font-medium text-foreground">{Number(pick.odds).toFixed(2)}</span>
         </div>
       </header>
 
@@ -441,7 +441,7 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 
   ctx.fillStyle = RED;
   ctx.font = "900 76px Montserrat, sans-serif";
-  const oVal = pick.odds.toFixed(2);
+  const oVal = Number(pick.odds).toFixed(2);
   const oValW = ctx.measureText(oVal).width;
   ctx.fillText(oVal, cardX + cardW - 36 - oValW, cardY + 60);
 

@@ -7,8 +7,26 @@ dayjs.extend(timezone);
 
 const TZ = "Africa/Lagos";
 
-export function formatKickoff(iso: string): string {
-  return dayjs(iso).tz(TZ).format("HH:mm") + " WAT";
+export function formatKickoff(iso: string | number | null | undefined): string {
+  if (!iso) return "–";
+  
+  // Handle numeric timestamps (milliseconds)
+  let parsed = dayjs(iso);
+  
+  // If dayjs couldn't parse it, try parsing as a number
+  if (!parsed.isValid() && typeof iso === "string") {
+    const num = parseInt(iso, 10);
+    if (!isNaN(num)) {
+      parsed = dayjs(num);
+    }
+  }
+  
+  // If still invalid, return error state
+  if (!parsed.isValid()) {
+    return "–";
+  }
+  
+  return parsed.tz(TZ).format("HH:mm") + " WAT";
 }
 
 export function formatLongDate(iso: string): string {

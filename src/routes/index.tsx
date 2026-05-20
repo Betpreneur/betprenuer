@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { api, type RecordStats } from "@/lib/api";
+import { api, type PublicSummary } from "@/lib/api";
 import { TrendingUp, ShieldCheck, Zap, BarChart3, ArrowRight, Trophy } from "lucide-react";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import heroAnalytics from "@/assets/hero-analytics.jpg";
@@ -27,13 +27,10 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { isAuthed, loading } = useAuth();
-  const [stats, setStats] = useState<RecordStats | null>(null);
+  const [stats, setStats] = useState<PublicSummary | null>(null);
 
   useEffect(() => {
-    api
-      .getRecord()
-      .then((r) => setStats(r.stats))
-      .catch(() => {});
+    api.getPublicSummary().then(setStats).catch(() => {});
   }, []);
 
   if (loading) return null;
@@ -122,12 +119,12 @@ function Landing() {
             />
             <StatChip
               label="ROI flat"
-              value={stats ? `+${stats.roi.toFixed(1)}%` : "—"}
+              value={stats ? `+${stats.roi_flat.toFixed(1)}%` : "—"}
               tone="teal"
             />
             <StatChip
               label="Picks logged"
-              value={stats ? String(stats.total_picks) : "—"}
+              value={stats ? String(stats.picks_logged) : "—"}
               tone="white"
             />
           </div>
