@@ -80,8 +80,8 @@ function RecordPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const stats = data?.summary ?? data?.stats;
-  const picksArray = data?.picks ?? data?.results ?? [];
+  const stats = data?.summary;
+  const picksArray = data?.records ?? data?.picks ?? [];
   const hasPicks = picksArray && Array.isArray(picksArray) && picksArray.length > 0;
 
   if (error) {

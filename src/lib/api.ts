@@ -228,6 +228,7 @@ export interface PublicSummary {
 }
 export interface Pick {
   id: number;
+  posted_at?: string;
   match_date: string | null;
   fixture: string;
   home_team: string;
@@ -237,6 +238,7 @@ export interface Pick {
   match_id: string;
   tier: Tier;
   market: string;
+  pick?: string;
   meaning?: string;
   reasoning?: string;
   model_verdict?: string;
@@ -262,7 +264,8 @@ export interface TierEnum extends Tier {}
 
 export interface RecordResponse {
   summary: PublicSummary;
-  picks: Pick[];
+  records?: Pick[];
+  picks?: Pick[];
 }
 
 export interface FixturePickGroup {
