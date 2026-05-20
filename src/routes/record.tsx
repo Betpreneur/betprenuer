@@ -70,8 +70,8 @@ function RecordPage() {
   useEffect(load, []);
 
   const filtered = useMemo(() => {
-    if (!data?.picks) return [];
-    return data.picks.filter((p: Pick) => {
+    if (!picksArray) return [];
+    return picksArray.filter((p: Pick) => {
       if (resultFilter !== "all" && p.status !== resultFilter) return false;
       return true;
     });
@@ -80,8 +80,9 @@ function RecordPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const stats = data?.summary;
-  const hasPicks = data && data.picks && data.picks.length > 0;
+  const stats = data?.summary ?? data?.stats;
+  const picksArray = data?.picks ?? data?.results ?? [];
+  const hasPicks = picksArray && Array.isArray(picksArray) && picksArray.length > 0;
 
   if (error) {
     return (
