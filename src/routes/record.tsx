@@ -62,14 +62,21 @@ function RecordPage() {
     setLoading(true);
     setError(false);
     api.getRecord()
-      .then(setData)
-      .catch(() => setError(true))
+      .then((response) => {
+        console.log('Record response:', response);
+        setData(response);
+      })
+      .catch((err) => {
+        console.error('Record error:', err);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
 
   const picksArray = data?.records ?? data?.picks ?? [];
+  console.log('data:', data, 'picksArray:', picksArray);
   const filtered = useMemo(() => {
     if (!picksArray) return [];
     return picksArray.filter((p: Pick) => {
