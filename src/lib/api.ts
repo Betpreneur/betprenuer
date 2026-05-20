@@ -260,7 +260,8 @@ export interface Pick {
   backed_by_me: boolean;
 }
 export type PickStatusEnum = "pending" | "win" | "loss" | "void";
-export interface TierEnum extends Tier {}
+// Legacy alias removed
+// export interface TierEnum extends Tier {}
 
 export interface RecordResponse {
   summary: PublicSummary;
@@ -301,42 +302,6 @@ export interface TopPickResponse {
   date: string;
   published: boolean;
   pick: Pick | null;
-}
-
-// ============== Mock picks (still used; backend pick endpoints TBD) ===
-
-function delay<T>(value: T, ms = 350): Promise<T> {
-  return new Promise((res) => setTimeout(() => res(value), ms));
-}
-const isoToday = (h: number, m = 0) => {
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d.toISOString();
-};
-const MOCK_PICKS: PickDetail[] = [
-  {
-    id: "p1", match: "Arsenal vs Chelsea", league: "Premier League",
-    kickoff_wat: isoToday(19, 45), market: "BTTS_YES",
-    market_plain: "Both teams to score", confidence: 79.3, tier: "banker",
-    form_home: ["W","W","D","W","L","W"], form_away: ["D","W","L","L","W","D"],
-    goals_profile: ["Arsenal scored in 7 of their last 8 home games."],
-    risk_flag: null,
-    model_verdict: "Strong attacking edge for both sides.",
-    odds: 1.85, status: "live", result: null, user_backed: false,
-    one_line_reason: "Arsenal score at home, Chelsea concede on the road.",
-  },
-];
-const MOCK_RECORD: RecordResponse = {
-  stats: { hit_rate: 66.3, roi: 18.4, total_picks: 358 },
-  by_market: [], history: [],
-};
-function summary(p: PickDetail): PickSummary {
-  return {
-    id: p.id, fixture_id: p.id, match: p.match, league: p.league,
-    market: p.market, market_plain: p.market_plain, kickoff_wat: p.kickoff_wat,
-    confidence: p.confidence, tier: p.tier, one_line_reason: p.one_line_reason,
-    is_top_pick: p.id === "p1",
-  };
 }
 
 // ============== API ==================================================
@@ -398,7 +363,7 @@ export const api = {
   },
 
   /** PATCH /auth/me/ */
-  async updateMe(patch: Partial<Pick<User, "name" | "whatsapp" | "bankroll">>): Promise<User> {
+  async updateMe(patch: Partial<User>): Promise<User> {
     const body: Record<string, unknown> = {};
     if (patch.name !== undefined) body.username = patch.name;
     if (patch.whatsapp !== undefined) {
@@ -477,9 +442,8 @@ export const api = {
 
   /** GET /algo/public/record/ — Public audited pick record */
   async getRecord(days = 90): Promise<RecordResponse> {
-    return request<RecordResponse>(ENDPOINTS.algoPublicRecord, {
-      search: { days: String(days) },
-    });
+    const url = days !== 90 ? `${ENDPOINTS.algoPublicRecord}?days=${days}` : ENDPOINTS.algoPublicRecord;
+    return request<RecordResponse>(url);
   },
 
   /** GET /algo/public/summary/ — Public summary for landing page */
@@ -489,12 +453,14 @@ export const api = {
 
   /** GET /algo/picks/ — Daily picks (optional date) */
   async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
-    return request<TodayPicksResponse>(ENDPOINTS.algoPicks, date ? { search: { date } } : {});
+    const url = date ? `${ENDPOINTS.algoPicks}?date=${date}` : ENDPOINTS.algoPicks;
+    return request<TodayPicksResponse>(url);
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */
   async getTopPick(date?: string): Promise<TopPickResponse> {
-    return request<TopPickResponse>(ENDPOINTS.algoTopPick, date ? { search: { date } } : {});
+    const url = date ? `${ENDPOINTS.algoTopPick}?date=${date}` : ENDPOINTS.algoTopPick;
+    return request<TopPickResponse>(url);
   },
 
   /** GET /algo/picks/:id/ — Get a specific pick */

@@ -1,13 +1,14 @@
+// filepath: src/routes/record.tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { api, type RecordResponse, type Pick } from "@/lib/api";
 
 export const Route = createFileRoute("/record")({
   head: () => ({
     meta: [
-      { title: "Track record � Betpreneur" },
+      { title: "Track record — Betpreneur" },
       { name: "description", content: "All Betpreneur picks from the last 90 days. Auto-settled. Nothing deleted." },
-      { property: "og:title", content: "Betpreneur � 90-day track record" },
+      { property: "og:title", content: "Betpreneur — 90-day track record" },
       { property: "og:description", content: "66.3% hit rate. +18.4% ROI. 358 picks." },
     ],
   }),
@@ -52,52 +53,39 @@ function ResultBadge({ status }: { status: string }) {
 
 function RecordPage() {
   const [data, setData] = useState<RecordResponse | null>(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [resultFilter, setResultFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const PER_PAGE = 20;
 
-  const load = () => {
-    setLoading(true);
-    setError(false);
+  // Load like landing page does
+  useEffect(() => {
+    console.log('[RECORD] Loading...');
     api.getRecord()
-      .then((response) => {
-        console.log('Record response:', response);
-        setData(response);
-      })
-      .catch((err) => {
-        console.error('Record error:', err);
-        setError(true);
-      })
-      .finally(() => setLoading(false));
-  };
+      .then(setData)
+      .catch((e) => console.error('[RECORD] Error:', e));
+  }, []);
 
-  useEffect(load, []);
+  // Get picks from any available field
+  const picks = (data as any)?.records ?? (data as any)?.picks ?? [];
+  const stats = data?.summary;
+  const hasPicks = picks && picks.length > 0;
 
-  const picksArray = (data as any)?.records ?? (data as any)?.picks ?? (data as any)?.results ?? [];
-  console.log('data:', data, 'picksArray:', picksArray);
-  const filtered = useMemo(() => {
-    if (!picksArray) return [];
-    return picksArray.filter((p: Pick) => {
-      if (resultFilter !== "all" && p.status !== resultFilter) return false;
-      return true;
-    });
-  }, [data, resultFilter, picksArray]);
-
+  // Client-side filter
+  const filtered = !resultFilter || resultFilter === "all" 
+    ? picks 
+    : picks.filter((p: Pick) => p.status === resultFilter);
+  
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const stats = data?.summary;
-  const hasPicks = picksArray && Array.isArray(picksArray) && picksArray.length > 0;
-
-  if (error) {
+  if (!data) {
     return (
-      <div className="text-center py-16">
-        <p className="text-body-text">Unable to load record.</p>
-        <button onClick={load} className="mt-4 px-4 py-2 bg-brand-green text-primary-foreground rounded-md">
-          Tap to retry
-        </button>
+      <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-3">
+          {[0,1,2].map(i => (
+            <div key={i} className="h-20 bg-card border border-brand-border rounded-lg animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -111,17 +99,9 @@ function RecordPage() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-20 bg-card border border-brand-border rounded-lg animate-pulse" />
-            ))}
-          </div>
-        </div>
-      ) : !hasPicks ? (
+      {!hasPicks ? (
         <div className="text-center py-12 bg-card border border-brand-border rounded-lg">
-          <p className="text-muted-foreground">Record building � picks will appear here soon.</p>
+          <p className="text-muted-foreground">Record building — picks will appear here soon.</p>
           <Link to="/signup" className="mt-4 inline-block text-brand-green underline">
             Sign up to get started ?
           </Link>
@@ -129,9 +109,9 @@ function RecordPage() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">
-            <StatCard label="Hit rate" value={stats ? `${stats.hit_rate.toFixed(1)}%` : "�"} />
-            <StatCard label="ROI flat" value={stats ? `${stats.roi_flat >= 0 ? "+" : ""}${stats.roi_flat.toFixed(1)}%` : "�"} />
-            <StatCard label="Picks logged" value={stats ? String(stats.picks_logged) : "�"} />
+            <StatCard label="Hit rate" value={stats ? `${stats.hit_rate?.toFixed(1)}%` : "—"} />
+            <StatCard label="ROI flat" value={stats ? `${stats.roi_flat >= 0 ? "+" : ""}${stats.roi_flat?.toFixed(1)}%` : "—"} />
+            <StatCard label="Picks logged" value={stats ? String(stats.picks_logged) : "—"} />
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -171,7 +151,7 @@ function RecordPage() {
                 {visible.map((pick: Pick) => (
                   <tr key={pick.id} className="border-t border-brand-border">
                     <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
-                      {pick.match_date ? new Date(pick.match_date).toLocaleDateString() : "�"}
+                      {pick.match_date ? new Date(pick.match_date).toLocaleDateString() : "—"}
                     </td>
                     <td className="px-3 py-2">
                       <Link to={`/match/${pick.id}`} className="hover:text-brand-green">
@@ -196,7 +176,7 @@ function RecordPage() {
             <div className="flex items-center justify-between text-[13px]">
               <button
                 disabled={page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
                 className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
               >
                 Previous
@@ -204,7 +184,7 @@ function RecordPage() {
               <span className="text-muted-foreground">Page {page} of {totalPages}</span>
               <button
                 disabled={page === totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
               >
                 Next
@@ -213,6 +193,12 @@ function RecordPage() {
           )}
         </>
       )}
+
+      <div className="text-center pt-4">
+        <Link to="/signup" className="text-brand-green underline">
+          Sign up free to access more picks
+        </Link>
+      </div>
     </div>
   );
 }
