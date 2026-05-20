@@ -1,8 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tanstack-start-app",
-  "account_id": "330b33711087353718792996cdf5e8d2",
-  "type": "javascript",
   "pages_build_output_dir": "./dist/client",
   "vars": {
     "VITE_API_BASE_URL": "https://backend.betpreneur.ng/api"
