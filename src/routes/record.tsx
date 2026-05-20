@@ -75,7 +75,7 @@ function RecordPage() {
 
   useEffect(load, []);
 
-  const picksArray = data?.records ?? data?.picks ?? [];
+  const picksArray = (data as any)?.records ?? (data as any)?.picks ?? (data as any)?.results ?? [];
   console.log('data:', data, 'picksArray:', picksArray);
   const filtered = useMemo(() => {
     if (!picksArray) return [];
