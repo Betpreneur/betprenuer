@@ -1,15 +1,41 @@
 // filepath: src/routes/record.tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type RecordResponse, type Pick } from "@/lib/api";
+
+// Direct fetch to bypass all api.ts complexity
+const API_BASE = "https://backend.betpreneur.ng/api";
+
+interface ApiPick {
+  id: number;
+  match_date: string | null;
+  fixture: string;
+  league: string;
+  kickoff: string;
+  tier: string;
+  market: string;
+  confidence: number;
+  odds: number;
+  status: string;
+}
+
+interface ApiRecord {
+  summary: {
+    hit_rate: number;
+    roi_flat: number;
+    picks_logged: number;
+    wins: number;
+    losses: number;
+    voids: number;
+    pending: number;
+  };
+  records: ApiPick[];
+}
 
 export const Route = createFileRoute("/record")({
   head: () => ({
     meta: [
       { title: "Track record — Betpreneur" },
-      { name: "description", content: "All Betpreneur picks from the last 90 days. Auto-settled. Nothing deleted." },
-      { property: "og:title", content: "Betpreneur — 90-day track record" },
-      { property: "og:description", content: "66.3% hit rate. +18.4% ROI. 358 picks." },
+      { name: "description", content: "All Betpreneur picks from the last 90 days" },
     ],
   }),
   component: RecordPage,
@@ -24,61 +50,35 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TierBadge({ tier }: { tier: string }) {
-  const colors: Record<string, string> = {
-    banker: "bg-brand-green text-primary-foreground",
-    value_gem: "bg-teal-600 text-white",
-    wild_card: "bg-purple-600 text-white",
-  };
-  return (
-    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tier] || "bg-gray-600 text-white"}`}>
-      {tier?.replace("_", " ") || ""}
-    </span>
-  );
-}
-
-function ResultBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    won: "text-win-green",
-    loss: "text-danger-red",
-    void: "text-muted-foreground",
-    pending: "text-amber-500",
-  };
-  return (
-    <span className={`text-[12px] font-medium ${styles[status] || "text-muted-foreground"}`}>
-      {status?.toUpperCase() || ""}
-    </span>
-  );
-}
-
 function RecordPage() {
-  const [data, setData] = useState<RecordResponse | null>(null);
-  const [resultFilter, setResultFilter] = useState<string>("all");
-  const [page, setPage] = useState(1);
-  const PER_PAGE = 20;
+  const [data, setData] = useState<ApiRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load like landing page does
   useEffect(() => {
-    console.log('[RECORD] Loading...');
-    api.getRecord()
-      .then(setData)
-      .catch((e) => console.error('[RECORD] Error:', e));
+    // Direct fetch - no api.ts wrapper at all
+    fetch(`${API_BASE}/algo/public/record/`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        console.log("[RECORD] SUCCESS:", data);
+        setData(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("[RECORD] FAIL:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
-  // Get picks from any available field
-  const picks = (data as any)?.records ?? (data as any)?.picks ?? [];
+  const records = data?.records ?? [];
   const stats = data?.summary;
-  const hasPicks = picks && picks.length > 0;
+  const hasPicks = records.length > 0;
 
-  // Client-side filter
-  const filtered = !resultFilter || resultFilter === "all" 
-    ? picks 
-    : picks.filter((p: Pick) => p.status === resultFilter);
-  
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
-  const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
-  if (!data) {
+  if (loading) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
@@ -90,115 +90,66 @@ function RecordPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-16 bg-card border border-brand-border rounded-lg">
+        <p className="text-danger-red">Error: {error}</p>
+        <p className="text-[14px] text-muted-foreground mt-2">
+          Couldn't load record. Try refreshing.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1>Track record</h1>
         <p className="text-[14px] text-muted-foreground mt-1">
-          All picks posted before kick-off. Results auto-settled.
+          All picks posted before kick-off.
         </p>
       </div>
 
       {!hasPicks ? (
         <div className="text-center py-12 bg-card border border-brand-border rounded-lg">
-          <p className="text-muted-foreground">Record building — picks will appear here soon.</p>
-          <Link to="/signup" className="mt-4 inline-block text-brand-green underline">
-            Sign up to get started ?
-          </Link>
+          <p className="text-muted-foreground">No picks yet.</p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">
-            <StatCard label="Hit rate" value={stats ? `${stats.hit_rate?.toFixed(1)}%` : "—"} />
-            <StatCard label="ROI flat" value={stats ? `${stats.roi_flat >= 0 ? "+" : ""}${stats.roi_flat?.toFixed(1)}%` : "—"} />
-            <StatCard label="Picks logged" value={stats ? String(stats.picks_logged) : "—"} />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {(["all", "won", "loss", "void", "pending"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => { setResultFilter(r); setPage(1); }}
-                className={`px-3 py-2 rounded-md text-[13px] border ${
-                  resultFilter === r
-                    ? "bg-brand-green text-primary-foreground border-brand-green"
-                    : "bg-card border-brand-border text-body-text"
-                }`}
-              >
-                {r === "all" ? "All" : r[0].toUpperCase() + r.slice(1)}
-                {r !== "all" && stats && (
-                  <span className="ml-1.5 opacity-70">
-                    ({r === "won" ? stats.wins : r === "loss" ? stats.losses : r === "void" ? stats.voids : stats.pending})
-                  </span>
-                )}
-              </button>
-            ))}
+            <StatCard label="Hit rate" value={`${stats?.hit_rate?.toFixed(1)}%`} />
+            <StatCard label="ROI" value={`+${stats?.roi_flat?.toFixed(1)}%`} />
+            <StatCard label="Picks" value={`${stats?.picks_logged}`} />
           </div>
 
           <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
                 <tr>
-                  <th className="text-left px-3 py-2 font-medium">Date</th>
-                  <th className="text-left px-3 py-2 font-medium">Match</th>
-                  <th className="text-left px-3 py-2 font-medium">Market</th>
-                  <th className="text-left px-3 py-2 font-medium">Tier</th>
-                  <th className="text-right px-3 py-2 font-medium">Odds</th>
-                  <th className="text-right px-3 py-2 font-medium">Result</th>
+                  <th className="text-left px-3 py-2">Date</th>
+                  <th className="text-left px-3 py-2">Match</th>
+                  <th className="text-left px-3 py-2">Market</th>
+                  <th className="text-right px-3 py-2">Odds</th>
+                  <th className="text-right px-3 py-2">Result</th>
                 </tr>
               </thead>
               <tbody>
-                {visible.map((pick: Pick) => (
+                {records.slice(0, 20).map((pick) => (
                   <tr key={pick.id} className="border-t border-brand-border">
-                    <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
-                      {pick.match_date ? new Date(pick.match_date).toLocaleDateString() : "—"}
+                    <td className="px-3 py-2 text-muted-foreground">
+                      {pick.match_date}
                     </td>
-                    <td className="px-3 py-2">
-                      <Link to={`/match/${pick.id}`} className="hover:text-brand-green">
-                        {pick.fixture}
-                      </Link>
-                    </td>
+                    <td className="px-3 py-2">{pick.fixture}</td>
                     <td className="px-3 py-2">{pick.market}</td>
-                    <td className="px-3 py-2">
-                      <TierBadge tier={pick.tier} />
-                    </td>
-                    <td className="px-3 py-2 text-right">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</td>
-                    <td className="px-3 py-2 text-right">
-                      <ResultBadge status={pick.status} />
-                    </td>
+                    <td className="px-3 py-2 text-right">{pick.odds}</td>
+                    <td className="px-3 py-2 text-right uppercase text-[12px]">{pick.status}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between text-[13px]">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <span className="text-muted-foreground">Page {page} of {totalPages}</span>
-              <button
-                disabled={page === totalPages}
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                className="px-3 py-2 rounded-md border border-brand-border bg-card disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
         </>
       )}
-
-      <div className="text-center pt-4">
-        <Link to="/signup" className="text-brand-green underline">
-          Sign up free to access more picks
-        </Link>
-      </div>
     </div>
   );
 }
