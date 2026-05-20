@@ -2,8 +2,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-// Direct fetch to bypass all api.ts complexity
-const API_BASE = "https://backend.betpreneur.ng/api";
+// Use proxy path via Cloudflare
+const API_BASE = "";
 
 interface ApiPick {
   id: number;
