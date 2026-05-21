@@ -122,6 +122,13 @@ function TopPickPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<TopPickResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import("html2canvas").then((mod: any) => {
+        (window as any).html2canvas = mod.default || mod;
+      }).catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     api.getTopPick()
@@ -365,6 +372,40 @@ function TopPickPage() {
       <Link to="/record" className="block text-center text-info-blue text-[14px] hover:underline">
         📊 See our 90-day track record →
       </Link>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-2">
+        <Link to="/home" className="flex-1 text-center py-3 bg-card border border-brand-border rounded-lg font-medium hover:bg-subtle-bg transition-colors">
+          Back to Dashboard
+        </Link>
+        <button onClick={function(){
+          var cardArea = document.querySelector(".space-y-5");
+          if(cardArea && (window as any).html2canvas){
+            (window as any).html2canvas(cardArea,{backgroundColor:"#0D0D0D",scale:2,useCORS:true}).then(function(canvas:any){
+              var link = document.createElement("a");
+              var d = new Date().toISOString().split("T")[0];
+              link.download = "betpreneur-pick-"+d+".png";
+              link.href = canvas.toDataURL("image/png");
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }).catch(function(e:any){console.log(e);alert("Could not save. Try share instead.");});
+          }else{alert("Save not ready. Try share.");}
+        }} className="flex-1 py-3 bg-brand-green text-primary-foreground rounded-lg font-medium hover:bg-brand-green/90 transition-colors">
+          Save Card
+        </button>
+        <button onClick={function(){
+          var u = window.location.href;
+          var t = "Betpreneur Pick: "+(document.querySelector("h1")?.textContent || "");
+          if(navigator.share){
+            navigator.share({title:t,text:t+" - check it out",url:u}).catch(function(){});
+          }else{
+            navigator.clipboard.writeText(t+" "+u).then(function(){alert("Link copied!");}).catch(function(){alert("Could not copy");});
+          }
+        }} className="flex-1 py-3 bg-info-blue text-white rounded-lg font-medium hover:bg-info-blue/90 transition-colors">
+          Share
+        </button>
+      </div>
     </div>
   );
 }
