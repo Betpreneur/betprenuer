@@ -33,6 +33,7 @@ interface ApiSummary {
   losses: number;
   voids: number;
   pending: number;
+  window_days: number;
 }
 
 interface ApiRecord {
@@ -47,23 +48,42 @@ export const Route = createFileRoute("/record")({
   component: RecordPage,
 });
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: string }) {
   return (
     <div className="bg-card border border-brand-border rounded-lg p-4">
-      <div className="text-[24px] font-bold text-win-green">{value}</div>
+      <div className={`text-[24px] font-bold ${highlight || "text-win-green"}`}>{value}</div>
       <div className="text-[12px] text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</div>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, score, pnl }: { status: string; score?: string; pnl?: number | null }) {
   const colors: Record<string, string> = {
     win: "text-win-green",
     loss: "text-danger-red",
     void: "text-muted-foreground",
     pending: "text-amber-500",
   };
-  return <span className={`text-[12px] font-medium ${colors[status] || "text-muted-foreground"}`}>{status?.toUpperCase()}</span>;
+  if (status === "win" && pnl !== null && pnl !== undefined) {
+    return (
+      <span className="flex flex-col items-end">
+        <span className={`text-[12px] font-medium ${colors[status]}`}>WIN</span>
+        <span className="text-[11px] text-win-green">+{pnl.toFixed(0)}</span>
+      </span>
+    );
+  }
+  if (status === "loss" && pnl !== null && pnl !== undefined) {
+    return (
+      <span className="flex flex-col items-end">
+        <span className={`text-[12px] font-medium ${colors[status]}`}>LOSS</span>
+        <span className="text-[11px] text-danger-red">{pnl.toFixed(0)}</span>
+      </span>
+    );
+  }
+  if (status === "void") {
+    return <span className={`text-[12px] font-medium ${colors[status]}`}>VOID</span>;
+  }
+  return <span className={`text-[12px] font-medium ${colors[status] || "text-muted-foreground"}`}>{status?.toUpperCase() || "PENDING"}</span>;
 }
 
 function TierBadge({ tier }: { tier: string }) {
@@ -124,14 +144,34 @@ function RecordPage() {
         <p className="text-[14px] text-muted-foreground mt-1">All picks posted before kick-off. Results auto-settled.</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard label="Hit rate" value={`${stats?.hit_rate?.toFixed(1)}%`} />
-        <StatCard label="ROI flat" value={`+${stats?.roi_flat?.toFixed(1)}%`} />
-        <StatCard label="Picks logged" value={`${stats?.picks_logged}`} />
+        <StatCard label="ROI (90d)" value={`+${stats?.roi_flat?.toFixed(1)}%`} highlight={stats && stats.roi_flat > 0 ? "text-win-green" : "text-danger-red"} />
+        <StatCard label="Wins" value={`${stats?.wins}`} highlight="text-win-green" />
+        <StatCard label="Picks" value={`${stats?.picks_logged}`} />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(["all", "win", "loss", "pending"].map(f => (
+        <div className="bg-card border border-brand-border rounded-lg px-3 py-2">
+          <span className="text-win-green font-semibold">{stats?.wins}</span>
+          <span className="text-[12px] text-muted-foreground ml-1">W</span>
+        </div>
+        <div className="bg-card border border-brand-border rounded-lg px-3 py-2">
+          <span className="text-danger-red font-semibold">{stats?.losses}</span>
+          <span className="text-[12px] text-muted-foreground ml-1">L</span>
+        </div>
+        <div className="bg-card border border-brand-border rounded-lg px-3 py-2">
+          <span className="text-muted-foreground font-semibold">{stats?.voids}</span>
+          <span className="text-[12px] text-muted-foreground ml-1">V</span>
+        </div>
+        <div className="bg-card border border-brand-border rounded-lg px-3 py-2">
+          <span className="text-amber-500 font-semibold">{stats?.pending}</span>
+          <span className="text-[12px] text-muted-foreground ml-1">P</span>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {(["all", "win", "loss", "void", "pending"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-3 py-2 rounded-md text-[13px] border ${
               filter === f ? "bg-brand-green text-primary-foreground border-brand-green" : "bg-card border-brand-border"
@@ -139,7 +179,7 @@ function RecordPage() {
             {f === "all" ? "All" : f[0].toUpperCase() + f.slice(1)}
             {f !== "all" && <span className="ml-1.5 opacity-70">({records.filter(r => r.status === f).length})</span>}
           </button>
-        )))}
+        ))}
       </div>
 
       <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
@@ -148,23 +188,27 @@ function RecordPage() {
             <tr>
               <th className="text-left px-3 py-2">Date</th>
               <th className="text-left px-3 py-2">Match</th>
-              <th className="text-left px-3 py-2">League</th>
               <th className="text-left px-3 py-2">Pick</th>
               <th className="text-left px-3 py-2">Tier</th>
+              <th className="text-right px-3 py-2">Stake</th>
               <th className="text-right px-3 py-2">Odds</th>
+              <th className="text-right px-3 py-2">Conf</th>
+              <th className="text-right px-3 py-2">Score</th>
               <th className="text-right px-3 py-2">Result</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.slice(0, 20).map(pick => (
+            {filtered.slice(0, 30).map(pick => (
               <tr key={pick.id} className="border-t border-brand-border">
-                <td className="px-3 py-2 text-muted-foreground">{pick.match_date}</td>
-                <td className="px-3 py-2">{pick.fixture}</td>
-                <td className="px-3 py-2 text-muted-foreground">{pick.league}</td>
+                <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{pick.match_date}</td>
+                <td className="px-3 py-2 max-w-[180px] truncate">{pick.fixture}</td>
                 <td className="px-3 py-2">{pick.pick || pick.market}</td>
                 <td className="px-3 py-2"><TierBadge tier={pick.tier} /></td>
+                <td className="px-3 py-2 text-right">₦{pick.stake?.toLocaleString()}</td>
                 <td className="px-3 py-2 text-right">{pick.odds}</td>
-                <td className="px-3 py-2 text-right"><StatusBadge status={pick.status} /></td>
+                <td className="px-3 py-2 text-right text-muted-foreground">{pick.confidence}%</td>
+                <td className="px-3 py-2 text-right text-muted-foreground">{pick.score || "-"}</td>
+                <td className="px-3 py-2 text-right"><StatusBadge status={pick.status} score={pick.score} pnl={pick.pnl} /></td>
               </tr>
             ))}
           </tbody>
