@@ -26,6 +26,7 @@ export const ENDPOINTS = {
   algoPick: (id: string) => `/algo/picks/${id}/`,
   algoBackPick: (id: string) => `/algo/picks/${id}/back/`,
   algoTopPick: "/algo/top-pick/",
+  algoTodayPicks: "/algo/picks/",
   // Public
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
@@ -279,7 +280,26 @@ export interface FixturePickGroup {
   market_count: number;
   markets_70_plus: number;
   markets_65_plus: number;
+  corner_profile?: Record<string, unknown>;
+  markets: Market[];
   picks: Pick[];
+}
+
+// Market from the algo/picks/ endpoint
+export interface Market {
+  ev: number | null;
+  odds: number;
+  market: string;
+  proven: boolean;
+  meaning: string;
+  eligible: boolean;
+  confidence: number;
+  risk_flags: string[];
+  odds_source: string;
+  raw_confidence: number;
+  selected: boolean;
+  selected_pick_id: number | null;
+  selected_tier: Tier;
 }
 export interface DailyPicksSummary {
   fixture_count: number;
