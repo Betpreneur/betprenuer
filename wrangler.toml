@@ -1,7 +1,2 @@
-name = "betpreneur"
+name = "tanstack-start-app"
 compatibility_date = "2025-05-13"
-compatibility_flags = ["nodejs_compat"]
-main = "./dist/server/server.js"
-
-[vars]
-VITE_API_BASE_URL = "https://backend.betpreneur.ng/api"
