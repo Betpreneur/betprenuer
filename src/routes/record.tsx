@@ -117,6 +117,22 @@ function RecordPage() {
 
   const filtered = filter === "all" ? records : records.filter(r => r.status === filter);
 
+  // Show message when no records yet
+  if (!loading && !error && records.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div>
+          <h1>Track record</h1>
+          <p className="text-[14px] text-muted-foreground mt-1">All picks posted before kick-off. Results auto-settled.</p>
+        </div>
+        <div className="text-center py-16 bg-card border border-brand-border rounded-lg">
+          <p className="text-muted-foreground">No picks recorded yet.</p>
+          <p className="text-[14px] text-muted-foreground mt-2">Check back after the next matchday.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="space-y-4">
