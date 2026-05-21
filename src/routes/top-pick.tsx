@@ -79,7 +79,7 @@ function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFor
         <span className="text-info-blue">{title}</span>
         <span className="text-[13px] text-muted-foreground">{team}</span>
       </div>
-      <div className="grid grid-cols-4 gap-x-6 gap-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-3 md:gap-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[13px] text-muted-foreground">Wins</span>
           <span className="text-[18px] font-bold text-win-green">{stats.wins}</span>

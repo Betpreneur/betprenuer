@@ -98,16 +98,17 @@ function MatchPage() {
   async function openPreview() {
     if (!pick || generating) return;
     setGenerating(true);
+    setShareMsg(null);
     try {
       const blob = await renderShareCard(pick);
-      if (!blob) throw new Error("no blob");
+      if (!blob) throw new Error("No image generated");
       const url = URL.createObjectURL(blob);
       const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
       setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
     } catch (e) {
-      console.error(e);
-      setShareMsg("Could not generate card");
-      setTimeout(() => setShareMsg(null), 2500);
+      console.error("Share card error:", e);
+      setShareMsg("Could not generate card. Please try again.");
+      setTimeout(() => setShareMsg(null), 4000);
     } finally {
       setGenerating(false);
     }
@@ -323,7 +324,17 @@ function MatchPage() {
 }
 
 // ---- Custom canvas renderer for the WhatsApp share card ----
+// Wrapped in try-catch to prevent page crashes
 async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
+  try {
+    return await renderShareCardImpl(pick);
+  } catch (e) {
+    console.error("renderShareCard failed:", e);
+    return null;
+  }
+}
+
+async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
   const H = 1080;
   const canvas = document.createElement("canvas");
@@ -478,9 +489,31 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
   y = cardY + cardH + 44;
 
   // ---- Reason quote ----
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
-  ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-  wrapText(ctx, `“${pick.one_line_reason}”`, PAD, y, W - PAD * 2, 40);
+  const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
+  if (reasonText) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
+    wrapText(ctx, `"${reasonText}"`, PAD, y, W - PAD * 2, 40);
+  }
+
+  // ---- Model Verdict ----
+  if (pick.model_verdict) {
+    y += 60;
+    ctx.fillStyle = "rgba(79, 209, 205, 0.15)";
+    roundRect(ctx, PAD, y - 28, W - PAD * 2, 80, 16);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(79, 209, 205, 0.3)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    ctx.fillStyle = "#4FD1CD";
+    ctx.font = "700 20px Montserrat, sans-serif";
+    ctx.fillText("🎯 MODEL VERDICT", PAD + 24, y - 4);
+    
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.font = "italic 24px Georgia, 'Times New Roman', serif";
+    wrapText(ctx, pick.model_verdict, PAD + 24, y + 28, W - PAD * 2 - 48, 36);
+  }
 
   // ---- Footer ----
   ctx.fillStyle = MUTED;
