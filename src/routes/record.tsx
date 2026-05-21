@@ -102,7 +102,8 @@ function RecordPage() {
   const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
-    fetch(`/api/algo/public/record/`)
+    // Direct call to backend to bypass Worker proxy issues
+    fetch(`https://backend.betpreneur.ng/api/algo/public/record/`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
