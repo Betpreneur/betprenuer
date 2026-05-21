@@ -82,7 +82,7 @@ function RecordPage() {
   const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/algo/public/record/`)
+    fetch(`/api/algo/public/record/`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
