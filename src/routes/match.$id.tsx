@@ -55,12 +55,6 @@ function MatchPage() {
       setError(true);
       return;
     }
-    // Validate id before using
-    const numId = Number(id);
-    if (isNaN(numId) || numId <= 0) {
-      setError(true);
-      return;
-    }
 
     // Try localStorage cache first
     if (typeof window !== "undefined") {
