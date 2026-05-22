@@ -608,7 +608,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.fillStyle = fillGrad;
   ctx.fill();
 
-  y = cardY + cardH + 44;
+  y = cardY + cardH + 60; // More space after pick card
 
   // ---- Reason quote ----
   const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
@@ -620,9 +620,9 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
 
   // ---- Model Verdict ----
   if (pick.model_verdict) {
-    y += 60;
+    y += 80; // More space before verdict box
     ctx.fillStyle = "rgba(79, 209, 205, 0.15)";
-    roundRect(ctx, PAD, y - 28, W - PAD * 2, 80, 16);
+    roundRect(ctx, PAD, y - 28, W - PAD * 2, 90, 16); // Taller box
     ctx.fill();
     ctx.strokeStyle = "rgba(79, 209, 205, 0.3)";
     ctx.lineWidth = 1.5;
@@ -638,6 +638,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   }
 
   // ---- Footer ----
+  y += 80; // More space before footer
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
   ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
