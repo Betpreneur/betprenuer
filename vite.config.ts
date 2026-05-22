@@ -1,7 +1,6 @@
-// filepath: vite.config.ts
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { cloudflare } from "@cloudflare/vite-plugin";
+import { nitro } from "nitro/vite";
 
 export default defineConfig({
-  plugins: [cloudflare()]
+  plugins: [nitro()],
 });
