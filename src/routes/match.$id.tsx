@@ -66,7 +66,16 @@ function MatchPage() {
     }
     // Fallback to API
     setError(false);
-    api.getPick(Number(id)).then(setPick).catch(() => setError(true));
+    api.getPickDetail(Number(id))
+      .then((res) => {
+        // Check if pick exists and has valid data
+        if (!res?.pick || !res.pick.id) {
+          setError(true);
+          return;
+        }
+        setPick(res.pick);
+      })
+      .catch(() => setError(true));
   };
 
   useEffect(() => {
@@ -77,10 +86,10 @@ function MatchPage() {
   if (loading) return null;
   if (!isAuthed) return <Navigate to="/record" />;
 
-  if (error) {
+  if (error || !pick) {
     return (
       <div className="text-center py-16">
-        <p>This pick is no longer available.</p>
+        <p>This pick is no longer available or doesn't exist.</p>
         <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Back to today</button>
       </div>
     );
