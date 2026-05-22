@@ -10,6 +10,11 @@ const TZ = "Africa/Lagos";
 export function formatKickoff(iso: string | number | null | undefined): string {
   if (!iso) return "–";
   
+  // If already looks like "01:00 PM WAT" or "19:45 WAT", return as-is
+  if (typeof iso === "string" && (iso.includes("WAT") || iso.includes("PM") || iso.includes("AM"))) {
+    return iso;
+  }
+  
   // Handle numeric timestamps (milliseconds)
   let parsed = dayjs(iso);
   
