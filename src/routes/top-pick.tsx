@@ -554,7 +554,7 @@ function TopPickPage() {
             </div>
           )}
 
-          {pick.status && pick.status !== "pending"
+          {pick.status && pick.status !== "pending" && (
             <div className="bg-card border rounded-lg p-4 text-center">
               <span className={`text-[16px] font-bold ${
                 pick.status === "win" ? "text-win-green" :
