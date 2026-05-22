@@ -611,22 +611,23 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.fillStyle = fillGrad;
   ctx.fill();
 
-  y = cardY + cardH + 100; // Much more space after pick card
+  y = cardY + cardH + 80;
 
   // ---- Reason quote ----
   const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
   if (reasonText) {
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-    wrapText(ctx, `"${reasonText}"`, PAD, y, W - PAD * 2, 40);
+    y = wrapText(ctx, `"${reasonText}"`, PAD, y, W - PAD * 2, 40);
+    // Dynamic gap after reason text
+    y += 40;
   }
 
   // ---- Model Verdict ----
   if (pick.model_verdict) {
-    // Extra space if reason text preceded this
-    y += reasonText ? 70 : 30;
+    // Dynamic positioning - draw right after reason text with gap already applied
     ctx.fillStyle = "rgba(79, 209, 205, 0.15)";
-    roundRect(ctx, PAD, y - 28, W - PAD * 2, 90, 16); // Taller box
+    roundRect(ctx, PAD, y - 10, W - PAD * 2, 90, 16);
     ctx.fill();
     ctx.strokeStyle = "rgba(79, 209, 205, 0.3)";
     ctx.lineWidth = 1.5;
@@ -634,18 +635,18 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
     
     ctx.fillStyle = "#4FD1CD";
     ctx.font = "700 20px Montserrat, sans-serif";
-    ctx.fillText("🎯 MODEL VERDICT", PAD + 24, y - 4);
+    ctx.fillText("🎯 MODEL VERDICT", PAD + 24, y + 14);
     
     ctx.fillStyle = "rgba(255,255,255,0.9)";
     ctx.font = "italic 24px Georgia, 'Times New Roman', serif";
-    wrapText(ctx, pick.model_verdict, PAD + 24, y + 28, W - PAD * 2 - 48, 36);
+    wrapText(ctx, pick.model_verdict, PAD + 24, y + 48, W - PAD * 2 - 48, 36);
   }
 
   // ---- Footer ----
-  y += 80; // More space before footer
+  let footerY = y + 120;
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
-  ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
+  ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, footerY);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
   const url = "www.betpreneur.ng";
