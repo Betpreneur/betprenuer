@@ -141,6 +141,44 @@ function TopPickPage() {
     return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
+  // Prompt login for unauthenticated visitors
+  if (!isAuthed) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-2">
+            Subscriber exclusive
+          </div>
+          <h1 className="!text-[22px] !leading-tight font-bold">Login or sign up to unlock</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            Access our daily top picks with full analysis and stake recommendations.
+          </p>
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              to="/login"
+              search={(prev) => ({ ...prev, redirect: "/top-pick" })}
+              className="inline-flex items-center justify-center rounded-lg bg-brand-green px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-green/90 transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/signup"
+              search={(prev) => ({ ...prev, redirect: "/top-pick" })}
+              className="inline-flex items-center justify-center rounded-lg bg-secondary px-6 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+            >
+              Sign up free
+            </Link>
+          </div>
+        </header>
+        <div className="bg-card border border-brand-border rounded-xl p-5 text-center">
+          <p className="text-[13px] text-muted-foreground">
+            Already a member? <Link to="/login" className="text-brand-green hover:underline">Log in</Link> to see today's pick.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const pick = data.pick;
 
   // No pick published yet
