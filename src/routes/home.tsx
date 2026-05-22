@@ -107,6 +107,7 @@ function EmptyState({ message }: { message: string }) {
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
+  // Updated: force redeploy timestamp
   return (
     <div className="bg-gradient-to-br from-danger-bg to-card border border-danger-red/30 rounded-xl p-8 text-center">
       <div className="text-4xl mb-3">⚠️</div>
@@ -252,38 +253,38 @@ function HomePage() {
             <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
             <h2 className="text-[16px] font-bold text-brand-green">Top Pick</h2>
           </div>
-          <Link to="/top-pick" className="block">
-            <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-green/50 rounded-xl p-4 hover:border-brand-green transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(topPick.tier)}`}>
-                      {topPick.tier?.replace("_", " ") || ""}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">{topPick.league}</span>
-                  </div>
-                  <h3 className="text-[15px] font-medium leading-tight">{topPick.fixture}</h3>
+          <Link to="/top-pick" className="block" onClick={(e) => { e.preventDefault(); window.location.href = '/top-pick'; }}>
+          <button type="button" className="w-full text-left bg-gradient-to-br from-card to-jet-surface-2 border border-brand-green/50 rounded-xl p-4 hover:border-brand-green transition-colors">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(topPick.tier)}`}>
+                    {topPick.tier?.replace("_", " ") || ""}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">{topPick.league}</span>
                 </div>
-                <div className="text-right">
-                  <div className={`text-[18px] font-bold ${getConfidenceColor(topPick.confidence)}`}>
-                    {topPick.confidence?.toFixed(0)}%
-                  </div>
-                  <div className="text-[11px] text-muted-foreground">confidence</div>
-                </div>
+                <h3 className="text-[15px] font-medium leading-tight">{topPick.fixture}</h3>
               </div>
-              
-              <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                <div className="text-[13px]">
-                  <span className="text-muted-foreground">{topPick.market}</span>
-                  <span className="text-border mx-1">@</span>
-                  <span className="text-win-green font-medium">{topPick.odds ? Number(topPick.odds).toFixed(2) : "–"}</span>
+              <div className="text-right">
+                <div className={`text-[18px] font-bold ${getConfidenceColor(topPick.confidence)}`}>
+                  {topPick.confidence?.toFixed(0)}%
                 </div>
-                <div className="text-[12px] text-muted-foreground">
-                  {topPick.kickoff}
-                </div>
+                <div className="text-[11px] text-muted-foreground">confidence</div>
               </div>
             </div>
-          </Link>
+            
+            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+              <div className="text-[13px]">
+                <span className="text-muted-foreground">{topPick.market}</span>
+                <span className="text-border mx-1">@</span>
+                <span className="text-win-green font-medium">{topPick.odds ? Number(topPick.odds).toFixed(2) : "–"}</span>
+              </div>
+              <div className="text-[12px] text-muted-foreground">
+                {topPick.kickoff}
+              </div>
+            </div>
+          </button>
+        </Link>
         </section>
       )}
 
