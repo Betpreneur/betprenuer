@@ -454,7 +454,7 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 
 async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
-  const H = 1080;
+  const H = 1350; // 4:5 ratio for more vertical space
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
