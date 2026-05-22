@@ -243,7 +243,7 @@ function MatchPage() {
       <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-foreground/90">
-          {pick.goals_profile.map((g, i) => (
+          {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
               <span className="text-win-green mt-0.5">•</span>
               <span>{g}</span>
@@ -637,7 +637,7 @@ function Row({ team, form }: { team: string; form: ("W" | "D" | "L")[] }) {
     <div className="flex items-center justify-between gap-3">
       <span className="text-[14px] text-body-text font-medium truncate">{team}</span>
       <div className="flex gap-1">
-        {form.map((r, i) => <FormChip key={i} r={r} />)}
+        {form?.map((r, i) => <FormChip key={i} r={r} />)}
       </div>
     </div>
   );
