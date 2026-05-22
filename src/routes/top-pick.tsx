@@ -8,9 +8,9 @@ import { StakeGuide } from "@/components/StakeGuide";
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
     meta: [
-      { title: "Today's top pick � Betpreneur" },
+      { title: "Today's top pick - Betpreneur" },
       { name: "description", content: "The single highest-confidence football pick today." },
-      { property: "og:title", content: "Today's top pick � Betpreneur" },
+      { property: "og:title", content: "Today's top pick - Betpreneur" },
       { property: "og:description", content: "Highest-confidence pre-match pick. Subscribers see the full reasoning." },
     ],
   }),
@@ -122,6 +122,7 @@ function TopPickPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<TopPickResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
       import("html2canvas").then((mod: any) => {
@@ -131,13 +132,26 @@ function TopPickPage() {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthed) {
+      setData(null);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     api.getTopPick()
       .then(setData)
-      .catch(() => setData(null))
+      .catch((err) => {
+        setData(null);
+        setError(err instanceof Error ? err.message : "Could not load today's top pick.");
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading, isAuthed]);
 
-  if (authLoading || loading || !data) {
+  if (authLoading) {
     return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
@@ -175,6 +189,26 @@ function TopPickPage() {
             Already a member? <Link to="/login" className="text-brand-green hover:underline">Log in</Link> to see today's pick.
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-danger-red font-semibold mb-2">
+            Top pick
+          </div>
+          <h1 className="!text-[22px] !leading-tight font-bold">Could not load top pick</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            {error ?? "Please refresh the page and try again."}
+          </p>
+        </header>
       </div>
     );
   }
