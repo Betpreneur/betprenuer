@@ -345,11 +345,11 @@ function TopPickPage() {
           ) : (
             /* Legacy array format */
             <>
-              {pick.home_recent_form && pick.home_recent_form.length > 0 && (
+                {(pick.home_recent_form as unknown as string[]) && (pick.home_recent_form as unknown as string[]).length > 0 && (
                 <div className="bg-card border border-brand-border rounded-lg p-4">
                   <h3 className="text-[14px] font-medium mb-2">Home Form</h3>
                   <div className="flex gap-1">
-                    {pick.home_recent_form.slice(0, 5).map((r: string, i: number) => (
+                    {(pick.home_recent_form as unknown as string[]).slice(0, 5).map((r: string, i: number) => (
                       <span key={i} className={`w-6 h-6 rounded text-[11px] font-medium flex items-center justify-center ${
                         r === "W" ? "bg-win-green text-white" : r === "D" ? "bg-draw-yellow text-black" : "bg-danger-red text-white"
                       }`}>{r}</span>
@@ -358,11 +358,11 @@ function TopPickPage() {
                 </div>
               )}
 
-              {pick.away_recent_form && pick.away_recent_form.length > 0 && (
+                {(pick.away_recent_form as unknown as string[]) && (pick.away_recent_form as unknown as string[]).length > 0 && (
                 <div className="bg-card border border-brand-border rounded-lg p-4">
                   <h3 className="text-[14px] font-medium mb-2">Away Form</h3>
                   <div className="flex gap-1">
-                    {pick.away_recent_form.slice(0, 5).map((r: string, i: number) => (
+                    {(pick.away_recent_form as unknown as string[]).slice(0, 5).map((r: string, i: number) => (
                       <span key={i} className={`w-6 h-6 rounded text-[11px] font-medium flex items-center justify-center ${
                         r === "W" ? "bg-win-green text-white" : r === "D" ? "bg-draw-yellow text-black" : "bg-danger-red text-white"
                       }`}>{r}</span>
@@ -373,7 +373,7 @@ function TopPickPage() {
             </>
           )}
 
-          <StakeGuide confidence={pick.confidence} />
+          <StakeGuide odds={pick.odds} highlight={pick.tier} />
 
           {pick.status && pick.status !== "pending" && (
             <div className="bg-card border rounded-lg p-4 text-center">
