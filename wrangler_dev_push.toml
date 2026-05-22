@@ -1,0 +1,11 @@
+# Completely fresh config - no caching
+name = "tanstack-start-app"
+compatibility_date = "2025-05-13"
+
+[site]
+bucket = "./dist/client"
+# Different bucket path prevents duplicate checking:
+precompiled = false
+
+[vars]
+VITE_API_BASE_URL = "https://backend.betpreneur.ng/api"
