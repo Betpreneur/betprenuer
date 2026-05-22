@@ -69,7 +69,6 @@ function MatchPage() {
           const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
           console.log("[MatchPage] Cache search result:", found ? "found" : "not found");
           if (found) {
-          if (found) {
             // Transform cached pick format to match PickDetail format
             setPick({
               ...found,
