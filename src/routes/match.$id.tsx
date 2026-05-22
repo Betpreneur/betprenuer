@@ -45,23 +45,28 @@ function MatchPage() {
   const load = () => {
     // Try localStorage cache first
     if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("todaysPicks");
-      if (cached) {
-        const picks = JSON.parse(cached);
-        const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
-        if (found) {
-          // Transform cached pick format to match PickDetail format
-          setPick({
-            ...found,
-            match: found.fixture,
-            kickoff_wat: found.kickoff,
-            market_plain: found.market,
-            one_line_reason: found.reasoning || "",
-            form_home: found.home_recent_form || null,
-            form_away: found.away_recent_form || null,
-          } as any);
-          return;
+      try {
+        const cached = localStorage.getItem("todaysPicks");
+        if (cached) {
+          const picks = JSON.parse(cached);
+          const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
+          if (found) {
+            // Transform cached pick format to match PickDetail format
+            setPick({
+              ...found,
+              match: found.fixture,
+              kickoff_wat: found.kickoff,
+              market_plain: found.market,
+              one_line_reason: found.reasoning || "",
+              form_home: found.home_recent_form || null,
+              form_away: found.away_recent_form || null,
+            } as any);
+            return;
+          }
         }
+      } catch (e) {
+        // Cache parse failed, continue to API
+        console.warn("Cache parse error", e);
       }
     }
     // Fallback to API
