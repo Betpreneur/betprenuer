@@ -327,14 +327,14 @@ function MatchPage() {
 
       {/* Risk flag */}
       {pick.risk_flag && (
-        <div className="bg-amber-bg border border-amber-text/20 rounded-lg p-4 mt-5">
+        <div className="bg-amber-bg border border-amber-text/20 rounded-lg p-4 mt-8">
           <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1">Watch out</div>
           <p className="text-[14px] text-amber-text">{pick.risk_flag}</p>
         </div>
       )}
 
       {/* Model verdict */}
-      <section className="bg-info-bg border border-info-blue/15 rounded-lg p-5 mt-5">
+      <section className="bg-info-bg border border-info-blue/15 rounded-lg p-5 mt-8">
         <h2 className="mb-3 !text-info-blue">Model verdict</h2>
         <p className="italic text-[14px] text-info-blue leading-relaxed">{pick.model_verdict}</p>
       </section>
