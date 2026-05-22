@@ -43,8 +43,30 @@ function MatchPage() {
   const [generating, setGenerating] = useState(false);
 
   const load = () => {
+    // Try localStorage cache first
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("todaysPicks");
+      if (cached) {
+        const picks = JSON.parse(cached);
+        const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
+        if (found) {
+          // Transform cached pick format to match PickDetail format
+          setPick({
+            ...found,
+            match: found.fixture,
+            kickoff_wat: found.kickoff,
+            market_plain: found.market,
+            one_line_reason: found.reasoning || "",
+            form_home: found.home_recent_form || null,
+            form_away: found.away_recent_form || null,
+          } as any);
+          return;
+        }
+      }
+    }
+    // Fallback to API
     setError(false);
-    api.getPick(id).then(setPick).catch(() => setError(true));
+    api.getPick(Number(id)).then(setPick).catch(() => setError(true));
   };
 
   useEffect(() => {
@@ -58,7 +80,7 @@ function MatchPage() {
   if (error) {
     return (
       <div className="text-center py-16">
-        <p>Could not load this pick.</p>
+        <p>This pick is no longer available.</p>
         <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Back to today</button>
       </div>
     );

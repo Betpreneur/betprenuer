@@ -35,7 +35,7 @@ function getConfidenceColor(confidence: number): string {
 
 function PickRow({ pick }: { pick: Pick }) {
   return (
-    <Link to="/match/$id" params={{ id: String(pick.match_id) }} className="block">
+    <Link to="/match/$id" params={{ id: String(pick.id) }} className="block">
       <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/50 transition-colors">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
@@ -130,7 +130,14 @@ function HomePage() {
   const load = () => {
     setError(false);
     api.getTodayPicks()
-      .then(setData)
+      .then((res) => {
+        setData(res);
+        // Cache today's picks for detail page lookup
+        if (typeof window !== "undefined" && res?.fixtures) {
+          const allPicks = res.fixtures.flatMap((f: any) => f.picks || []) || [];
+          localStorage.setItem("todaysPicks", JSON.stringify(allPicks));
+        }
+      })
       .catch(() => setError(true));
   };
 
