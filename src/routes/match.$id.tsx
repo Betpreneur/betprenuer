@@ -76,8 +76,13 @@ function MatchPage() {
               kickoff_wat: found.kickoff,
               market_plain: found.market,
               one_line_reason: found.reasoning || "",
-              form_home: found.home_recent_form || null,
-              form_away: found.away_recent_form || null,
+              // Convert form strings to arrays
+              form_home: typeof found.home_recent_form === "string" ? found.home_recent_form.split(",").filter(Boolean) : [],
+              form_away: typeof found.away_recent_form === "string" ? found.away_recent_form.split(",").filter(Boolean) : [],
+              // Handle goals_profile 
+              goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
+              // Handle risk
+              risk_flag: found.risk_level || found.risk_flags?.[0] || "",
             } as any);
             return;
           }
