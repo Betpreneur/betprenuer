@@ -274,16 +274,16 @@ function MatchPage() {
         <div className="space-y-3 text-[13px]">
           {typeof pick.form_home === "object" && pick.form_home !== null ? (
             // Stats object - show as text
-            <>
+            <div className="flex flex-col gap-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{pick.match.split(" vs ")[0]}</span>
                 <span>{pick.form_home.wins}W-{pick.form_home.games - pick.form_home.wins}L in {pick.form_home.games} games</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{pick.match.split(" vs ")[1]}</span>
-                <span>{pick.form_away?.wins || 0}W-{((pick.form_away?.games || 0) - (pick.form_away?.wins || 0))}L in {pick.form_away?.games || 0} games</span>
+                <span>{(pick.form_away?.wins || 0)}W-{((pick.form_away?.games || 0) - (pick.form_away?.wins || 0))}L in {pick.form_away?.games || 0} games</span>
               </div>
-            </>
+            </div>
           ) : (
             // Array - show chips
             <>
@@ -291,9 +291,6 @@ function MatchPage() {
               <Row team={pick.match.split(" vs ")[1]} form={pick.form_away} />
             </>
           )}
-        </div>
-      </section>
-          <Row team={pick.match.split(" vs ")[1]} form={pick.form_away} />
         </div>
       </section>
 
