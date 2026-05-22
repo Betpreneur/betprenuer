@@ -4,6 +4,7 @@ import { api, type TopPickResponse, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { StakeGuide } from "@/components/StakeGuide";
+import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
@@ -123,6 +124,11 @@ function TopPickPage() {
   const [data, setData] = useState<TopPickResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [backing, setBacking] = useState(false);
+  const [userBacked, setUserBacked] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
       import("html2canvas").then((mod: any) => {
@@ -150,6 +156,99 @@ function TopPickPage() {
       })
       .finally(() => setLoading(false));
   }, [authLoading, isAuthed]);
+
+  // Handler methods for actions
+  async function handleBacked() {
+    if (!data?.pick || userBacked || backing) return;
+    setBacking(true);
+    try {
+      await api.markBacked(data.pick.id, 0);
+      setUserBacked(true);
+    } finally {
+      setBacking(false);
+    }
+  }
+
+  function getShareText(): string {
+    if (!data?.pick) return "";
+    const p = data.pick;
+    return `🎯 Betpreneur Top Pick\n\n${p.fixture}\n${p.market} @ ${Number(p.odds).toFixed(2)}\nConfidence: ${p.confidence?.toFixed(0)}%\n\n${p.reasoning || ""}\n\nDaily edge picks → www.betpreneur.ng`;
+  }
+
+  async function openPreview() {
+    if (!data?.pick || generating) return;
+    setGenerating(true);
+    setShareMsg(null);
+    try {
+      // Use basic canvas approach - full card logic would need copying
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1350;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("No canvas");
+
+      // Simple gradient background
+      const bg = ctx.createLinearGradient(0, 0, 1080, 1350);
+      bg.addColorStop(0, "#1a0307");
+      bg.addColorStop(1, "#000000");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1080, 1350);
+
+      // Text
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 48px sans-serif";
+      ctx.fillText(data.pick.fixture, 60, 200);
+      
+      // Market & odds
+      ctx.font = "36px sans-serif";
+      ctx.fillText(`${data.pick.market} @ ${Number(data.pick.odds).toFixed(2)}`, 60, 280);
+      ctx.fillText(`Confidence: ${data.pick.confidence?.toFixed(0)}%`, 60, 340);
+
+      const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+      if (!blob) throw new Error("No image");
+      const url = URL.createObjectURL(blob);
+      const safeName = data.pick.fixture.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
+    } catch (e) {
+      setShareMsg("Could not generate preview");
+      setTimeout(() => setShareMsg(null), 3000);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  function downloadFromPreview() {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setShareMsg("Saved ✓");
+    setTimeout(() => setShareMsg(null), 2500);
+  }
+
+  async function shareFromPreview() {
+    if (!preview) return;
+    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    try {
+      if (nav.canShare && nav.canShare({ files: [file], text: getShareText() })) {
+        await nav.share({ files: [file], text: getShareText(), title: "Betpreneur pick" });
+        return;
+      }
+    } catch {}
+    downloadFromPreview();
+    window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank");
+    setShareMsg("Shared via WA");
+    setTimeout(() => setShareMsg(null), 3000);
+  }
 
   if (authLoading) {
     return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
@@ -409,7 +508,53 @@ function TopPickPage() {
 
           <StakeGuide odds={pick.odds} highlight={pick.tier} />
 
-          {pick.status && pick.status !== "pending" && (
+          {/* Action buttons - same as match detail page */}
+          {pick.status === "pending" && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={handleBacked}
+                disabled={userBacked || backing}
+                className={`min-h-[56px] rounded-md font-medium ${
+                  userBacked ? "bg-white/10 text-muted-foreground cursor-default" : "bg-win-green text-background hover:opacity-90"
+                }`}
+              >
+                {userBacked ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
+              </button>
+              <button
+                onClick={openPreview}
+                disabled={generating}
+                className="min-h-[56px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
+              >
+                {generating ? "Preparing…" : "Share on WhatsApp"}
+              </button>
+              <button
+                onClick={openPreview}
+                disabled={generating}
+                className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
+              >
+                {generating ? "Preparing…" : "Preview & download"}
+              </button>
+            </div>
+          )}
+          {shareMsg && <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>}
+
+          {preview && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={closePreview}>
+              <div className="bg-card border border-brand-border rounded-2xl max-w-md w-full p-4" onClick={(e) => e.stopPropagation()}>
+                <img src={preview.url} alt="Preview" className="w-full rounded-lg mb-4" />
+                <div className="grid grid-cols-2 gap-3">
+                  <button onClick={shareFromPreview} className="min-h-[52px] rounded-md font-semibold bg-[#25D366] text-black">
+                    Share on WhatsApp
+                  </button>
+                  <button onClick={downloadFromPreview} className="min-h-[52px] rounded-md font-medium border border-primary text-primary bg-card">
+                    Download PNG
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {pick.status && pick.status !== "pending"
             <div className="bg-card border rounded-lg p-4 text-center">
               <span className={`text-[16px] font-bold ${
                 pick.status === "win" ? "text-win-green" :
