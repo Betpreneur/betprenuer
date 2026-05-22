@@ -225,13 +225,16 @@ function HomePage() {
     );
   }
 
-  // Categorize picks by tier (cast to string to accommodate data format)
-  const t = (p: Pick) => p.tier as unknown as string;
-  const topPick = allPicks.find((p) => t(p) === "value_gem" || t(p) === "gem") ?? allPicks[0];
+  // Categorize picks by tier - force type flexibility
+  const getTier = (p: Pick) => (p.tier as any as string) || "";
   
-  const bankers = allPicks.filter((p) => t(p) === "banker");
-  const gems = allPicks.filter((p) => t(p) === "value_gem" || t(p) === "gem");
-  const wildcards = allPicks.filter((p) => t(p) === "wild_card" || t(p) === "wildcard");
+  const topPick = allPicks.find((p) => 
+    getTier(p).includes("gem")
+  ) ?? allPicks[0];
+  
+  const bankers = allPicks.filter((p) => getTier(p) === "banker");
+  const gems = allPicks.filter((p) => getTier(p).includes("gem"));
+  const wildcards = allPicks.filter((p) => getTier(p).includes("wild"));
 
   return (
     <div className="space-y-6">
