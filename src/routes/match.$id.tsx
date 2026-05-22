@@ -87,9 +87,23 @@ function MatchPage() {
               kickoff_wat: found.kickoff,
               market_plain: found.market,
               one_line_reason: found.reasoning || "",
-              // Convert form strings to arrays
-              form_home: typeof found.home_recent_form === "string" ? found.home_recent_form.split(",").filter(Boolean) : [],
-              form_away: typeof found.away_recent_form === "string" ? found.away_recent_form.split(",").filter(Boolean) : [],
+              // Convert form strings to arrays OR derive from stats
+              const parseForm = (val: any) => {
+                if (!val) return [];
+                if (Array.isArray(val)) return val;
+                if (typeof val === "string") return val.split(",").filter(Boolean);
+                if (typeof val === "object" && typeof val.streak === "number") {
+                  // Derive form chips from streak
+                  const streak = val.streak;
+                  const lastResult = streak > 0 ? "W" : streak < 0 ? "L" : "D";
+                  // Show one chip representing recent trend
+                  return [lastResult];
+                }
+                return [];
+              };
+              
+              form_home: parseForm(found.home_recent_form),
+              form_away: parseForm(found.away_recent_form),
               // Handle goals_profile 
               goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
               // Handle risk
