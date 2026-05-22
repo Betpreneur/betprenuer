@@ -28,13 +28,7 @@ function FormChip({ r }: { r: "W" | "D" | "L" }) {
 }
 
 function MatchPage() {
-  // Safety: handle id extraction safely
-  let id = "";
-  try {
-    id = Route.useParams().id;
-  } catch {
-    // Param error - ignore, will show below
-  }
+  const { id } = Route.useParams();
   const { isAuthed, loading } = useAuth();
   const router = useRouter();
   const [pick, setPick] = useState<PickDetail | null>(null);
@@ -49,19 +43,6 @@ function MatchPage() {
   const [generating, setGenerating] = useState(false);
 
   const load = () => {
-    // Validate id before using
-    const numId = Number(id);
-    if (isNaN(numId) || numId <= 0) {
-      setError(true);
-      return;
-    }
-    // Validate id before using
-    const numId = Number(id);
-    if (isNaN(numId) || numId <= 0) {
-      setError(true);
-      return;
-    }
-
     // Try localStorage cache first
     if (typeof window !== "undefined") {
       try {
@@ -90,7 +71,7 @@ function MatchPage() {
     }
     // Fallback to API
     setError(false);
-    api.getPickDetail(numId)
+    api.getPickDetail(Number(id))
       .then((res) => {
         // Check if pick exists and has valid data
         if (!res?.pick || !res.pick.id) {
