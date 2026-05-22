@@ -91,7 +91,23 @@ function MatchPage() {
           setError(true);
           return;
         }
-        setPick(res.pick);
+        const p = res.pick;
+        // Transform API response to match component expectations
+        setPick({
+          ...p,
+          // Map API fields to what component expects
+          match: p.fixture,
+          market_plain: p.market || p.selection || "",
+          one_line_reason: p.reasoning || "",
+          // Convert string forms to arrays
+          form_home: p.home_recent_form ? p.home_recent_form.split(",").filter(Boolean) : [],
+          form_away: p.away_recent_form ? p.away_recent_form.split(",").filter(Boolean) : [],
+          // Map selection_profile to goals_profile
+          goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
+          // Handle risk fields
+          risk_flag: p.risk_level || p.risk_flags || "",
+          user_backed: p.backed_by_me || false,
+        } as any);
       })
       .catch(() => setError(true));
   };
