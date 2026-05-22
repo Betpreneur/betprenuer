@@ -277,11 +277,11 @@ function MatchPage() {
             <div className="flex flex-col gap-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{pick.match.split(" vs ")[0]}</span>
-                <span>{pick.form_home.wins}W-{pick.form_home.games - pick.form_home.wins}L in {pick.form_home.games} games</span>
+                <span>{pick.form_home.wins ?? 0}W-{Math.max(0, (pick.form_home.games ?? 0) - (pick.form_home.wins ?? 0))}L in {pick.form_home.games ?? 0} games</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{pick.match.split(" vs ")[1]}</span>
-                <span>{(pick.form_away?.wins || 0)}W-{((pick.form_away?.games || 0) - (pick.form_away?.wins || 0))}L in {pick.form_away?.games || 0} games</span>
+                <span>{(pick.form_away?.wins ?? 0)}W-{Math.max(0, ((pick.form_away?.games ?? 0) - (pick.form_away?.wins ?? 0)))}L in {pick.form_away?.games ?? 0} games</span>
               </div>
             </div>
           ) : (
