@@ -324,6 +324,23 @@ export interface TopPickResponse {
   pick: Pick | null;
 }
 
+// New wrapped pick detail response from /algo/picks/{id}/
+export interface PickDetailResponse {
+  date: string;
+  published: boolean;
+  run_id: number;
+  posted_at: string;
+  pick: Pick;
+  fixture: string | null;
+  market: string | null;
+  selection: string | null;
+  model_summary: string | null;
+  performance: string | null;
+}
+
+// Alias for backwards compatibility (the detailed pick format)
+export type PickDetail = Pick;
+
 // ============== API ==================================================
 
 export const api = {
@@ -486,6 +503,11 @@ export const api = {
   /** GET /algo/picks/:id/ — Get a specific pick */
   async getPick(id: number): Promise<Pick> {
     return request<Pick>(ENDPOINTS.algoPick(String(id)));
+  },
+
+  /** GET /algo/picks/:id/ — Get a specific pick with full details */
+  async getPickDetail(id: number): Promise<PickDetailResponse> {
+    return request<PickDetailResponse>(ENDPOINTS.algoPick(String(id)));
   },
 
   /** POST /algo/picks/:id/back/ — Mark that user backed this pick */
