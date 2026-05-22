@@ -186,7 +186,10 @@ function MatchPage() {
 
   function shareText(): string {
     if (!pick) return "";
-    const signupUrl = "https://www.betpreneur.ng";
+    // Use current hostname for the link
+    const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
+    const protocol = typeof window !== "undefined" ? window.location.protocol : "https:";
+    const signupUrl = `${protocol}//${domain}`;
     return [
       `🎯 Betpreneur pick`,
       ``,
@@ -207,6 +210,7 @@ function MatchPage() {
     try {
       const blob = await renderShareCard(pick);
       if (!blob) throw new Error("No image generated");
+      const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
       const url = URL.createObjectURL(blob);
       const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
       setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
@@ -644,12 +648,13 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
 
   // ---- Footer ----
   let footerY = y + 120;
+  const domain = "www.betpreneur.ng"; // Use current hostname for link
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
   ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, footerY);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
-  const url = "www.betpreneur.ng";
+  const url = domain;
   const uw = ctx.measureText(url).width;
   ctx.fillText(url, W - PAD - uw, H - PAD - 25);
 
