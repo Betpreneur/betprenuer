@@ -186,7 +186,7 @@ function MatchPage() {
 
   function shareText(): string {
     if (!pick) return "";
-    const signupUrl = "https://betprenuer.lovable.app/signup";
+    const signupUrl = "https://www.betpreneur.ng/signup";
     return [
       `🎯 Betpreneur pick`,
       ``,
@@ -620,7 +620,8 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
 
   // ---- Model Verdict ----
   if (pick.model_verdict) {
-    y += 90; // Big space after reason text
+    // Extra space if reason text preceded this
+    y += reasonText ? 70 : 30;
     ctx.fillStyle = "rgba(79, 209, 205, 0.15)";
     roundRect(ctx, PAD, y - 28, W - PAD * 2, 90, 16); // Taller box
     ctx.fill();
@@ -644,7 +645,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
-  const url = "betprenuer.lovable.app/signup";
+  const url = "www.betpreneur.ng/signup";
   const uw = ctx.measureText(url).width;
   ctx.fillText(url, W - PAD - uw, H - PAD - 25);
 
