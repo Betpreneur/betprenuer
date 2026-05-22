@@ -186,7 +186,7 @@ function MatchPage() {
 
   function shareText(): string {
     if (!pick) return "";
-    const signupUrl = "https://www.betpreneur.ng/signup";
+    const signupUrl = "https://www.betpreneur.ng";
     return [
       `🎯 Betpreneur pick`,
       ``,
@@ -325,19 +325,22 @@ function MatchPage() {
         </ul>
       </section>
 
-      {/* Risk flag */}
-      {pick.risk_flag && (
-        <div className="bg-amber-bg border border-amber-text/20 rounded-lg p-4 mt-8">
-          <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1">Watch out</div>
-          <p className="text-[14px] text-amber-text">{pick.risk_flag}</p>
-        </div>
-      )}
+      {/* Parent flex container for risk flag + verdict */}
+      <div className="flex flex-col gap-10 h-auto">
+        {/* Risk flag */}
+        {pick.risk_flag && (
+          <div className="bg-amber-bg border border-amber-text/20 rounded-lg p-4">
+            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1">Watch out</div>
+            <p className="text-[14px] text-amber-text">{pick.risk_flag}</p>
+          </div>
+        )}
 
-      {/* Model verdict */}
-      <section className="bg-info-bg border border-info-blue/15 rounded-lg p-5 mt-8">
-        <h2 className="mb-3 !text-info-blue">Model verdict</h2>
-        <p className="italic text-[14px] text-info-blue leading-relaxed">{pick.model_verdict}</p>
-      </section>
+        {/* Model verdict */}
+        <section className="bg-info-bg border border-info-blue/15 rounded-lg p-5">
+          <h2 className="mb-3 !text-info-blue">Model verdict</h2>
+          <p className="italic text-[14px] text-info-blue leading-relaxed">{pick.model_verdict}</p>
+        </section>
+      </div>
 
       {/* Stake guide */}
       <StakeGuide odds={pick.odds} highlight={pick.tier} />
@@ -645,7 +648,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, H - PAD - 24);
   ctx.fillStyle = WHITE;
   ctx.font = "800 22px Montserrat, sans-serif";
-  const url = "www.betpreneur.ng/signup";
+  const url = "www.betpreneur.ng";
   const uw = ctx.measureText(url).width;
   ctx.fillText(url, W - PAD - uw, H - PAD - 25);
 
