@@ -1,0 +1,3 @@
+# Force Cloudflare Pages to use npm explicitly
+[build]
+command = "npm run build"
