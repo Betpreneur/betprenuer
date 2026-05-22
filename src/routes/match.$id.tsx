@@ -51,7 +51,10 @@ function MatchPage() {
   const load = () => {
     // Validate id before using
     const numId = Number(id);
+    console.log("[MatchPage] load() called with id:", id, "numId:", numId);
+    
     if (isNaN(numId) || numId <= 0) {
+      console.log("[MatchPage] Invalid id, setting error");
       setError(true);
       return;
     }
@@ -61,8 +64,11 @@ function MatchPage() {
       try {
         const cached = localStorage.getItem("todaysPicks");
         if (cached) {
+          console.log("[MatchPage] Found cache, searching for pick...");
           const picks = JSON.parse(cached);
           const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
+          console.log("[MatchPage] Cache search result:", found ? "found" : "not found");
+          if (found) {
           if (found) {
             // Transform cached pick format to match PickDetail format
             setPick({
@@ -83,6 +89,7 @@ function MatchPage() {
       }
     }
     // Fallback to API
+    console.log("[MatchPage] Calling API for pick:", numId);
     setError(false);
     api.getPickDetail(numId)
       .then((res) => {
