@@ -69,6 +69,17 @@ function MatchPage() {
           const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
           console.log("[MatchPage] Cache search result:", found ? "found" : "not found");
           if (found) {
+            // Debug: log available fields
+            console.log("[MatchPage] Cache fields:", found ? Object.keys(found).join(", ") : "none");
+            
+            // Handle various possible field names in cache
+            const parseGoals = (val: any) => {
+              if (!val) return [];
+              if (Array.isArray(val)) return val.filter(Boolean);
+              if (typeof val === "string") return val.split("\n").filter(s => s.trim());
+              return [String(val)];
+            };
+            
             // Transform cached pick format to match PickDetail format
             setPick({
               ...found,
