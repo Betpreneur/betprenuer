@@ -508,52 +508,6 @@ function TopPickPage() {
 
           <StakeGuide odds={pick.odds} highlight={pick.tier} />
 
-          {/* Action buttons - same as match detail page */}
-          {pick.status === "pending" && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                onClick={handleBacked}
-                disabled={userBacked || backing}
-                className={`min-h-[56px] rounded-md font-medium ${
-                  userBacked ? "bg-white/10 text-muted-foreground cursor-default" : "bg-win-green text-background hover:opacity-90"
-                }`}
-              >
-                {userBacked ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
-              </button>
-              <button
-                onClick={openPreview}
-                disabled={generating}
-                className="min-h-[56px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
-              >
-                {generating ? "Preparing…" : "Share on WhatsApp"}
-              </button>
-              <button
-                onClick={openPreview}
-                disabled={generating}
-                className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
-              >
-                {generating ? "Preparing…" : "Preview & download"}
-              </button>
-            </div>
-          )}
-          {shareMsg && <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>}
-
-          {preview && (
-            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={closePreview}>
-              <div className="bg-card border border-brand-border rounded-2xl max-w-md w-full p-4" onClick={(e) => e.stopPropagation()}>
-                <img src={preview.url} alt="Preview" className="w-full rounded-lg mb-4" />
-                <div className="grid grid-cols-2 gap-3">
-                  <button onClick={shareFromPreview} className="min-h-[52px] rounded-md font-semibold bg-[#25D366] text-black">
-                    Share on WhatsApp
-                  </button>
-                  <button onClick={downloadFromPreview} className="min-h-[52px] rounded-md font-medium border border-primary text-primary bg-card">
-                    Download PNG
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {pick.status && pick.status !== "pending" && (
             <div className="bg-card border rounded-lg p-4 text-center">
               <span className={`text-[16px] font-bold ${
@@ -586,42 +540,11 @@ function TopPickPage() {
         </div>
       )}
 
-      <Link to="/record" className="block text-center text-info-blue text-[14px] hover:underline">
-        📊 See our 90-day track record →
-      </Link>
-
       {/* Action Buttons */}
       <div className="flex gap-3 pt-2">
         <Link to="/home" className="flex-1 text-center py-3 bg-card border border-brand-border rounded-lg font-medium hover:bg-subtle-bg transition-colors">
           Back to Dashboard
         </Link>
-        <button onClick={function(){
-          var cardArea = document.querySelector(".space-y-5");
-          if(cardArea && (window as any).html2canvas){
-            (window as any).html2canvas(cardArea,{backgroundColor:"#0D0D0D",scale:2,useCORS:true}).then(function(canvas:any){
-              var link = document.createElement("a");
-              var d = new Date().toISOString().split("T")[0];
-              link.download = "betpreneur-pick-"+d+".png";
-              link.href = canvas.toDataURL("image/png");
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }).catch(function(e:any){console.log(e);alert("Could not save. Try share instead.");});
-          }else{alert("Save not ready. Try share.");}
-        }} className="flex-1 py-3 bg-brand-green text-primary-foreground rounded-lg font-medium hover:bg-brand-green/90 transition-colors">
-          Save Card
-        </button>
-        <button onClick={function(){
-          var u = window.location.href;
-          var t = "Betpreneur Pick: "+(document.querySelector("h1")?.textContent || "");
-          if(navigator.share){
-            navigator.share({title:t,text:t+" - check it out",url:u}).catch(function(){});
-          }else{
-            navigator.clipboard.writeText(t+" "+u).then(function(){alert("Link copied!");}).catch(function(){alert("Could not copy");});
-          }
-        }} className="flex-1 py-3 bg-info-blue text-white rounded-lg font-medium hover:bg-info-blue/90 transition-colors">
-          Share
-        </button>
       </div>
     </div>
   );
