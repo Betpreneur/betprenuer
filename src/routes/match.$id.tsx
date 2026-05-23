@@ -49,8 +49,15 @@ function MatchPage() {
   const [generating, setGenerating] = useState(false);
 
   const load = () => {
-    // Validate id before using
     const numId = Number(id);
+    console.log("[MatchPage] load() called, id:", numId);
+    if (isNaN(numId) || numId <= 0) {
+      setError(true);
+      return;
+    }
+    // Always call API directly (skip cache - get fresh stats)
+    setError(false);
+    api.getPickDetail(numId)
     console.log("[MatchPage] load() called with id:", id, "numId:", numId);
     
     if (isNaN(numId) || numId <= 0) {
