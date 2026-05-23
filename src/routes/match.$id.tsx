@@ -88,36 +88,16 @@ function MatchPage() {
             };
             
             // Transform cached pick format to match PickDetail format
+            // Pass stats objects as-is (don't convert to chips!)
             setPick({
               ...found,
               match: found.fixture,
               kickoff_wat: found.kickoff,
               market_plain: found.market,
               one_line_reason: found.reasoning || "",
-              // Convert form to array - handle strings, arrays, or stats objects
-              form_home: (() => {
-                const v = found.home_recent_form;
-                if (!v) return [];
-                if (Array.isArray(v)) return v;
-                if (typeof v === "string") return v.split(",").filter(Boolean);
-                if (typeof v === "object" && typeof v.streak === "number") {
-                  return [v.streak > 0 ? "W" : v.streak < 0 ? "L" : "D"];
-                }
-                return [];
-              })(),
-              form_away: (() => {
-                const v = found.away_recent_form;
-                if (!v) return [];
-                if (Array.isArray(v)) return v;
-                if (typeof v === "string") return v.split(",").filter(Boolean);
-                if (typeof v === "object" && typeof v.streak === "number") {
-                  return [v.streak > 0 ? "W" : v.streak < 0 ? "L" : "D"];
-                }
-                return [];
-              })(),
-              // Handle goals_profile 
+              form_home: found.home_recent_form,
+              form_away: found.away_recent_form,
               goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
-              // Handle risk
               risk_flag: found.risk_level || found.risk_flags?.[0] || "",
             } as any);
             return;
