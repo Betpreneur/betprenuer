@@ -625,10 +625,17 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   y = cardY + cardH + 80;
 
   // ---- Brief Reason quote ----
-  // Skip if contains detailed team stats (Home: or Away:)
+  // Skip if reasoning contains detailed stats indicators
   const rawReason = pick.one_line_reason || "";
-  const hasDetailedStats = rawReason.includes("Home:") || rawReason.includes("Away:");
-  const briefReason = hasDetailedStats ? "" : rawReason;
+  // Detailed stats texts contain confidence %, odds, expected value, or team breakdowns
+  const isDetailedStats = 
+    rawReason.includes("%") || 
+    rawReason.includes("odds") || 
+    rawReason.includes("expected value") ||
+    rawReason.includes("Home:") || 
+    rawReason.includes("Away:") ||
+    rawReason.includes("per match");
+  const briefReason = isDetailedStats ? "" : rawReason;
   if (briefReason) {
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
