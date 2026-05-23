@@ -114,7 +114,7 @@ function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFor
           <span className="text-[18px] font-bold text-muted-foreground">{stats.games}</span>
         </div>
       </div>
-      <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">*Averages based on last 5 matches</div>
+      <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">*Averages based on last {stats.games} matches</div>
     </div>
   );
 }
