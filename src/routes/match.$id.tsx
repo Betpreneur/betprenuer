@@ -625,8 +625,10 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   y = cardY + cardH + 80;
 
   // ---- Brief Reason quote ----
-  // Use ONLY one_line_reason for the quote text (no detailed stats)
-  const briefReason = pick.one_line_reason || "";
+  // Skip if contains detailed team stats (Home: or Away:)
+  const rawReason = pick.one_line_reason || "";
+  const hasDetailedStats = rawReason.includes("Home:") || rawReason.includes("Away:");
+  const briefReason = hasDetailedStats ? "" : rawReason;
   if (briefReason) {
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
