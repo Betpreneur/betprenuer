@@ -624,12 +624,13 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
 
   y = cardY + cardH + 80;
 
-  // ---- Reason quote ----
-  const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
-  if (reasonText) {
+  // ---- Brief Reason quote ----
+  // Use ONLY one_line_reason for the quote text (no detailed stats)
+  const briefReason = pick.one_line_reason || "";
+  if (briefReason) {
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-    y = wrapText(ctx, `"${reasonText}"`, PAD, y, W - PAD * 2, 40);
+    y = wrapText(ctx, `"${briefReason}"`, PAD, y, W - PAD * 2, 40);
     // Dynamic gap after reason text
     y += 40;
   }
