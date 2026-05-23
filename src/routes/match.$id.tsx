@@ -648,7 +648,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
 
   // ---- Footer ----
   let footerY = y + 120;
-  const domain = "www.betpreneur.ng"; // Use current hostname for link
+  const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
   ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, footerY);

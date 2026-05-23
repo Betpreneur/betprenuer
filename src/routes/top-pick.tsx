@@ -172,7 +172,8 @@ function TopPickPage() {
   function getShareText(): string {
     if (!data?.pick) return "";
     const p = data.pick;
-    return `🎯 Betpreneur Top Pick\n\n${p.fixture}\n${p.market} @ ${Number(p.odds).toFixed(2)}\nConfidence: ${p.confidence?.toFixed(0)}%\n\n${p.reasoning || ""}\n\nDaily edge picks → www.betpreneur.ng`;
+    const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
+    return `🎯 Betpreneur Top Pick\n\n${p.fixture}\n${p.market} @ ${Number(p.odds).toFixed(2)}\nConfidence: ${p.confidence?.toFixed(0)}%\n\n${p.reasoning || ""}\n\nDaily edge picks → ${domain}`;
   }
 
   async function openPreview() {
