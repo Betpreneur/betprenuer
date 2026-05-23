@@ -126,16 +126,24 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<TodayPicksResponse | null>(null);
+  const [topPickData, setTopPickData] = useState<Pick | null>(null);
   const [error, setError] = useState(false);
 
   const load = () => {
     setError(false);
-    api.getTodayPicks()
-      .then((res) => {
-        setData(res);
+    // Load today's picks AND the official top pick
+    Promise.all([
+      api.getTodayPicks(),
+      api.getTopPick().catch(() => null) // fall back gracefully
+    ])
+      .then(([picksRes, topPickRes]) => {
+        setData(picksRes);
+        // Extract the official top pick from the dedicated endpoint
+        setTopPickData(topPickRes?.pick || null);
+        
         // Cache today's picks for detail page lookup
-        if (typeof window !== "undefined" && res?.fixtures) {
-          const allPicks = res.fixtures.flatMap((f: any) => f.picks || []) || [];
+        if (typeof window !== "undefined" && picksRes?.fixtures) {
+          const allPicks = picksRes.fixtures.flatMap((f: any) => f.picks || []) || [];
           localStorage.setItem("todaysPicks", JSON.stringify(allPicks));
         }
       })
@@ -225,17 +233,17 @@ function HomePage() {
     );
   }
 
-  // Categorize picks by tier - use same API logic as top-pick page
-  // First try to find pick by ID from API, then fallback to tier-based selection
+  // Categorize picks by tier - use official top pick from API first
   const getTier = (p: Pick) => (p.tier as any as string) || "";
   
-  // Find the official top pick (same logic as /top-pick page uses)
-  const topPick = (() => {
-    const officialTop = allPicks.find((p) => 
-      p.tier === "value_gem" || getTier(p).includes("gem")
-    );
-    return officialTop ?? allPicks[0];
-  })();
+  // Use the official top pick from API, or fallback to same logic as top-pick page
+  const topPick = topPickData 
+    || (() => {
+      const officialTop = allPicks.find((p) => 
+        p.tier === "value_gem" || getTier(p).includes("gem")
+      );
+      return officialTop ?? allPicks[0];
+    })();
   
   const bankers = allPicks.filter((p) => getTier(p) === "banker");
   const gems = allPicks.filter((p) => getTier(p).includes("gem"));
