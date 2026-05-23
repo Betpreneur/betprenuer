@@ -146,9 +146,9 @@ function MatchPage() {
           match: p.fixture,
           market_plain: p.market || p.selection || "",
           one_line_reason: p.reasoning || "",
-          // Convert string forms to arrays
-          form_home: p.home_recent_form ? p.home_recent_form.split(",").filter(Boolean) : [],
-          form_away: p.away_recent_form ? p.away_recent_form.split(",").filter(Boolean) : [],
+          // Pass stats objects as-is (don't split)
+          form_home: p.home_recent_form,
+          form_away: p.away_recent_form,
           // Map selection_profile to goals_profile
           goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
           // Handle risk fields
@@ -297,28 +297,53 @@ function MatchPage() {
         </div>
       </header>
 
-      {/* Recent form */}
+      {/* Recent form - full team stats */}
       <section className="bg-card border border-brand-border rounded-lg p-5">
         <h2 className="mb-3">Recent form</h2>
-        <div className="space-y-3 text-[13px]">
-          {typeof pick.form_home === "object" && pick.form_home !== null ? (
-            // Stats object - show as text
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{pick.match.split(" vs ")[0]}</span>
-                <span>{pick.form_home.wins ?? 0}W-{Math.max(0, (pick.form_home.games ?? 0) - (pick.form_home.wins ?? 0))}L in {pick.form_home.games ?? 0} games</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{pick.match.split(" vs ")[1]}</span>
-                <span>{(pick.form_away?.wins ?? 0)}W-{Math.max(0, ((pick.form_away?.games ?? 0) - (pick.form_away?.wins ?? 0)))}L in {pick.form_away?.games ?? 0} games</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
+          {/* Home team stats */}
+          {pick.form_home?.games > 0 && (
+            <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+              <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <span className="text-muted-foreground">Record</span>
+                <span className="font-medium">{pick.form_home.wins ?? 0}W-{((pick.form_home.games ?? 0) - (pick.form_home.wins ?? 0))}L ({pick.form_home.games ?? 0})</span>
+                <span className="text-muted-foreground">Streak</span>
+                <span className="font-medium">{pick.form_home.streak ?? 0}</span>
+                <span className="text-muted-foreground">Scored</span>
+                <span className="font-medium">{pick.form_home.avg_scored ?? "-"} avg</span>
+                <span className="text-muted-foreground">Conceded</span>
+                <span className="font-medium">{pick.form_home.avg_conceded ?? "-"} avg</span>
+                <span className="text-muted-foreground">BTTS</span>
+                <span className="font-medium">{pick.form_home.btts_rate ?? "-"}%</span>
+                <span className="text-muted-foreground">Over 2.5</span>
+                <span className="font-medium">{pick.form_home.over25_rate ?? "-"}%</span>
+                <span className="text-muted-foreground">Clean sheets</span>
+                <span className="font-medium">{pick.form_home.clean_sheets ?? 0}</span>
               </div>
             </div>
-          ) : (
-            // Array - show chips
-            <>
-              <Row team={pick.match.split(" vs ")[0]} form={pick.form_home} />
-              <Row team={pick.match.split(" vs ")[1]} form={pick.form_away} />
-            </>
+          )}
+          {/* Away team stats */}
+          {pick.form_away?.games > 0 && (
+            <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+              <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <span className="text-muted-foreground">Record</span>
+                <span className="font-medium">{pick.form_away.wins ?? 0}W-{((pick.form_away.games ?? 0) - (pick.form_away.wins ?? 0))}L ({pick.form_away.games ?? 0})</span>
+                <span className="text-muted-foreground">Streak</span>
+                <span className="font-medium">{pick.form_away.streak ?? 0}</span>
+                <span className="text-muted-foreground">Scored</span>
+                <span className="font-medium">{pick.form_away.avg_scored ?? "-"} avg</span>
+                <span className="text-muted-foreground">Conceded</span>
+                <span className="font-medium">{pick.form_away.avg_conceded ?? "-"} avg</span>
+                <span className="text-muted-foreground">BTTS</span>
+                <span className="font-medium">{pick.form_away.btts_rate ?? "-"}%</span>
+                <span className="text-muted-foreground">Over 2.5</span>
+                <span className="font-medium">{pick.form_away.over25_rate ?? "-"}%</span>
+                <span className="text-muted-foreground">Clean sheets</span>
+                <span className="font-medium">{pick.form_away.clean_sheets ?? 0}</span>
+              </div>
+            </div>
           )}
         </div>
       </section>
