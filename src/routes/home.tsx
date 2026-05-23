@@ -225,12 +225,17 @@ function HomePage() {
     );
   }
 
-  // Categorize picks by tier - force type flexibility
+  // Categorize picks by tier - use same API logic as top-pick page
+  // First try to find pick by ID from API, then fallback to tier-based selection
   const getTier = (p: Pick) => (p.tier as any as string) || "";
   
-  const topPick = allPicks.find((p) => 
-    getTier(p).includes("gem")
-  ) ?? allPicks[0];
+  // Find the official top pick (same logic as /top-pick page uses)
+  const topPick = (() => {
+    const officialTop = allPicks.find((p) => 
+      p.tier === "value_gem" || getTier(p).includes("gem")
+    );
+    return officialTop ?? allPicks[0];
+  })();
   
   const bankers = allPicks.filter((p) => getTier(p) === "banker");
   const gems = allPicks.filter((p) => getTier(p).includes("gem"));
