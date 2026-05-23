@@ -227,6 +227,17 @@ export interface PublicSummary {
   pending: number;
   window_days: number;
 }
+export interface TeamStats {
+  wins: number;
+  games: number;
+  streak: number;
+  btts_rate: number;
+  avg_scored: number;
+  over25_rate: number;
+  avg_conceded: number;
+  clean_sheets: number;
+}
+
 export interface Pick {
   id: number;
   posted_at?: string;
@@ -243,8 +254,8 @@ export interface Pick {
   meaning?: string;
   reasoning?: string;
   model_verdict?: string;
-  home_recent_form?: string[];
-  away_recent_form?: string[];
+  home_recent_form?: TeamStats | string[];
+  away_recent_form?: TeamStats | string[];
   risk_flags?: string[];
   confidence: number;
   odds: number;
