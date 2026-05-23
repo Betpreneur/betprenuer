@@ -170,10 +170,6 @@ function HomePage() {
     );
   }
 
-  if (!isAuthed) {
-    return <Navigate to="/record" />;
-  }
-
   if (error) {
     return (
       <div className="space-y-5">
