@@ -55,16 +55,6 @@ function MatchPage() {
       setError(true);
       return;
     }
-    // Always call API directly (skip cache - get fresh stats)
-    setError(false);
-    api.getPickDetail(numId)
-    console.log("[MatchPage] load() called with id:", id, "numId:", numId);
-    
-    if (isNaN(numId) || numId <= 0) {
-      console.log("[MatchPage] Invalid id, setting error");
-      setError(true);
-      return;
-    }
 
     // Try localStorage cache first
     if (typeof window !== "undefined") {

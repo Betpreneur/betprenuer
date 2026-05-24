@@ -305,7 +305,7 @@ function HomePage() {
 
       {bankers.length > 0 && (
         <Section title="Bankers" subtitle="72%+ confidence">
-          {bankers.slice(0, 3).map((pick) => (
+          {bankers.map((pick) => (
             <PickRow key={pick.id} pick={pick} />
           ))}
         </Section>
@@ -313,7 +313,7 @@ function HomePage() {
 
       {gems.length > 0 && (
         <Section title="Value Gems" subtitle="68-72% confidence">
-          {gems.slice(0, 3).map((pick) => (
+          {gems.map((pick) => (
             <PickRow key={pick.id} pick={pick} />
           ))}
         </Section>
@@ -321,7 +321,7 @@ function HomePage() {
 
       {wildcards.length > 0 && (
         <Section title="Wildcards" subtitle="62-68% confidence">
-          {wildcards.slice(0, 3).map((pick) => (
+          {wildcards.map((pick) => (
             <PickRow key={pick.id} pick={pick} />
           ))}
         </Section>
