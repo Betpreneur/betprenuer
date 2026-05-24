@@ -9,16 +9,16 @@ import heroAnalytics from "@/assets/hero-analytics.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Betpreneur — Smarter football picks, every matchday" },
+      { title: "Betpreneur — Daily football picks we dey share" },
       {
         name: "description",
         content:
-          "Pre-match picks built on a transparent, audited model. 66%+ hit rate, +18% ROI, every pick logged before kick-off.",
+          "We post our picks for today matches before una know wetin happen. 80%+ win rate, +27% profit, every game we don tape don dey for record.",
       },
-      { property: "og:title", content: "Betpreneur — Smarter football picks" },
+      { property: "og:title", content: "Betpreneur — Football picks we get confidence" },
       {
         property: "og:description",
-        content: "Audited 90-day record. Picks posted before kick-off. Nothing deleted.",
+        content: "90 days record wey no go lie una. Every pick don publish before match start.",
       },
     ],
   }),

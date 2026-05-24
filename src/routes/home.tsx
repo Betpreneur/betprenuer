@@ -196,10 +196,41 @@ function HomePage() {
             <span className="w-2 h-2 rounded-full bg-amber-text animate-pulse"></span>
             <span className="text-[12px] font-medium">Awaiting picks</span>
           </div>
-          <h1 className="text-[22px] font-bold">Picks arriving soon</h1>
-          <p className="text-[14px] text-muted-foreground mt-2">
-            Our model is analyzing today's matches.<br />Picks go live at 06:30 WAT.
-          </p>
+          <h1 className="text-[22px] font-bold">Picks dey come</h1>
+            <p className="text-[14px] text-muted-foreground mt-2">
+              Our algorithm don scan all matches for today. We go post picks before 06:30 WAT.
+            </p>
+          </header>
+          
+          {/* How it works - for new users */}
+          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+            <h3 className="text-[14px] font-bold text-teal-accent mb-3">🏆 How Betpreneur Dey Work</h3>
+            <ol className="text-[13px] text-muted-foreground space-y-2 list-decimal list-inside">
+              <li>Our algorithm analyse all matches for today and pick the best ones</li>
+              <li>We rank dem by confidence level wey the algorithm give</li>
+              <li>Every pick go dey here before kick-off start</li>
+              <li>Records go update the next morning after all matches finish</li>
+            </ol>
+          </div>
+
+          {/* Tier Legend */}
+          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+            <h3 className="text-[14px] font-bold text-teal-accent mb-3">📊 Confidence Tier</h3>
+            <div className="space-y-2 text-[13px]">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-brand-green text-primary-foreground text-[10px] font-bold">BANKER</span>
+                <span className="text-muted-foreground">80% plus confidence — high chance win</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-teal-600 text-white text-[10px] font-bold">GEM</span>
+                <span className="text-muted-foreground">70-79% confidence — good value</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-purple-600 text-white text-[10px] font-bold">WILDCARD</span>
+                <span className="text-muted-foreground">60-69% confidence — higher risk, bigger odds</span>
+              </div>
+            </div>
+          </div>
         </header>
         
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6">
