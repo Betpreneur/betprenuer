@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 bg-primary border-b border-primary">
-        <div className="mx-auto h-20 flex items-center justify-between px-4 md:px-8 max-w-3xl">
+        <div className="mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-12 xl:px-16 max-w-[1400px]">
           <Link to="/" aria-label="Betpreneur home" className="flex items-center">
             <img src={logoHorizontal} alt="Betpreneur" className="h-10 w-auto" />
           </Link>
@@ -93,7 +93,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="flex-1 w-full pb-24 md:pb-10 pt-4 max-w-3xl mx-auto px-4">{children}</main>
+      <main className="flex-1 w-full pb-24 md:pb-10 pt-4 max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">{children}</main>
 
       {/* Mobile bottom nav */}
       {isAuthed && (
