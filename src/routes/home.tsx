@@ -251,7 +251,7 @@ function HomePage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[13px] text-muted-foreground">
-            {todayLagos()} · Picks live · {data.posted_at || "06:30 WAT"}
+            {todayLagos()} · Picks live · {data.posted_at ? new Date(data.posted_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos" }) + " WAT" : "06:30 WAT"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
@@ -259,6 +259,7 @@ function HomePage() {
           <span className="px-1.5 py-0.5 bg-white/10 rounded text-white/90">{allPicks.length}</span>
           <span className="text-brand-green">{bankers.length} Banker</span>
           <span className="text-teal-accent">{gems.length} Gem</span>
+          <span className="text-amber-text">{wildcards.length} Wildcard</span>
         </div>
       </div>
 
