@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "We post our picks for today matches before una know wetin happen. 80%+ win rate, +27% profit, every game we don tape don dey for record.",
+          "Football picks wey our algorithm vet. Posted before 06:30 WAT daily. Bankers 80%+, Gems 70-79%, Wildcards 60-69%. 90-day record wey no go lie.",
       },
       { property: "og:title", content: "Betpreneur — Football picks we get confidence" },
       {
@@ -73,7 +73,7 @@ function Landing() {
           </h1>
           <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/90">
             Betpreneur publishes pre-match picks before kick-off, ranked by a
-            transparent confidence model. No deleted losses, no tipster theatre
+            transparent confidence model. Bankers, Gems and Wildcards every matchday. Records go update by 06:30 WAT wen matches don finish.
             — just an audited edge you can follow. Free while we're in beta.
           </p>
 
