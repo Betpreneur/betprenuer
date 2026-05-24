@@ -203,11 +203,11 @@ function HomePage() {
         </header>
         
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6">
-          <h2 className="text-[14px] font-medium mb-3">How it works</h2>
+          <h2 className="text-[14px] font-medium mb-3">How Betpreneur works</h2>
           <div className="space-y-2 text-[13px] text-muted-foreground">
-            <p><span className="text-win-green font-medium">Bankers</span> — 72%+ confidence</p>
-            <p><span className="text-teal-accent font-medium">Value Gems</span> — 68-72% confidence</p>
-            <p><span className="text-amber-text font-medium">Wildcards</span> — 62-68% confidence</p>
+            <p><span className="text-win-green font-medium">Bankers</span> — 80%+ confidence</p>
+            <p><span className="text-teal-accent font-medium">Gems</span> — 70-79% confidence</p>
+            <p><span className="text-amber-text font-medium">Wildcards</span> — 60-69% confidence</p>
           </div>
         </div>
       </div>
