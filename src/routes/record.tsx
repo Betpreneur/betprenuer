@@ -161,7 +161,7 @@ function RecordPage() {
         <p className="text-[14px] text-muted-foreground mt-1">All picks posted before kick-off. Results auto-settled.</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard label="Hit rate" value={`${stats?.hit_rate?.toFixed(1)}%`} />
         <StatCard label="ROI (90d)" value={`+${stats?.roi_flat?.toFixed(1)}%`} highlight={stats && stats.roi_flat > 0 ? "text-win-green" : "text-danger-red"} />
         <StatCard label="Wins" value={`${stats?.wins}`} highlight="text-win-green" />
@@ -203,29 +203,29 @@ function RecordPage() {
         <table className="w-full text-[13px]">
           <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
             <tr>
-              <th className="text-left px-2 py-2 text-[11px]">Date</th>
-              <th className="text-left px-2 py-2 text-[11px]">Match</th>
-              <th className="text-left px-2 py-2 text-[11px]">Pick</th>
-              <th className="text-left px-2 py-2 hidden sm:table-cell text-[11px]">Tier</th>
-              <th className="text-right px-2 py-2 hidden md:table-cell text-[11px]">Stake</th>
-              <th className="text-right px-2 py-2 text-[11px]">Odds</th>
-              <th className="text-right px-2 py-2 hidden sm:table-cell text-[11px]">Conf</th>
-              <th className="text-right px-2 py-2 text-[11px]">Score</th>
-              <th className="text-right px-2 py-2 text-[11px]">Result</th>
+              <th className="text-left px-3 py-2">Date</th>
+              <th className="text-left px-3 py-2">Match</th>
+              <th className="text-left px-3 py-2">Pick</th>
+              <th className="text-left px-3 py-2">Tier</th>
+              <th className="text-right px-3 py-2">Stake</th>
+              <th className="text-right px-3 py-2">Odds</th>
+              <th className="text-right px-3 py-2">Conf</th>
+              <th className="text-right px-3 py-2">Score</th>
+              <th className="text-right px-3 py-2">Result</th>
             </tr>
           </thead>
           <tbody>
             {filtered.slice(0, 30).map(pick => (
               <tr key={pick.id} className="border-t border-brand-border">
-                <td className="px-2 py-2 text-muted-foreground whitespace-nowrap text-[11px]">{pick.match_date}</td>
-                <td className="px-2 py-2 max-w-[120px] truncate text-[12px]">{pick.fixture}</td>
-                <td className="px-2 py-2 max-w-[100px] truncate text-[12px]">{pick.pick || pick.market}</td>
-                <td className="px-2 py-2 hidden sm:table-cell"><TierBadge tier={pick.tier} /></td>
-                <td className="px-2 py-2 text-right hidden md:table-cell">₦{pick.stake?.toLocaleString()}</td>
-                <td className="px-2 py-2 text-right">{pick.odds}</td>
-                <td className="px-2 py-2 text-right text-muted-foreground hidden sm:table-cell">{pick.confidence}%</td>
-                <td className="px-2 py-2 text-right text-muted-foreground text-[11px]">{pick.score || "-"}</td>
-                <td className="px-2 py-2 text-right"><StatusBadge status={pick.status} score={pick.score} pnl={pick.pnl} /></td>
+                <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{pick.match_date}</td>
+                <td className="px-3 py-2 max-w-[180px] truncate">{pick.fixture}</td>
+                <td className="px-3 py-2">{pick.pick || pick.market}</td>
+                <td className="px-3 py-2"><TierBadge tier={pick.tier} /></td>
+                <td className="px-3 py-2 text-right">₦{pick.stake?.toLocaleString()}</td>
+                <td className="px-3 py-2 text-right">{pick.odds}</td>
+                <td className="px-3 py-2 text-right text-muted-foreground">{pick.confidence}%</td>
+                <td className="px-3 py-2 text-right text-muted-foreground">{pick.score || "-"}</td>
+                <td className="px-3 py-2 text-right"><StatusBadge status={pick.status} score={pick.score} pnl={pick.pnl} /></td>
               </tr>
             ))}
           </tbody>
