@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { formatKickoff, todayLagos } from "@/lib/time";
+import { todayLagos } from "@/lib/time";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/my-picks")({
   component: MyPicksPage,
 });
 
-// Status badge colors
 function getStatusBadge(status: string) {
   switch (status) {
     case "win":
@@ -28,7 +27,6 @@ function getStatusBadge(status: string) {
   }
 }
 
-// Stats Card
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 text-center">
@@ -38,7 +36,6 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   );
 }
 
-// Pick Row
 function PickItem({ pick, date }: { pick: Pick; date: string }) {
   return (
     <Link
@@ -68,9 +65,7 @@ function PickItem({ pick, date }: { pick: Pick; date: string }) {
             {pick.confidence?.toFixed(0)}%
           </div>
           {pick.result && (
-            <div className="text-[10px] text-muted-foreground">
-              {pick.result}
-            </div>
+            <div className="text-[10px] text-muted-foreground">{pick.result}</div>
           )}
         </div>
       </div>
@@ -111,16 +106,12 @@ function MyPicksPage() {
       .finally(() => setLoading(false));
   }, [authLoading, isAuthed]);
 
-  // Group picks by date
-  const grouped = picks.reduce<Record<string, { pick: Pick; date: string }[]>(
-    (acc, pick) => {
-      const dateStr = pick.created_at?.split("T")[0] || todayLagos();
-      if (!acc[dateStr]) acc[dateStr] = [];
-      acc[dateStr].push({ pick, date: dateStr });
-      return acc;
-    },
-    {}
-  );
+  const grouped: { [key: string]: { pick: Pick; date: string }[] } = {};
+  picks.forEach((pick) => {
+    const dateStr = pick.created_at?.split("T")[0] || todayLagos();
+    if (!grouped[dateStr]) grouped[dateStr] = [];
+    grouped[dateStr].push({ pick, date: dateStr });
+  });
 
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
@@ -172,7 +163,6 @@ function MyPicksPage() {
         <p className="text-[13px] text-muted-foreground">{todayLagos()}</p>
       </header>
 
-      {/* Stats Dashboard */}
       <div className="grid grid-cols-4 gap-2">
         <StatCard label="Total" value={stats.total} color="text-white" />
         <StatCard label="Wins" value={stats.wins} color="text-win-green" />
@@ -180,7 +170,6 @@ function MyPicksPage() {
         <StatCard label="Pending" value={stats.pending} color="text-amber-text" />
       </div>
 
-      {/* Picks History */}
       {sortedDates.length === 0 ? (
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-8 text-center">
           <div className="text-4xl mb-3">🎯</div>
