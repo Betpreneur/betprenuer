@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type Pick } from "@/lib/api";
+import { type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 
@@ -13,6 +13,19 @@ export const Route = createFileRoute("/my-picks")({
   }),
   component: MyPicksPage,
 });
+
+// Generate last 3 dates: today, yesterday, 2 days ago
+function getDateOptions() {
+  const dates: { value: string; label: string }[] = [];
+  for (let i = 0; i < 3; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().split("T")[0];
+    const label = i === 0 ? "Today" : i === 1 ? "Yesterday" : `${i} days ago`;
+    dates.push({ value: iso, label });
+  }
+  return dates;
+}
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -29,14 +42,14 @@ function getStatusBadge(status: string) {
 
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 text-center">
-      <div className={`text-[28px] font-bold ${color}`}>{value}</div>
-      <div className="text-[11px] text-muted-foreground uppercase tracking-wide">{label}</div>
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 text-center">
+      <div className={`text-[24px] font-bold ${color}`}>{value}</div>
+      <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
     </div>
   );
 }
 
-function PickItem({ pick, date }: { pick: Pick; date: string }) {
+function PickItem({ pick }: { pick: Pick }) {
   return (
     <Link
       to="/match/$id"
@@ -44,30 +57,15 @@ function PickItem({ pick, date }: { pick: Pick; date: string }) {
       className="block bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 hover:border-brand-green/50 transition-colors"
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] text-muted-foreground">{date}</span>
+        <span className="text-[10px] text-muted-foreground">{pick.league}</span>
         {getStatusBadge(pick.status)}
       </div>
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-brand-green/20 text-brand-green">
-              {pick.tier?.replace("_", " ") || ""}
-            </span>
-            <span className="text-[10px] text-muted-foreground truncate">{pick.league}</span>
-          </div>
-          <h3 className="text-[13px] font-medium truncate">{pick.fixture}</h3>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
-            {pick.market} @ {Number(pick.odds).toFixed(2)}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className={`text-[16px] font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>
-            {pick.confidence?.toFixed(0)}%
-          </div>
-          {pick.result && (
-            <div className="text-[10px] text-muted-foreground">{pick.result}</div>
-          )}
-        </div>
+      <h3 className="text-[13px] font-medium truncate">{pick.fixture}</h3>
+      <div className="flex items-center justify-between mt-2 text-[11px]">
+        <span className="text-muted-foreground">{pick.market} @ {Number(pick.odds).toFixed(2)}</span>
+        <span className={`font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>
+          {pick.confidence?.toFixed(0)}%
+        </span>
       </div>
     </Link>
   );
@@ -86,43 +84,45 @@ function MyPicksPage() {
   const [picks, setPicks] = useState<Pick[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, wins: 0, losses: 0, pending: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isAuthed) {
-      setLoading(false);
-      return;
-    }
+  const dateOptions = getDateOptions();
 
-    api.getMyPicks()
-      .then((res) => {
-        setPicks(res.picks || []);
-        setStats(res.stats || { total: 0, wins: 0, losses: 0, pending: 0 });
+  const loadPicks = (date: string) => {
+    setLoading(true);
+    setError(null);
+
+    fetch(`/algo/picks/backed?date=${date}`)
+      .then(res => res.json())
+      .then((res: any) => {
+        const arr = Array.isArray(res) ? res : (res.results || res.data || res.picks || []);
+        setPicks(arr);
+        setStats({
+          total: arr.length,
+          wins: arr.filter((p: any) => p.status === "win").length,
+          losses: arr.filter((p: any) => p.status === "loss").length,
+          pending: arr.filter((p: any) => p.status === "pending").length,
+        });
       })
       .catch((err) => {
-        console.error("Failed to load my picks:", err);
-        setError("Could not load your picks. Please try again.");
+        console.error("Failed to load picks:", err);
+        setError("Could not load your picks.");
       })
       .finally(() => setLoading(false));
-  }, [authLoading, isAuthed]);
+  };
 
-  const grouped: { [key: string]: { pick: Pick; date: string }[] } = {};
-  picks.forEach((pick) => {
-    const dateStr = pick.created_at?.split("T")[0] || todayLagos();
-    if (!grouped[dateStr]) grouped[dateStr] = [];
-    grouped[dateStr].push({ pick, date: dateStr });
-  });
-
-  const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+  useEffect(() => {
+    if (!authLoading && isAuthed) {
+      loadPicks(selectedDate);
+    }
+  }, [authLoading, isAuthed, selectedDate]);
 
   if (authLoading || loading) {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <div className="h-8 w-32 bg-card border border-brand-border rounded animate-pulse" />
         <div className="grid grid-cols-4 gap-2">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-card border border-brand-border rounded animate-pulse" />
-          ))}
+          {[0, 1, 2, 3].map(i => <div key={i} className="h-16 bg-card border border-brand-border rounded animate-pulse" />)}
         </div>
       </div>
     );
@@ -133,36 +133,38 @@ function MyPicksPage() {
       <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-8 text-center">
         <div className="text-4xl mb-3">🔐</div>
         <h2 className="text-[18px] font-bold">Sign in to track your picks</h2>
-        <p className="text-[13px] text-muted-foreground mt-2 mb-4">
-          Back picks on the dashboard to start tracking your performance.
-        </p>
-        <Link
-          to="/login"
-          className="inline-flex items-center justify-center px-6 py-2 bg-brand-green text-primary-foreground font-medium rounded-lg hover:bg-brand-green/90 transition-colors"
-        >
+        <Link to="/login" className="inline-block mt-4 px-6 py-2 bg-brand-green text-primary-foreground font-medium rounded-lg">
           Sign In
         </Link>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-danger-red/30 rounded-xl p-8 text-center">
-        <div className="text-4xl mb-3">⚠️</div>
-        <h2 className="text-[18px] font-bold text-danger-red">Unable to load picks</h2>
-        <p className="text-[13px] text-muted-foreground mt-2">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <header>
         <h1 className="text-[22px] font-bold">My Picks</h1>
         <p className="text-[13px] text-muted-foreground">{todayLagos()}</p>
       </header>
 
+      {/* Date Toggles */}
+      <div className="flex gap-1">
+        {dateOptions.map(d => (
+          <button
+            key={d.value}
+            onClick={() => setSelectedDate(d.value)}
+            className={`flex-1 py-2 px-2 text-[12px] font-medium rounded-lg transition-colors ${
+              selectedDate === d.value
+                ? "bg-brand-green text-primary-foreground"
+                : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50"
+            }`}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Stats */}
       <div className="grid grid-cols-4 gap-2">
         <StatCard label="Total" value={stats.total} color="text-white" />
         <StatCard label="Wins" value={stats.wins} color="text-win-green" />
@@ -170,45 +172,23 @@ function MyPicksPage() {
         <StatCard label="Pending" value={stats.pending} color="text-amber-text" />
       </div>
 
-      {sortedDates.length === 0 ? (
+      {/* Picks List */}
+      {error ? (
+        <div className="bg-danger-red/10 border border-danger-red/30 rounded-xl p-4 text-center text-danger-red">
+          {error}
+        </div>
+      ) : picks.length === 0 ? (
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-8 text-center">
-          <div className="text-4xl mb-3">🎯</div>
-          <h2 className="text-[18px] font-bold">No picks backed yet</h2>
-          <p className="text-[13px] text-muted-foreground mt-2">
-            Start backing picks on the dashboard to track your performance.
-          </p>
-          <Link
-            to="/home"
-            className="inline-flex items-center justify-center px-6 py-2 bg-brand-green text-primary-foreground font-medium rounded-lg hover:bg-brand-green/90 transition-colors mt-4"
-          >
-            Go to Dashboard
-          </Link>
+          <div className="text-3xl mb-2">🎯</div>
+          <p className="text-muted-foreground">No picks backed on this date</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {sortedDates.map((date) => (
-            <section key={date} className="space-y-2">
-              <div className="flex items-center justify-between pb-1 border-b border-border/30">
-                <h2 className="text-[13px] font-medium text-muted-foreground">
-                  {new Date(date).toLocaleDateString("en-GB", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </h2>
-                <span className="text-[11px] text-muted-foreground">
-                  {grouped[date].length} pick{grouped[date].length !== 1 ? "s" : ""}
-                </span>
-              </div>
-              {grouped[date].map(({ pick }) => (
-                <PickItem key={pick.id} pick={pick} date={date} />
-              ))}
-            </section>
-          ))}
+        <div className="space-y-2">
+          {picks.map(pick => (<PickItem key={pick.id} pick={pick} />))}
         </div>
       )}
 
-      <Link to="/home" className="block text-center text-info-blue text-[14px] hover:underline">
+      <Link to="/home" className="block text-center text-info-blue text-[14px]">
         ← Back to Dashboard
       </Link>
     </div>
