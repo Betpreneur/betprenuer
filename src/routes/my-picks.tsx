@@ -92,7 +92,7 @@ function MyPicksPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/algo/picks/backed?date=${date}`)
+    fetch(`https://backend.betpreneur.ng/api/algo/picks/backed?date=${date}`)
       .then(res => res.json())
       .then((res: any) => {
         const arr = Array.isArray(res) ? res : (res.results || res.data || res.picks || []);
