@@ -247,14 +247,19 @@ function HomePage() {
 
   return (
     <div className="space-y-6">
+      {/* Top stats bar - counts by tier */}
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[13px] text-muted-foreground">
             {todayLagos()} · Picks live · {data.posted_at || "06:30 WAT"}
           </p>
         </div>
-        <div className="text-[12px] text-muted-foreground">
-          {data.summary?.selected_pick_count || allPicks.length} picks
+        <div className="flex flex-wrap items-center gap-2 text-[11px]">
+          <span className="text-white/60">Tot:</span>
+          <span className="px-1.5 py-0.5 bg-white/10 rounded text-white/90">{allPicks.length}</span>
+          <span className="text-brand-green">{bankers.length}B</span>
+          <span className="text-teal-accent">{gems.length}G</span>
+          <span className="text-purple-400">{wildcards.length}W</span>
         </div>
       </div>
 
