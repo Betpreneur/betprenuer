@@ -161,7 +161,7 @@ function RecordPage() {
         <p className="text-[14px] text-muted-foreground mt-1">All picks posted before kick-off. Results auto-settled.</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Hit rate" value={`${stats?.hit_rate?.toFixed(1)}%`} />
         <StatCard label="ROI (90d)" value={`+${stats?.roi_flat?.toFixed(1)}%`} highlight={stats && stats.roi_flat > 0 ? "text-win-green" : "text-danger-red"} />
         <StatCard label="Wins" value={`${stats?.wins}`} highlight="text-win-green" />
