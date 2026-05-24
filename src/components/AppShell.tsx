@@ -2,12 +2,13 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, LayoutDashboard } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, LayoutDashboard, Target } from "lucide-react";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
   { to: "/home", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/top-pick", label: "Top Pick", icon: Trophy },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },

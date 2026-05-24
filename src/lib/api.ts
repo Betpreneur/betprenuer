@@ -526,5 +526,24 @@ export const api = {
     await request(ENDPOINTS.algoBackPick(String(id)), { method: "POST" });
     return { success: true };
   },
+
+  /** GET /algo/my-picks/ — Get user's backed picks */
+  async getMyPicks(): Promise<{
+    picks: Pick[];
+    stats: { total: number; wins: number; losses: number; pending: number };
+  }> {
+    // Use existing endpoint with backed query
+    const picksRes = await request<Pick[]>(`${ENDPOINTS.algoPicks}?backed=true`);
+    const picks = picksRes || [];
+
+    const stats = {
+      total: picks.length,
+      wins: picks.filter(p => p.status === "win").length,
+      losses: picks.filter(p => p.status === "loss").length,
+      pending: picks.filter(p => p.status === "pending").length,
+    };
+
+    return { picks, stats };
+  },
 };
 
