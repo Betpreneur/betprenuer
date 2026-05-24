@@ -131,6 +131,43 @@ function Landing() {
         </div>
       </section>
 
+      {/* How It Works - Modern 3-Step Section */}
+      <section className="py-8">
+        <div className="text-center mb-8">
+          <h2 className="text-[22px] md:text-[26px] font-bold">How Betpreneur Dey Work</h2>
+          <p className="text-[14px] text-muted-foreground mt-2">Three simple steps wey go give una real edge</p>
+        </div>
+        
+        <div className="grid gap-6 md:grid-cols-3">
+          {/* Step 1 */}
+          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-brand-green/20 flex items-center justify-center">
+              <span className="text-[24px] font-bold text-brand-green">1</span>
+            </div>
+            <h3 className="text-[16px] font-bold mb-2">Sign Up</h3>
+            <p className="text-[13px] text-muted-foreground">Create account wey take less than one minute. No stress.</p>
+          </div>
+          
+          {/* Step 2 */}
+          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-teal-accent/20 flex items-center justify-center">
+              <span className="text-[24px] font-bold text-teal-accent">2</span>
+            </div>
+            <h3 className="text-[16px] font-bold mb-2">Get Picks</h3>
+            <p className="text-[13px] text-muted-foreground">Open app for fresh picks every morning. Bankers, Gems and Wildcards dey ranked by confidence.</p>
+          </div>
+          
+          {/* Step 3 */}
+          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-purple-600/20 flex items-center justify-center">
+              <span className="text-[24px] font-bold text-purple-400">3</span>
+            </div>
+            <h3 className="text-[16px] font-bold mb-2">Track Results</h3>
+            <p className="text-[13px] text-muted-foreground">Every result go update by 06:30 WAT. Win or loss, una go see am for record.</p>
+          </div>
+        </div>
+      </section>
+
       {/* Visual band */}
       <section className="grid gap-4 md:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
