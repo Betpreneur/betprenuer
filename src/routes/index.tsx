@@ -180,14 +180,15 @@ function Landing() {
         <div className="grid gap-4 md:grid-cols-3">
           <Feature
             icon={<TrendingUp className="h-5 w-5" />}
-            title="Daily edge picks"
-            body="Bankers, Value Gems and Wildcards posted every morning, ranked by model confidence."
+            title="Daily picks from algorithm"
+            body="Our algorithm vet and recommend picks we go post by 00:00 WAT. Ranked by confidence level: Bankers, Gems, Wildcards."
             tone="red"
           />
           <Feature
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Fully audited"
-            body="Every pick is timestamped before kick-off and auto-settled. Losses are never deleted."
+            title="Fully audited record"
+            body="Every pick get timestamp before kick-off. We no go ever delete losses. Records go update by 06:30 WAT."
+          />
             tone="green"
           />
           <Feature
