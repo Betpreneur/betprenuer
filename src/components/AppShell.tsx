@@ -1,4 +1,4 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useRouter, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
@@ -16,8 +16,8 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { isAuthed } = useAuth();
-  const router = useRouter();
-  const path = router.state.location.pathname;
+  const location = useLocation();
+  const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
