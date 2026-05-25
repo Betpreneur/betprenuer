@@ -203,11 +203,11 @@ function HomePage() {
         </header>
         
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6">
-          <h2 className="text-[14px] font-medium mb-3">How Betpreneur works</h2>
+          <h2 className="text-[14px] font-medium mb-3">How it works</h2>
           <div className="space-y-2 text-[13px] text-muted-foreground">
-            <p><span className="text-win-green font-medium">Bankers</span> — 80%+ confidence</p>
-            <p><span className="text-teal-accent font-medium">Gems</span> — 70-79% confidence</p>
-            <p><span className="text-amber-text font-medium">Wildcards</span> — 60-69% confidence</p>
+            <p><span className="text-win-green font-medium">Bankers</span> — 72%+ confidence</p>
+            <p><span className="text-teal-accent font-medium">Value Gems</span> — 68-72% confidence</p>
+            <p><span className="text-amber-text font-medium">Wildcards</span> — 62-68% confidence</p>
           </div>
         </div>
       </div>
@@ -251,7 +251,7 @@ function HomePage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[13px] text-muted-foreground">
-            {todayLagos()} · Picks live · {data.posted_at ? new Date(data.posted_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos" }) + " WAT" : "06:30 WAT"}
+            {todayLagos()} · Picks live · {data.posted_at || "06:30 WAT"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
@@ -259,7 +259,6 @@ function HomePage() {
           <span className="px-1.5 py-0.5 bg-white/10 rounded text-white/90">{allPicks.length}</span>
           <span className="text-brand-green">{bankers.length} Banker</span>
           <span className="text-teal-accent">{gems.length} Gem</span>
-          <span className="text-amber-text">{wildcards.length} Wildcard</span>
         </div>
       </div>
 

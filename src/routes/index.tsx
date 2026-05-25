@@ -9,16 +9,16 @@ import heroAnalytics from "@/assets/hero-analytics.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Betpreneur — Daily football picks we dey share" },
+      { title: "Betpreneur — Smarter football picks, every matchday" },
       {
         name: "description",
         content:
-          "Football picks wey our algorithm vet. Posted before 06:30 WAT daily. Bankers 80%+, Gems 70-79%, Wildcards 60-69%. 90-day record wey no go lie.",
+          "Pre-match picks built on a transparent, audited model. 66%+ hit rate, +18% ROI, every pick logged before kick-off.",
       },
-      { property: "og:title", content: "Betpreneur — Football picks we get confidence" },
+      { property: "og:title", content: "Betpreneur — Smarter football picks" },
       {
         property: "og:description",
-        content: "90 days record wey no go lie una. Every pick don publish before match start.",
+        content: "Audited 90-day record. Picks posted before kick-off. Nothing deleted.",
       },
     ],
   }),
@@ -73,7 +73,7 @@ function Landing() {
           </h1>
           <p className="mt-4 max-w-xl text-[15px] md:text-[17px] text-white/90">
             Betpreneur publishes pre-match picks before kick-off, ranked by a
-            transparent confidence model. Bankers, Gems and Wildcards every matchday. Records go update by 06:30 WAT wen matches don finish.
+            transparent confidence model. No deleted losses, no tipster theatre
             — just an audited edge you can follow. Free while we're in beta.
           </p>
 
@@ -131,43 +131,6 @@ function Landing() {
         </div>
       </section>
 
-      {/* How It Works - Modern 3-Step Section */}
-      <section className="py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-[22px] md:text-[26px] font-bold">How Betpreneur Dey Work</h2>
-          <p className="text-[14px] text-muted-foreground mt-2">Three simple steps wey go give una real edge</p>
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Step 1 */}
-          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-brand-green/20 flex items-center justify-center">
-              <span className="text-[24px] font-bold text-brand-green">1</span>
-            </div>
-            <h3 className="text-[16px] font-bold mb-2">Sign Up</h3>
-            <p className="text-[13px] text-muted-foreground">Create account wey take less than one minute. No stress.</p>
-          </div>
-          
-          {/* Step 2 */}
-          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-teal-accent/20 flex items-center justify-center">
-              <span className="text-[24px] font-bold text-teal-accent">2</span>
-            </div>
-            <h3 className="text-[16px] font-bold mb-2">Get Picks</h3>
-            <p className="text-[13px] text-muted-foreground">Open app for fresh picks every morning. Bankers, Gems and Wildcards dey ranked by confidence.</p>
-          </div>
-          
-          {/* Step 3 */}
-          <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center hover:border-brand-green/50 transition-colors">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-purple-600/20 flex items-center justify-center">
-              <span className="text-[24px] font-bold text-purple-400">3</span>
-            </div>
-            <h3 className="text-[16px] font-bold mb-2">Track Results</h3>
-            <p className="text-[13px] text-muted-foreground">Every result go update by 06:30 WAT. Win or loss, una go see am for record.</p>
-          </div>
-        </div>
-      </section>
-
       {/* Visual band */}
       <section className="grid gap-4 md:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl border border-brand-border min-h-[200px] md:min-h-[260px]">
@@ -217,15 +180,14 @@ function Landing() {
         <div className="grid gap-4 md:grid-cols-3">
           <Feature
             icon={<TrendingUp className="h-5 w-5" />}
-            title="Daily picks from algorithm"
-            body="Our algorithm vet and recommend picks we go post by 00:00 WAT. Ranked by confidence level: Bankers, Gems, Wildcards."
+            title="Daily edge picks"
+            body="Bankers, Value Gems and Wildcards posted every morning, ranked by model confidence."
             tone="red"
           />
           <Feature
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="Fully audited record"
-            body="Every pick get timestamp before kick-off. We no go ever delete losses. Records go update by 06:30 WAT."
-          />
+            title="Fully audited"
+            body="Every pick is timestamped before kick-off and auto-settled. Losses are never deleted."
             tone="green"
           />
           <Feature
