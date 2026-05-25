@@ -10,14 +10,20 @@ const TZ = "Africa/Lagos";
 export function formatKickoff(iso: string | number | null | undefined): string {
   if (!iso) return "–";
   
-  // Handle numeric timestamps (milliseconds)
-  let parsed = dayjs(iso);
+  let parsed: dayjs.Dayjs;
   
-  // If dayjs couldn't parse it, try parsing as a number
-  if (!parsed.isValid() && typeof iso === "string") {
-    const num = parseInt(iso, 10);
-    if (!isNaN(num)) {
-      parsed = dayjs(num);
+  // Handle numeric timestamps (seconds or milliseconds)
+  if (typeof iso === "number") {
+    // If looks like seconds (10 digits), multiply by 1000
+    const ts = iso > 1e12 ? iso : iso * 1000;
+    parsed = dayjs.utc(ts);
+  } else {
+    // Try parsing as UTC first, then local
+    parsed = dayjs.utc(iso);
+    
+    // If not valid, try regular parsing
+    if (!parsed.isValid()) {
+      parsed = dayjs(iso);
     }
   }
   
@@ -26,6 +32,7 @@ export function formatKickoff(iso: string | number | null | undefined): string {
     return "–";
   }
   
+  // Convert from UTC to Lagos timezone
   return parsed.tz(TZ).format("HH:mm") + " WAT";
 }
 
