@@ -10,6 +10,11 @@ const TZ = "Africa/Lagos";
 export function formatKickoff(iso: string | number | null | undefined): string {
   if (!iso) return "–";
   
+  // If it's already a formatted string (e.g., "18:00 WAT"), return as-is
+  if (typeof iso === "string" && iso.includes("WAT")) {
+    return iso;
+  }
+  
   let parsed: dayjs.Dayjs;
   
   // Handle numeric timestamps (seconds or milliseconds) or numeric strings
@@ -37,6 +42,10 @@ export function formatKickoff(iso: string | number | null | undefined): string {
   if (!parsed.isValid()) {
     return "–";
   }
+  
+  // Convert from UTC to Lagos timezone
+  return parsed.tz(TZ).format("HH:mm") + " WAT";
+}
   
   // Convert from UTC to Lagos timezone
   return parsed.tz(TZ).format("HH:mm") + " WAT";
