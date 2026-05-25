@@ -105,7 +105,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               const Icon = n.icon;
               return (
                 <li key={n.to}>
-                  <Link to={n.to} className={`h-[56px] flex flex-col items-center justify-center gap-0.5 text-[11px] ${active ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                  <Link to={n.to} className={`h-[56px] flex flex-col items-center justify-center gap-0.5 text-[11px] relative ${active ? "text-danger-red font-semibold" : "text-muted-foreground"}`}>
+                    {active && <span className="absolute top-1.5 w-1.5 h-1.5 rounded-full bg-danger-red" />}
                     <Icon className="h-5 w-5" />
                     {n.label}
                   </Link>
