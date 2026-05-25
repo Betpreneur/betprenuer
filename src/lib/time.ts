@@ -12,11 +12,17 @@ export function formatKickoff(iso: string | number | null | undefined): string {
   
   let parsed: dayjs.Dayjs;
   
-  // Handle numeric timestamps (seconds or milliseconds)
-  if (typeof iso === "number") {
-    // If looks like seconds (10 digits), multiply by 1000
-    const ts = iso > 1e12 ? iso : iso * 1000;
-    parsed = dayjs.utc(ts);
+  // Handle numeric timestamps (seconds or milliseconds) or numeric strings
+  const isNumeric = typeof iso === "number" || (typeof iso === "string" && /^\d+$/.test(iso));
+  if (isNumeric) {
+    const num = typeof iso === "string" ? parseInt(iso, 10) : iso;
+    if (!isNaN(num)) {
+      // If looks like seconds (10 digits), convert to ms
+      const ts = num > 1e12 ? num : num * 1000;
+      parsed = dayjs.utc(ts);
+    } else {
+      parsed = dayjs(num);
+    }
   } else {
     // Try parsing as UTC first, then local
     parsed = dayjs.utc(iso);
