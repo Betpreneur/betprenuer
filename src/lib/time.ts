@@ -10,31 +10,14 @@ const TZ = "Africa/Lagos";
 export function formatKickoff(iso: string | number | null | undefined): string {
   if (!iso) return "–";
   
-  // If it's already a formatted string (e.g., "18:00 WAT"), return as-is
-  if (typeof iso === "string" && iso.includes("WAT")) {
-    return iso;
-  }
+  // Handle numeric timestamps (milliseconds)
+  let parsed = dayjs(iso);
   
-  let parsed: dayjs.Dayjs;
-  
-  // Handle numeric timestamps (seconds or milliseconds) or numeric strings
-  const isNumeric = typeof iso === "number" || (typeof iso === "string" && /^\d+$/.test(iso));
-  if (isNumeric) {
-    const num = typeof iso === "string" ? parseInt(iso, 10) : iso;
+  // If dayjs couldn't parse it, try parsing as a number
+  if (!parsed.isValid() && typeof iso === "string") {
+    const num = parseInt(iso, 10);
     if (!isNaN(num)) {
-      // If looks like seconds (10 digits), convert to ms
-      const ts = num > 1e12 ? num : num * 1000;
-      parsed = dayjs.utc(ts);
-    } else {
       parsed = dayjs(num);
-    }
-  } else {
-    // Try parsing as UTC first, then local
-    parsed = dayjs.utc(iso);
-    
-    // If not valid, try regular parsing
-    if (!parsed.isValid()) {
-      parsed = dayjs(iso);
     }
   }
   
@@ -43,11 +26,6 @@ export function formatKickoff(iso: string | number | null | undefined): string {
     return "–";
   }
   
-  // Convert from UTC to Lagos timezone
-  return parsed.tz(TZ).format("HH:mm") + " WAT";
-}
-  
-  // Convert from UTC to Lagos timezone
   return parsed.tz(TZ).format("HH:mm") + " WAT";
 }
 
