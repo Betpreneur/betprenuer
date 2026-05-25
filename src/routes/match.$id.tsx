@@ -117,6 +117,7 @@ function MatchPage() {
           ...p,
           // Map API fields to what component expects
           match: p.fixture,
+          kickoff_wat: p.kickoff,
           market_plain: p.market || p.selection || "",
           one_line_reason: p.reasoning || "",
           // Pass stats objects as-is (don't split)
