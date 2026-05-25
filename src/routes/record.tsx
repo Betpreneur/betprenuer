@@ -215,7 +215,7 @@ function RecordPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.slice(0, 30).map(pick => (
+            {filtered.map(pick => (
               <tr key={pick.id} className="border-t border-brand-border">
                 <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{pick.match_date}</td>
                 <td className="px-3 py-2 max-w-[180px] truncate">{pick.fixture}</td>

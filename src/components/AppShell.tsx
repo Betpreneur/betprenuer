@@ -2,12 +2,13 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, LayoutDashboard } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, LayoutDashboard, Target } from "lucide-react";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
   { to: "/home", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/top-pick", label: "Top Pick", icon: Trophy },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
@@ -98,7 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile bottom nav */}
       {isAuthed && (
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
-          <ul className="grid grid-cols-4">
+          <ul className="grid grid-cols-5">
             {navItems.map((n) => {
               const active = path === n.to || (n.to === "/home" && path.startsWith("/match"));
               const Icon = n.icon;
