@@ -370,7 +370,7 @@ function TopPickPage() {
           <div className="flex items-center gap-2">
             <div className="w-24 h-2 bg-subtle-bg rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-win-green to-brand-green rounded-full"
+                className="h-full bg-win-green rounded-full"
                 style={{ width: `${pick.confidence}%` }}
               />
             </div>
