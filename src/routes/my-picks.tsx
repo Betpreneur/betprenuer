@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -140,15 +140,7 @@ function MyPicksPage() {
   }
 
   if (!isAuthed) {
-    return (
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-8 text-center">
-        <div className="text-4xl mb-3">🔐</div>
-        <h2 className="text-[18px] font-bold">Sign in to track your picks</h2>
-        <Link to="/login" className="inline-block mt-4 px-6 py-2 bg-brand-green text-primary-foreground font-medium rounded-lg">
-          Sign In
-        </Link>
-      </div>
-    );
+    return <Navigate to="/login" />;
   }
 
   return (

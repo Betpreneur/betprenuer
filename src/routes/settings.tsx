@@ -25,7 +25,7 @@ function SettingsPage() {
   }, [user]);
 
   if (loading) return null;
-  if (!isAuthed || !user) return <Navigate to="/" />;
+  if (!isAuthed || !user) return <Navigate to="/login" />;
 
   const dirty =
     name !== user.name ||

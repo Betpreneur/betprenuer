@@ -118,7 +118,7 @@ function MatchPage() {
     );
   }
 
-  if (!isAuthed) return <Navigate to="/record" />;
+  if (!isAuthed) return <Navigate to="/login" />;
 
   if (error || !pick) {
     return (
