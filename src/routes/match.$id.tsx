@@ -62,89 +62,37 @@ function MatchPage() {
 
   const load = () => {
     const numId = Number(id);
-    console.log("[MatchPage] load() called, id:", numId);
     if (isNaN(numId) || numId <= 0) {
       setError(true);
       return;
     }
 
-    // Try localStorage cache first
-    if (typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("todaysPicks");
-        if (cached) {
-          console.log("[MatchPage] Found cache, searching for pick...");
-          const picks = JSON.parse(cached);
-          const found = picks.find((p: any) => String(p.id) === id || String(p.match_id) === id);
-          console.log("[MatchPage] Cache search result:", found ? "found" : "not found");
-          if (found) {
-            // Debug: log available fields
-            console.log("[MatchPage] Cache fields:", found ? Object.keys(found).join(", ") : "none");
-            console.log("[MatchPage] Cache has fixture_context?", !!found.fixture_context);
-            
-            // Skip cache if missing fixture_context - need fresh API call
-            if (!found.fixture_context) {
-              console.log("[MatchPage] Cache missing fixture_context, falling through to API...");
-            } else {
-              // Transform cached pick format to match PickDetail format
-              // Pass stats objects as-is (don't convert to chips!)
-              setPick({
-                ...found,
-                match: found.fixture,
-                kickoff_wat: found.kickoff,
-                market_plain: found.market,
-                one_line_reason: found.reasoning || "",
-                form_home: found.home_recent_form,
-                form_away: found.away_recent_form,
-                goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
-                risk_flag: found.risk_level || found.risk_flags?.[0] || "",
-                // Pass fixture context for H2H, standings, rest days, flags
-                fixture_context: found.fixture_context,
-              } as any);
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        // Cache parse failed, continue to API
-        console.warn("Cache parse error", e);
-      }
-    }
-    // Fallback to API
-    console.log("[MatchPage] Calling API for pick:", numId);
+    // Always call API directly, no cache
+    console.log("[MatchPage] Calling API:", numId);
     setError(false);
+    
     api.getPickDetail(numId)
       .then((res) => {
-        // Check if pick exists and has valid data
         if (!res?.pick || !res.pick.id) {
           setError(true);
           return;
         }
         const p = res.pick;
-        // Log for debugging
-        console.log("[MatchPage] API response fixture_context:", JSON.stringify(p.fixture_context));
-        console.log("[MatchPage] full p keys:", Object.keys(p).join(","));
+        console.log("[MatchPage] Got pick from API:", p.id);
         
-        // Transform API response to match component expectations
         setPick({
           ...p,
-          // Map API fields to what component expects
           match: p.fixture,
           kickoff_wat: p.kickoff,
           market_plain: p.market || p.selection || "",
           one_line_reason: p.reasoning || "",
-          // Pass stats objects as-is (don't split)
           form_home: p.home_recent_form,
           form_away: p.away_recent_form,
-          // Map selection_profile to goals_profile
           goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
-          // Handle risk fields
           risk_flag: p.risk_level || p.risk_flags || "",
           user_backed: p.backed_by_me || false,
-          // Pass fixture context for H2H, standings, rest days, flags
           fixture_context: p.fixture_context,
         } as any);
-        console.log("[MatchPage] setPick done, fixture_context in pick object:", JSON.stringify((p as any).fixture_context));
       })
       .catch(() => setError(true));
   };
