@@ -515,14 +515,6 @@ function TopPickPage() {
                       <div className="font-bold">{(pick.home_recent_form as any).avg_conceded ?? "-"} avg</div>
                     </div>
                     <div>
-                      <div className="text-muted-foreground text-[10px]">BTTS</div>
-                      <div className="font-bold">{Math.round((pick.home_recent_form as any).btts_rate ?? 0)}%</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground text-[10px]">Over 2.5</div>
-                      <div className="font-bold">{Math.round((pick.home_recent_form as any).over25_rate ?? 0)}%</div>
-                    </div>
-                    <div>
                       <div className="text-muted-foreground text-[10px]">Clean sheets</div>
                       <div className="font-bold">{(pick.home_recent_form as any).clean_sheets ?? 0}</div>
                     </div>
@@ -548,14 +540,6 @@ function TopPickPage() {
                     <div>
                       <div className="text-muted-foreground text-[10px]">Conceded</div>
                       <div className="font-bold">{(pick.away_recent_form as any).avg_conceded ?? "-"} avg</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground text-[10px]">BTTS</div>
-                      <div className="font-bold">{Math.round((pick.away_recent_form as any).btts_rate ?? 0)}%</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground text-[10px]">Over 2.5</div>
-                      <div className="font-bold">{Math.round((pick.away_recent_form as any).over25_rate ?? 0)}%</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground text-[10px]">Clean sheets</div>

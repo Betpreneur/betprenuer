@@ -310,10 +310,6 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_home.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_home.avg_conceded ?? "-"} avg</span>
-                  <span className="text-muted-foreground">BTTS</span>
-                  <span className="font-medium">{pick.form_home.btts_rate ?? "-"}%</span>
-                  <span className="text-muted-foreground">Over 2.5</span>
-                  <span className="font-medium">{pick.form_home.over25_rate ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_home.clean_sheets ?? 0}</span>
                 </div>
@@ -335,10 +331,6 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_away.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_away.avg_conceded ?? "-"} avg</span>
-                  <span className="text-muted-foreground">BTTS</span>
-                  <span className="font-medium">{pick.form_away.btts_rate ?? "-"}%</span>
-                  <span className="text-muted-foreground">Over 2.5</span>
-                  <span className="font-medium">{pick.form_away.over25_rate ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_away.clean_sheets ?? 0}</span>
                 </div>
