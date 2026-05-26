@@ -49,13 +49,9 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   );
 }
 
-function PickItem({ pick }: { pick: Pick }) {
-  return (
-    <Link
-      to="/match/$id"
-      params={{ id: String(pick.match_id || pick.id) }}
-      className="block bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 hover:border-brand-green/50 transition-colors"
-    >
+function PickItem({ pick, clickable = true }: { pick: Pick; clickable?: boolean }) {
+  const content = (
+    <div className={`bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 ${clickable ? "hover:border-brand-green/50 transition-colors" : "opacity-60 cursor-not-allowed"}`}>
       <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] text-muted-foreground">{pick.league}</span>
         {getStatusBadge(pick.status)}
@@ -67,6 +63,19 @@ function PickItem({ pick }: { pick: Pick }) {
           {pick.confidence?.toFixed(0)}%
         </span>
       </div>
+    </div>
+  );
+
+  if (!clickable) {
+    return <div>{content}</div>;
+  }
+
+  return (
+    <Link
+      to="/match/$id"
+      params={{ id: String(pick.match_id || pick.id) }}
+    >
+      {content}
     </Link>
   );
 }
@@ -186,7 +195,7 @@ function MyPicksPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {picks.map(pick => (<PickItem key={pick.id} pick={pick} />))}
+          {picks.map(pick => (<PickItem key={pick.id} pick={pick} clickable={selectedDate === dateOptions[0].value} />))}
         </div>
       )}
 

@@ -8,8 +8,8 @@ import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
   { to: "/home", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/top-pick", label: "Top Pick", icon: Trophy },
+  { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
