@@ -501,7 +501,7 @@ function TopPickPage() {
                     {pick.fixture?.split(" vs ")[0] || "Home"} Recent Form
                   </h3>
                   <FormChips form={(pick.home_recent_form as any).form as string} />
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px] mt-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-[13px] mt-2">
                     <div>
                       <div className="text-muted-foreground text-[10px]">Record</div>
                       <div className="font-bold">{(pick.home_recent_form as any).wins ?? 0}W-{(pick.home_recent_form as any).draws ?? 0}D-{(pick.home_recent_form as any).losses ?? 0}L ({(pick.home_recent_form as any).games ?? 0})</div>
@@ -511,12 +511,20 @@ function TopPickPage() {
                       <div className="font-bold">{(pick.home_recent_form as any).avg_scored ?? "-"} avg</div>
                     </div>
                     <div>
+                      <div className="text-muted-foreground text-[10px]">Conceded</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).avg_conceded ?? "-"} avg</div>
+                    </div>
+                    <div>
                       <div className="text-muted-foreground text-[10px]">BTTS</div>
                       <div className="font-bold">{Math.round((pick.home_recent_form as any).btts_rate ?? 0)}%</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground text-[10px]">Over 2.5</div>
                       <div className="font-bold">{Math.round((pick.home_recent_form as any).over25_rate ?? 0)}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Clean sheets</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).clean_sheets ?? 0}</div>
                     </div>
                   </div>
                 </div>
@@ -528,7 +536,7 @@ function TopPickPage() {
                     {pick.fixture?.split(" vs ")[1] || "Away"} Recent Form
                   </h3>
                   <FormChips form={(pick.away_recent_form as any).form as string} />
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px] mt-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-[13px] mt-2">
                     <div>
                       <div className="text-muted-foreground text-[10px]">Record</div>
                       <div className="font-bold">{(pick.away_recent_form as any).wins ?? 0}W-{(pick.away_recent_form as any).draws ?? 0}D-{(pick.away_recent_form as any).losses ?? 0}L ({(pick.away_recent_form as any).games ?? 0})</div>
@@ -538,12 +546,20 @@ function TopPickPage() {
                       <div className="font-bold">{(pick.away_recent_form as any).avg_scored ?? "-"} avg</div>
                     </div>
                     <div>
+                      <div className="text-muted-foreground text-[10px]">Conceded</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).avg_conceded ?? "-"} avg</div>
+                    </div>
+                    <div>
                       <div className="text-muted-foreground text-[10px]">BTTS</div>
                       <div className="font-bold">{Math.round((pick.away_recent_form as any).btts_rate ?? 0)}%</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground text-[10px]">Over 2.5</div>
                       <div className="font-bold">{Math.round((pick.away_recent_form as any).over25_rate ?? 0)}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Clean sheets</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).clean_sheets ?? 0}</div>
                     </div>
                   </div>
                 </div>
