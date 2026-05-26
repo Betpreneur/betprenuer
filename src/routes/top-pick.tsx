@@ -470,46 +470,7 @@ function TopPickPage() {
             </div>
           )}
 
-          {/* Team Stats - Check if recent form is object or array */}
-          {typeof pick.home_recent_form === "object" && pick.home_recent_form !== null ? (
-            <>
-              <FormStatsCard title="Home Team" stats={pick.home_recent_form as unknown as RecentFormStats} team={pick.home_team} />
-              <FormStatsCard title="Away Team" stats={pick.away_recent_form as unknown as RecentFormStats} team={pick.away_team} />
-              
-              <StatsKey />
-            </>
-          ) : (
-            /* Legacy array format */
-            <>
-                {(pick.home_recent_form as unknown as string[]) && (pick.home_recent_form as unknown as string[]).length > 0 && (
-                <div className="bg-card border border-brand-border rounded-lg p-4">
-                  <h3 className="text-[14px] font-medium mb-2">Home Form</h3>
-                  <div className="flex gap-1">
-                    {(pick.home_recent_form as unknown as string[]).slice(0, 5).map((r: string, i: number) => (
-                      <span key={i} className={`w-6 h-6 rounded text-[11px] font-medium flex items-center justify-center ${
-                        r === "W" ? "bg-win-green text-white" : r === "D" ? "bg-draw-yellow text-black" : "bg-danger-red text-white"
-                      }`}>{r}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-                {(pick.away_recent_form as unknown as string[]) && (pick.away_recent_form as unknown as string[]).length > 0 && (
-                <div className="bg-card border border-brand-border rounded-lg p-4">
-                  <h3 className="text-[14px] font-medium mb-2">Away Form</h3>
-                  <div className="flex gap-1">
-                    {(pick.away_recent_form as unknown as string[]).slice(0, 5).map((r: string, i: number) => (
-                      <span key={i} className={`w-6 h-6 rounded text-[11px] font-medium flex items-center justify-center ${
-                        r === "W" ? "bg-win-green text-white" : r === "D" ? "bg-draw-yellow text-black" : "bg-danger-red text-white"
-                      }`}>{r}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* NEW: Full recent form stats objects */}
+          {/* Full recent form stats - new robust format */}
           {(pick.home_recent_form || pick.away_recent_form) && typeof pick.home_recent_form === "object" && pick.home_recent_form !== null && (
             <>
               {pick.home_recent_form && (pick.home_recent_form as any).games > 0 && (
