@@ -54,6 +54,28 @@ function StatBar({ label, value, suffix = "", color = "text-win-green", tooltip 
   );
 }
 
+function FormChip({ r }: { r: "W" | "D" | "L" }) {
+  const cls =
+    r === "W"
+      ? "bg-win-green text-background"
+      : r === "L"
+      ? "bg-danger-red text-primary-foreground"
+      : "bg-white/10 text-foreground";
+  return <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-semibold ${cls}`}>{r}</span>;
+}
+
+// Convert form string "WDLWDWL" to chips
+function FormChips({ form }: { form?: string }) {
+  if (!form) return null;
+  return (
+    <div className="flex gap-0.5 mt-1">
+      {form.slice(0, 6).split("").map((char, i) => (
+        <FormChip key={i} r={char as "W" | "D" | "L"} />
+      ))}
+    </div>
+  );
+}
+
 function StatsKey() {
   return (
     <details className="bg-card border border-brand-border rounded-lg p-3 text-[11px]">
@@ -475,10 +497,11 @@ function TopPickPage() {
             <>
               {pick.home_recent_form && (pick.home_recent_form as any).games > 0 && (
                 <div className="bg-card border border-brand-border rounded-lg p-4">
-                  <h3 className="text-[14px] font-semibold mb-3 text-win-green">
+                  <h3 className="text-[14px] font-semibold mb-2 text-win-green">
                     {pick.fixture?.split(" vs ")[0] || "Home"} Recent Form
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                  <FormChips form={(pick.home_recent_form as any).form as string} />
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px] mt-2">
                     <div>
                       <div className="text-muted-foreground text-[10px]">Record</div>
                       <div className="font-bold">{(pick.home_recent_form as any).wins ?? 0}W-{(pick.home_recent_form as any).draws ?? 0}D-{(pick.home_recent_form as any).losses ?? 0}L ({(pick.home_recent_form as any).games ?? 0})</div>
@@ -501,10 +524,11 @@ function TopPickPage() {
 
               {pick.away_recent_form && (pick.away_recent_form as any).games > 0 && (
                 <div className="bg-card border border-brand-border rounded-lg p-4">
-                  <h3 className="text-[14px] font-semibold mb-3 text-danger-red">
+                  <h3 className="text-[14px] font-semibold mb-2 text-danger-red">
                     {pick.fixture?.split(" vs ")[1] || "Away"} Recent Form
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                  <FormChips form={(pick.away_recent_form as any).form as string} />
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px] mt-2">
                     <div>
                       <div className="text-muted-foreground text-[10px]">Record</div>
                       <div className="font-bold">{(pick.away_recent_form as any).wins ?? 0}W-{(pick.away_recent_form as any).draws ?? 0}D-{(pick.away_recent_form as any).losses ?? 0}L ({(pick.away_recent_form as any).games ?? 0})</div>

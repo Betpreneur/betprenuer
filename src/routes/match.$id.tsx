@@ -24,7 +24,19 @@ function FormChip({ r }: { r: "W" | "D" | "L" }) {
       : r === "L"
       ? "bg-danger-red text-primary-foreground"
       : "bg-white/10 text-foreground";
-  return <span className={`inline-flex items-center justify-center w-6 h-6 rounded text-[11px] font-semibold ${cls}`}>{r}</span>;
+  return <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-semibold ${cls}`}>{r}</span>;
+}
+
+// Convert form string "WDLWDWL" to chips
+function FormChips({ form }: { form?: string }) {
+  if (!form) return null;
+  return (
+    <div className="flex gap-0.5 mt-1">
+      {form.slice(0, 6).split("").map((char, i) => (
+        <FormChip key={i} r={char as "W" | "D" | "L"} />
+      ))}
+    </div>
+  );
 }
 
 function MatchPage() {
@@ -285,7 +297,10 @@ function MatchPage() {
             {/* Home team stats */}
             {pick.form_home && (pick.form_home.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
+                  <FormChips form={pick.form_home.form as string} />
+                </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   <span className="text-muted-foreground">Record</span>
                   <span className="font-medium">{pick.form_home.wins ?? 0}W-{pick.form_home.draws ?? 0}D-{pick.form_home.losses ?? 0}L ({pick.form_home.games ?? 0})</span>
@@ -307,7 +322,10 @@ function MatchPage() {
             {/* Away team stats */}
             {pick.form_away && (pick.form_away.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-                <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
+                  <FormChips form={pick.form_away.form as string} />
+                </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   <span className="text-muted-foreground">Record</span>
                   <span className="font-medium">{pick.form_away.wins ?? 0}W-{pick.form_away.draws ?? 0}D-{pick.form_away.losses ?? 0}L ({pick.form_away.games ?? 0})</span>
