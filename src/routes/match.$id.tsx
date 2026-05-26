@@ -371,7 +371,7 @@ function MatchPage() {
             )}
             
             {/* League standings */}
-            {(pick as any).fixture_context?.home_standing && (
+            {(pick as any).fixture_context?.home_standing?.rank && (
               <div className="grid grid-cols-2 gap-4">
                 {(pick as any).fixture_context.home_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
@@ -393,7 +393,7 @@ function MatchPage() {
             )}
             
             {/* Rest days */}
-            {(pick as any).fixture_context?.home_rest_days && (
+            {((pick as any).fixture_context?.home_rest_days || (pick as any).fixture_context?.away_rest_days) && (
               <div className="grid grid-cols-2 gap-4">
                 {(pick as any).fixture_context.home_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
