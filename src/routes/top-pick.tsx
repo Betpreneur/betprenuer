@@ -41,6 +41,8 @@ interface RecentFormStats {
   over25_rate: number;
   avg_conceded: number;
   clean_sheets: number;
+  draws?: number;
+  losses?: number;
 }
 
 function StatBar({ label, value, suffix = "", color = "text-win-green", tooltip }: { label: string; value: number; suffix?: string; color?: string; tooltip?: string }) {
@@ -86,6 +88,18 @@ function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFor
           <span className="text-[18px] font-bold text-win-green">{stats.wins}</span>
         </div>
         <div className="flex items-center justify-between">
+          <span className="text-[13px] text-muted-foreground">Draws</span>
+          <span className="text-[18px] font-bold">{stats.draws ?? 0}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-muted-foreground">Losses</span>
+          <span className="text-[18px] font-bold text-danger-red">{stats.losses ?? 0}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-muted-foreground">Games</span>
+          <span className="text-[18px] font-bold text-muted-foreground">{stats.games}</span>
+        </div>
+        <div className="flex items-center justify-between">
           <span className="text-[13px] text-muted-foreground">Scored*</span>
           <span className="text-[18px] font-bold">{stats.avg_scored}</span>
         </div>
@@ -100,18 +114,6 @@ function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFor
         <div className="flex items-center justify-between">
           <span className="text-[13px] text-muted-foreground">Over 2.5</span>
           <span className="text-[18px] font-bold text-amber-text">{Math.round(stats.over25_rate)}%</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">CS</span>
-          <span className="text-[18px] font-bold text-win-green">{stats.clean_sheets}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Streak*</span>
-          <span className={`text-[18px] font-bold ${stats.streak > 0 ? "text-win-green" : "text-danger-red"}`}>{stats.streak > 0 ? Math.abs(stats.streak) : 0}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Games</span>
-          <span className="text-[18px] font-bold text-muted-foreground">{stats.games}</span>
         </div>
       </div>
       <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">*Averages based on last {stats.games} matches</div>

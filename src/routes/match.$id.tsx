@@ -284,7 +284,7 @@ function MatchPage() {
                 <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   <span className="text-muted-foreground">Record</span>
-                  <span className="font-medium">{pick.form_home.wins ?? 0}W-{((pick.form_home.games ?? 0) - (pick.form_home.wins ?? 0))}L ({pick.form_home.games ?? 0})</span>
+                  <span className="font-medium">{pick.form_home.wins ?? 0}W-{pick.form_home.draws ?? 0}D-{pick.form_home.losses ?? 0}L ({pick.form_home.games ?? 0})</span>
                   <span className="text-muted-foreground">Streak</span>
                   <span className="font-medium">{pick.form_home.streak ?? 0}</span>
                   <span className="text-muted-foreground">Scored</span>
@@ -306,7 +306,7 @@ function MatchPage() {
                 <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                   <span className="text-muted-foreground">Record</span>
-                  <span className="font-medium">{pick.form_away.wins ?? 0}W-{((pick.form_away.games ?? 0) - (pick.form_away.wins ?? 0))}L ({pick.form_away.games ?? 0})</span>
+                  <span className="font-medium">{pick.form_away.wins ?? 0}W-{pick.form_away.draws ?? 0}D-{pick.form_away.losses ?? 0}L ({pick.form_away.games ?? 0})</span>
                   <span className="text-muted-foreground">Streak</span>
                   <span className="font-medium">{pick.form_away.streak ?? 0}</span>
                   <span className="text-muted-foreground">Scored</span>
@@ -325,6 +325,65 @@ function MatchPage() {
           </div>
         )}
       </section>
+
+      {/* Match context - standings, rest days, flags */}
+      {(pick.fixture_context || pick.team_news) && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Match context</h2>
+          <div className="space-y-4 text-[13px]">
+            {/* League standings */}
+            {pick.fixture_context?.home_standing && (
+              <div className="grid grid-cols-2 gap-4">
+                {pick.fixture_context.home_standing.rank && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} position</div>
+                    <div className="font-bold text-win-green">
+                      #{pick.fixture_context.home_standing.rank} · {pick.fixture_context.home_standing.points} pts
+                    </div>
+                  </div>
+                )}
+                {pick.fixture_context.away_standing?.rank && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} position</div>
+                    <div className="font-bold text-danger-red">
+                      #{pick.fixture_context.away_standing.rank} · {pick.fixture_context.away_standing.points} pts
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Rest days */}
+            {(pick.fixture_context?.home_rest_days || pick.fixture_context?.away_rest_days) && (
+              <div className="grid grid-cols-2 gap-4">
+                {pick.fixture_context.home_rest_days && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} rest</div>
+                    <div className="font-medium">{pick.fixture_context.home_rest_days} days</div>
+                  </div>
+                )}
+                {pick.fixture_context.away_rest_days && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} rest</div>
+                    <div className="font-medium">{pick.fixture_context.away_rest_days} days</div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Fixture flags */}
+            {pick.fixture_context?.flags?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {pick.fixture_context.flags.map((flag: string, i: number) => (
+                  <span key={i} className="text-[11px] px-2 py-1 bg-amber-bg text-amber-text rounded">
+                    {flag.replace(/_/g, " ")}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Goals profile */}
       <section className="bg-card border border-brand-border rounded-lg p-5">

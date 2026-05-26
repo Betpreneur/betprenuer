@@ -236,6 +236,31 @@ export interface TeamStats {
   over25_rate: number;
   avg_conceded: number;
   clean_sheets: number;
+  draws?: number;
+  losses?: number;
+  form?: string;
+  scope?: string;
+  last_played?: string;
+}
+
+export interface FixtureContext {
+  h2h?: {
+    o25: number;
+    t1w: number;
+    t2w: number;
+    u25: number;
+    u35: number;
+    btts: number;
+    draws: number;
+    games: number;
+    avg_goals: number;
+  };
+  flags?: string[];
+  away_standing?: { rank?: number; total?: number; points?: number };
+  home_standing?: { rank?: number; total?: number; points?: number };
+  away_rest_days?: number;
+  home_rest_days?: number;
+  league_strength?: number;
 }
 
 export interface Pick {
@@ -256,6 +281,7 @@ export interface Pick {
   model_verdict?: string;
   home_recent_form?: TeamStats | string[];
   away_recent_form?: TeamStats | string[];
+  fixture_context?: FixtureContext;
   risk_flags?: string[];
   confidence: number;
   odds: number;
