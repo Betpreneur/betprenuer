@@ -509,6 +509,123 @@ function TopPickPage() {
             </>
           )}
 
+          {/* NEW: Full recent form stats objects */}
+          {(pick.home_recent_form || pick.away_recent_form) && typeof pick.home_recent_form === "object" && pick.home_recent_form !== null && (
+            <>
+              {pick.home_recent_form && (pick.home_recent_form as any).games > 0 && (
+                <div className="bg-card border border-brand-border rounded-lg p-4">
+                  <h3 className="text-[14px] font-semibold mb-3 text-win-green">
+                    {pick.fixture?.split(" vs ")[0] || "Home"} Recent Form
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Record</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).wins ?? 0}W-{(pick.home_recent_form as any).draws ?? 0}D-{(pick.home_recent_form as any).losses ?? 0}L ({(pick.home_recent_form as any).games ?? 0})</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Scored</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).avg_scored ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">BTTS</div>
+                      <div className="font-bold">{Math.round((pick.home_recent_form as any).btts_rate ?? 0)}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Over 2.5</div>
+                      <div className="font-bold">{Math.round((pick.home_recent_form as any).over25_rate ?? 0)}%</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pick.away_recent_form && (pick.away_recent_form as any).games > 0 && (
+                <div className="bg-card border border-brand-border rounded-lg p-4">
+                  <h3 className="text-[14px] font-semibold mb-3 text-danger-red">
+                    {pick.fixture?.split(" vs ")[1] || "Away"} Recent Form
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[13px]">
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Record</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).wins ?? 0}W-{(pick.away_recent_form as any).draws ?? 0}D-{(pick.away_recent_form as any).losses ?? 0}L ({(pick.away_recent_form as any).games ?? 0})</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Scored</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).avg_scored ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">BTTS</div>
+                      <div className="font-bold">{Math.round((pick.away_recent_form as any).btts_rate ?? 0)}%</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Over 2.5</div>
+                      <div className="font-bold">{Math.round((pick.away_recent_form as any).over25_rate ?? 0)}%</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Fixture context - standings, rest days, h2h, flags */}
+          {(pick as any).fixture_context && (
+            <>{(pick as any).fixture_context.h2h && (
+              <div className="bg-card border border-brand-border rounded-lg p-4">
+                <h3 className="text-[14px] font-semibold mb-3">Head-to-Head</h3>
+                <div className="grid grid-cols-4 gap-2 text-center text-[13px]">
+                  <div><div className="font-bold text-win-green">{(pick as any).fixture_context.h2h.t1w ?? 0}</div><div className="text-[10px] text-muted-foreground">Home wins</div></div>
+                  <div><div className="font-bold">{(pick as any).fixture_context.h2h.draws ?? 0}</div><div className="text-[10px] text-muted-foreground">Draws</div></div>
+                  <div><div className="font-bold text-danger-red">{(pick as any).fixture_context.h2h.t2w ?? 0}</div><div className="text-[10px] text-muted-foreground">Away wins</div></div>
+                  <div><div className="font-bold">{(pick as any).fixture_context.h2h.avg_goals ?? "-"}</div><div className="text-[10px] text-muted-foreground">Avggoals</div></div>
+                </div>
+              </div>
+            )}
+
+            {((pick as any).fixture_context.home_standing?.rank || (pick as any).fixture_context.away_standing?.rank) && (
+              <div className="grid grid-cols-2 gap-3">
+                {(pick as any).fixture_context.home_standing?.rank && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[0]}</div>
+                    <div className="font-bold text-win-green">#{(pick as any).fixture_context.home_standing.rank} · {(pick as any).fixture_context.home_standing.points}pts</div>
+                  </div>
+                )}
+                {(pick as any).fixture_context.away_standing?.rank && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[1]}</div>
+                    <div className="font-bold text-danger-red">#{(pick as any).fixture_context.away_standing.rank} · {(pick as any).fixture_context.away_standing.points}pts</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {((pick as any).fixture_context.home_rest_days || (pick as any).fixture_context.away_rest_days) && (
+              <div className="grid grid-cols-2 gap-3">
+                {(pick as any).fixture_context.home_rest_days && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[0]} rest</div>
+                    <div className="font-bold">{(pick as any).fixture_context.home_rest_days} days</div>
+                  </div>
+                )}
+                {(pick as any).fixture_context.away_rest_days && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[1]} rest</div>
+                    <div className="font-bold">{(pick as any).fixture_context.away_rest_days} days</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {((pick as any).fixture_context.flags?.length > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {(pick as any).fixture_context.flags.map((flag: string, i: number) => (
+                  <span key={i} className="text-[11px] px-2 py-1 bg-amber-bg text-amber-text rounded">
+                    {flag.replace(/_/g, " ")}
+                  </span>
+                ))}
+              </div>
+            )}
+            </>
+          )}
+
           <StakeGuide odds={pick.odds} highlight={pick.tier} />
 
           {pick.status && pick.status !== "pending" && (
