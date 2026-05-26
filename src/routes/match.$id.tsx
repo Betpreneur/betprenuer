@@ -327,7 +327,7 @@ function MatchPage() {
       </section>
 
       {/* Match context - standings, rest days, h2h, flags */}
-      {((pick as any).fixture_context) && (
+      {(pick as any).fixture_context && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Match context</h2>
           <div className="space-y-4 text-[13px]">
@@ -357,9 +357,9 @@ function MatchPage() {
             )}
             
             {/* League standings */}
-            {((pick as any).fixture_context?.home_standing && (
+            {(pick as any).fixture_context?.home_standing && (
               <div className="grid grid-cols-2 gap-4">
-                {((pick as any).fixture_context.home_standing?.rank && (
+                {(pick as any).fixture_context.home_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} position</div>
                     <div className="font-bold text-win-green">
@@ -367,7 +367,7 @@ function MatchPage() {
                     </div>
                   </div>
                 )}
-                {((pick as any).fixture_context.away_standing?.rank && (
+                {(pick as any).fixture_context.away_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} position</div>
                     <div className="font-bold text-danger-red">
@@ -376,18 +376,18 @@ function MatchPage() {
                   </div>
                 )}
               </div>
-            ))}
+            )}
             
             {/* Rest days */}
-            {((pick as any).fixture_context?.home_rest_days && (
+            {(pick as any).fixture_context?.home_rest_days && (
               <div className="grid grid-cols-2 gap-4">
-                {((pick as any).fixture_context.home_rest_days && (
+                {(pick as any).fixture_context.home_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} rest</div>
                     <div className="font-medium">{(pick as any).fixture_context.home_rest_days} days</div>
                   </div>
                 )}
-                {((pick as any).fixture_context.away_rest_days && (
+                {(pick as any).fixture_context.away_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} rest</div>
                     <div className="font-medium">{(pick as any).fixture_context.away_rest_days} days</div>
@@ -397,9 +397,9 @@ function MatchPage() {
             )}
             
             {/* Fixture flags */}
-            {((pick as any).fixture_context?.flags?.length > 0 && (
+            {(pick as any).fixture_context?.flags?.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {((pick as any).fixture_context.flags.map((flag: string, i: number) => (
+                {(pick as any).fixture_context.flags.map((flag: string, i: number) => (
                   <span key={i} className="text-[11px] px-2 py-1 bg-amber-bg text-amber-text rounded">
                     {flag.replace(/_/g, " ")}
                   </span>
