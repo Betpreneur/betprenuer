@@ -93,6 +93,7 @@ function MatchPage() {
           user_backed: p.backed_by_me || false,
           fixture_context: p.fixture_context,
         } as any);
+        console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
       })
       .catch(() => setError(true));
   };
