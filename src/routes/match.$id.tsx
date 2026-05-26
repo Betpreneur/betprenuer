@@ -80,31 +80,29 @@ function MatchPage() {
           if (found) {
             // Debug: log available fields
             console.log("[MatchPage] Cache fields:", found ? Object.keys(found).join(", ") : "none");
+            console.log("[MatchPage] Cache has fixture_context?", !!found.fixture_context);
             
-            // Handle various possible field names in cache
-            const parseGoals = (val: any) => {
-              if (!val) return [];
-              if (Array.isArray(val)) return val.filter(Boolean);
-              if (typeof val === "string") return val.split("\n").filter(s => s.trim());
-              return [String(val)];
-            };
-            
-            // Transform cached pick format to match PickDetail format
-            // Pass stats objects as-is (don't convert to chips!)
-            setPick({
-              ...found,
-              match: found.fixture,
-              kickoff_wat: found.kickoff,
-              market_plain: found.market,
-              one_line_reason: found.reasoning || "",
-              form_home: found.home_recent_form,
-              form_away: found.away_recent_form,
-              goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
-              risk_flag: found.risk_level || found.risk_flags?.[0] || "",
-              // Pass fixture context for H2H, standings, rest days, flags
-              fixture_context: found.fixture_context,
-            } as any);
-            return;
+            // Skip cache if missing fixture_context - need fresh API call
+            if (!found.fixture_context) {
+              console.log("[MatchPage] Cache missing fixture_context, falling through to API...");
+            } else {
+              // Transform cached pick format to match PickDetail format
+              // Pass stats objects as-is (don't convert to chips!)
+              setPick({
+                ...found,
+                match: found.fixture,
+                kickoff_wat: found.kickoff,
+                market_plain: found.market,
+                one_line_reason: found.reasoning || "",
+                form_home: found.home_recent_form,
+                form_away: found.away_recent_form,
+                goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
+                risk_flag: found.risk_level || found.risk_flags?.[0] || "",
+                // Pass fixture context for H2H, standings, rest days, flags
+                fixture_context: found.fixture_context,
+              } as any);
+              return;
+            }
           }
         }
       } catch (e) {
