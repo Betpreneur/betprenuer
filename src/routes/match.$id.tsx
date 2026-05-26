@@ -27,12 +27,12 @@ function FormChip({ r }: { r: "W" | "D" | "L" }) {
   return <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-semibold ${cls}`}>{r}</span>;
 }
 
-// Convert form string "WDLWDWL" to chips
+// Convert form string "WDLWDWL" to chips - dynamic length
 function FormChips({ form }: { form?: string }) {
   if (!form) return null;
   return (
     <div className="flex gap-0.5 mt-1">
-      {form.slice(0, 6).split("").map((char, i) => (
+      {form.split("").map((char, i) => (
         <FormChip key={i} r={char as "W" | "D" | "L"} />
       ))}
     </div>
