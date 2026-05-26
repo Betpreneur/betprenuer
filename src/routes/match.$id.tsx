@@ -67,33 +67,36 @@ function MatchPage() {
       return;
     }
 
-    // Always call API directly, no cache
-    console.log("[MatchPage] Calling API:", numId);
+    // Fetch today's picks which has full fixture_context data
+    console.log("[MatchPage] Fetching today's picks list...");
     setError(false);
     
-    api.getPickDetail(numId)
+    api.getTodayPicks()
       .then((res) => {
-        if (!res?.pick || !res.pick.id) {
+        // Find the pick with matching ID
+        const allPicks = res.picks || [];
+        const found = allPicks.find((p: any) => p.id === numId || p.match_id === String(numId));
+        
+        if (!found) {
+          console.log("[MatchPage] Pick not found in today's list");
           setError(true);
           return;
         }
-        const p = res.pick;
-        console.log("[MatchPage] Got pick from API:", p.id);
+        
+        console.log("[MatchPage] Found pick, fixture_context:", found.fixture_context ? "YES" : "NO");
         
         setPick({
-          ...p,
-          match: p.fixture,
-          kickoff_wat: p.kickoff,
-          market_plain: p.market || p.selection || "",
-          one_line_reason: p.reasoning || "",
-          form_home: p.home_recent_form,
-          form_away: p.away_recent_form,
-          goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
-          risk_flag: p.risk_level || p.risk_flags || "",
-          user_backed: p.backed_by_me || false,
-          fixture_context: p.fixture_context,
+          ...found,
+          match: found.fixture,
+          kickoff_wat: found.kickoff,
+          market_plain: found.market,
+          one_line_reason: found.reasoning || "",
+          form_home: found.home_recent_form,
+          form_away: found.away_recent_form,
+          goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
+          risk_flag: found.risk_level || found.risk_flags?.[0] || "",
+          fixture_context: found.fixture_context,
         } as any);
-        console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
       })
       .catch(() => setError(true));
   };
