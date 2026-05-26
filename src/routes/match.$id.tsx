@@ -124,7 +124,8 @@ function MatchPage() {
         }
         const p = res.pick;
         // Log for debugging
-        console.log("[MatchPage] API response:", JSON.stringify(p.home_recent_form), JSON.stringify(p.away_recent_form), JSON.stringify(p.fixture_context));
+        console.log("[MatchPage] API response fixture_context:", JSON.stringify(p.fixture_context));
+        console.log("[MatchPage] full p keys:", Object.keys(p).join(","));
         
         // Transform API response to match component expectations
         setPick({
@@ -145,6 +146,7 @@ function MatchPage() {
           // Pass fixture context for H2H, standings, rest days, flags
           fixture_context: p.fixture_context,
         } as any);
+        console.log("[MatchPage] setPick done, fixture_context in pick object:", JSON.stringify((p as any).fixture_context));
       })
       .catch(() => setError(true));
   };
@@ -341,6 +343,7 @@ function MatchPage() {
       </section>
 
       {/* Match context - standings, rest days, h2h, flags */}
+      {typeof (pick as any).fixture_context !== "undefined" && console.log("[DEBUG] fixture_context:", JSON.stringify((pick as any).fixture_context))}
       {(pick as any).fixture_context && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Match context</h2>
