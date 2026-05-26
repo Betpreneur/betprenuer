@@ -89,6 +89,8 @@ function MatchPage() {
               form_away: found.away_recent_form,
               goals_profile: found.selection_profile ? found.selection_profile.split("\n").filter(Boolean) : [],
               risk_flag: found.risk_level || found.risk_flags?.[0] || "",
+              // Pass fixture context for H2H, standings, rest days, flags
+              fixture_context: found.fixture_context,
             } as any);
             return;
           }
@@ -128,6 +130,8 @@ function MatchPage() {
           // Handle risk fields
           risk_flag: p.risk_level || p.risk_flags || "",
           user_backed: p.backed_by_me || false,
+          // Pass fixture context for H2H, standings, rest days, flags
+          fixture_context: p.fixture_context,
         } as any);
       })
       .catch(() => setError(true));
@@ -279,7 +283,7 @@ function MatchPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
             {/* Home team stats */}
-            {pick.form_home?.games > 0 && (
+            {pick.form_home && (pick.form_home.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                 <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -301,7 +305,7 @@ function MatchPage() {
               </div>
             )}
             {/* Away team stats */}
-            {pick.form_away?.games > 0 && (
+            {pick.form_away && (pick.form_away.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                 <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
