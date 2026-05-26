@@ -124,7 +124,7 @@ function MatchPage() {
         }
         const p = res.pick;
         // Log for debugging
-        console.log("[MatchPage] API response:", JSON.stringify(p.home_recent_form), JSON.stringify(p.away_recent_form));
+        console.log("[MatchPage] API response:", JSON.stringify(p.home_recent_form), JSON.stringify(p.away_recent_form), JSON.stringify(p.fixture_context));
         
         // Transform API response to match component expectations
         setPick({
@@ -341,7 +341,7 @@ function MatchPage() {
       </section>
 
       {/* Match context - standings, rest days, h2h, flags */}
-      {(pick as any).fixture_context && (
+      {(pick as any).fixture_context && console.log("[MatchPage] fixture_context:", (pick as any).fixture_context) && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Match context</h2>
           <div className="space-y-4 text-[13px]">
