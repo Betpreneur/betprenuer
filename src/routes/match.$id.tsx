@@ -289,7 +289,6 @@ function MatchPage() {
       </section>
 
       {/* Match context - standings, rest days, h2h, flags */}
-      {typeof (pick as any).fixture_context !== "undefined" && console.log("[DEBUG] fixture_context:", JSON.stringify((pick as any).fixture_context))}
       {(pick as any).fixture_context && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Match context</h2>
