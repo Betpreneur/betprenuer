@@ -47,11 +47,12 @@ function MatchPage() {
   } catch {
     // Param error - ignore, will show below
   }
-  const { isAuthed, loading } = useAuth();
+  const { isAuthed, loading: authLoading } = useAuth();
   const router = useRouter();
   const [pick, setPick] = useState<PickDetail | null>(null);
   const [error, setError] = useState(false);
   const [backing, setBacking] = useState(false);
+  const [appLoading, setAppLoading] = useState(true);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [preview, setPreview] = useState<{
     url: string;
@@ -64,12 +65,14 @@ function MatchPage() {
     const numId = Number(id);
     if (isNaN(numId) || numId <= 0) {
       setError(true);
+      setAppLoading(false);
       return;
     }
 
     // Always call API directly, no cache
     console.log("[MatchPage] Calling API:", numId);
     setError(false);
+    setAppLoading(true);
     
     api.getPickDetail(numId)
       .then((res) => {
@@ -95,7 +98,8 @@ function MatchPage() {
         } as any);
         console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
       })
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setAppLoading(false));
   };
 
   useEffect(() => {
@@ -103,7 +107,17 @@ function MatchPage() {
     load();
   }, [isAuthed, id]);
 
-  if (loading) return null;
+  if (appLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-32 bg-card border border-brand-border rounded animate-pulse" />
+        <div className="h-32 bg-card border border-brand-border rounded-lg animate-pulse" />
+        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
+        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
+      </div>
+    );
+  }
+
   if (!isAuthed) return <Navigate to="/record" />;
 
   if (error || !pick) {

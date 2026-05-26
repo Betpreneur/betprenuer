@@ -371,10 +371,8 @@ function TopPickPage() {
           Best pick today
         </div>
         <h1 className="!text-[22px] !leading-tight font-bold">{pick.fixture}</h1>
-        <p className="text-[13px] text-muted-foreground mt-0.5 flex items-center gap-2">
+        <p className="text-[13px] text-muted-foreground mt-0.5">
           <span>{pick.league}</span>
-          <span className="text-border">•</span>
-          <span className="text-info-blue">{pick.source || "APS"}</span>
         </p>
         
         <div className="mt-4 inline-flex items-center gap-2 bg-brand-green/10 border border-brand-green/30 rounded-lg px-4 py-2">
