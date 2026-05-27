@@ -342,17 +342,20 @@ function HomePage() {
             <span className="text-white/70">Games:</span>
             <span className="text-win-green font-bold">{allPicks.length}</span>
           </span>
+          {/* Banker - RED brand */}
           <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
             <span className="text-brand-green font-medium">{bankers.length}</span>
           </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-accent/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-accent"></span>
-            <span className="text-teal-accent font-medium">{gems.length}</span>
+          {/* Value Gem - TEAL */}
+          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-600/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+            <span className="text-teal-600 font-medium">{gems.length}</span>
           </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-text/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-text"></span>
-            <span className="text-amber-text font-medium">{wildcards.length}</span>
+          {/* Wildcard - PURPLE */}
+          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-purple-600/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+            <span className="text-purple-600 font-medium">{wildcards.length}</span>
           </span>
         </div>
       </div>
