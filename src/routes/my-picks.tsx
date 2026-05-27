@@ -73,7 +73,8 @@ function PickItem({ pick, clickable = true }: { pick: Pick; clickable?: boolean 
   return (
     <Link
       to="/match/$id"
-      params={{ id: String(pick.match_id || pick.id) }}
+      params={{ id: String(pick.id) }}
+      className="block"
     >
       {content}
     </Link>
