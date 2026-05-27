@@ -154,13 +154,45 @@ function MyPicksPage() {
   const loadPicks = (date: string) => {
     setLoading(true);
     setError(null);
+    console.log("Loading picks for date:", date);
 
     fetch(`https://backend.betpreneur.ng/api/algo/picks/backed?date=${date}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
+      headers: { 
+        Authorization: `Bearer ${localStorage.getItem("terminal.token")}`,
+        "Content-Type": "application/json"
+      }
     })
-      .then(res => res.json())
-      .then((res: any) => {
-        const arr = Array.isArray(res) ? res : (res.results || res.data || res.picks || []);
+      .then(async res => {
+        const text = await res.text();
+        console.log("API Response for", date, ":", text.substring(0, 200));
+        
+        // Try parsing as JSON
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          console.error("Failed to parse JSON");
+          setError("Invalid response from server");
+          return;
+        }
+        
+        // Parse the picks array from various response formats
+        let arr = [];
+        if (Array.isArray(data)) {
+          arr = data;
+        } else if (Array.isArray(data.data)) {
+          arr = data.data;
+        } else if (Array.isArray(data.results)) {
+          arr = data.results;
+        } else if (Array.isArray(data.picks)) {
+          arr = data.picks;
+        } else if (data.success === false) {
+          setError(data.message || "Could not load picks");
+          return;
+        }
+        
+        console.log("Parsed picks:", arr.length);
+        
         setPicks(arr);
         setStats({
           total: arr.length,
@@ -173,6 +205,8 @@ function MyPicksPage() {
         console.error("Failed to load picks:", err);
         setError("Could not load your picks.");
       })
+      .finally(() => setLoading(false));
+  };
       .finally(() => setLoading(false));
   };
 
