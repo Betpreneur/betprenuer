@@ -503,31 +503,40 @@ function MatchPage() {
         </div>
       )}
 
-      {/* Action buttons - Enhanced with glow effects */}
+      {/* Action buttons - Enhanced with PROMINENT glow effects */}
       {pick.status !== "settled" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+          {/* Backed button - PROMINENT GREEN GLOW */}
           <button
             onClick={handleBacked}
             disabled={pick.user_backed || backing}
-            className={`min-h-[56px] rounded-xl font-medium transition-all ${
+            className={`min-h-[60px] rounded-xl font-bold text-lg transition-all duration-300 ${
               pick.user_backed
-                ? "bg-white/10 text-muted-foreground cursor-default border border-white/10"
-                : "bg-gradient-to-r from-win-green to-win-green/80 text-background hover:opacity-90 hover:shadow-lg hover:shadow-win-green/30 hover:scale-[1.02]"
+                ? "bg-white/10 text-muted-foreground cursor-default border-2 border-green-500/30"
+                : "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite] text-black hover:bg-emerald-400 shadow-[0_0_25px_rgba(34,197,94,0.5)] hover:shadow-[0_0_35px_rgba(34,197,94,0.7)] hover:scale-[1.03]"
             }`}
           >
             {pick.user_backed ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
-                Backing This
+                BACKED
               </span>
-            ) : backing ? "Saving…" : (
+            ) : backing ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 6.627 12 12h2zm0 0a8 8 0 010 16V12h2z"></path>
                 </svg>
-                I Backed This
+                Saving...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                I BACKED THIS
               </span>
             )}
           </button>
