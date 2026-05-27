@@ -211,7 +211,7 @@ function RecordPage() {
         ))}
       </div>
 
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-x-auto touch-pan-x">
+      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-x-auto overscroll-x-contain">
         <table className="w-full text-[13px] min-w-[600px]">
           <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
             <tr>
