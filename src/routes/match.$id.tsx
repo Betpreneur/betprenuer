@@ -109,11 +109,17 @@ function MatchPage() {
 
   if (appLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-32 bg-card border border-brand-border rounded animate-pulse" />
-        <div className="h-32 bg-card border border-brand-border rounded-lg animate-pulse" />
-        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
-        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
+      <div className="space-y-5">
+        {/* Skeleton with pulsing animation */}
+        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
+          <div className="h-6 w-24 bg-muted rounded animate-pulse mb-4" />
+          <div className="h-10 w-3/4 bg-muted rounded animate-pulse mb-3" />
+          <div className="h-20 w-full bg-muted rounded-xl animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="h-32 bg-muted rounded-xl animate-pulse" />
+          <div className="h-32 bg-muted rounded-xl animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -122,9 +128,19 @@ function MatchPage() {
 
   if (error || !pick) {
     return (
-      <div className="text-center py-16">
-        <p>This pick is no longer available or doesn't exist.</p>
-        <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Back to today</button>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+          <svg className="w-10 h-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p className="text-[15px] mb-2">This pick is no longer available or doesn't exist.</p>
+        <button 
+          onClick={() => router.navigate({ to: "/home" })} 
+          className="mt-4 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-all hover:shadow-lg hover:shadow-primary/30"
+        >
+          ← Back to today
+        </button>
       </div>
     );
   }
@@ -253,11 +269,11 @@ function MatchPage() {
 
       {/* Recent form - full team stats */}
       <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
-        <h2 className="text-[16px] font-semibold mb-3 flex items-center gap-2">
-          <svg className="w-4 h-4 text-teal-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5 text-teal-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
-          Recent form
+          Recent Form
         </h2>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
@@ -311,8 +327,13 @@ function MatchPage() {
 
       {/* Match context - standings, rest days, h2h, flags */}
       {(pick as any).fixture_context && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Match context</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+          <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Match Context
+          </h2>
           <div className="space-y-4 text-[13px]">
             {/* H2H stats */}
             {(pick as any).fixture_context?.h2h && (
@@ -393,9 +414,14 @@ function MatchPage() {
         </section>
       )}
 
-      {/* Goals profile */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Why this pick</h2>
+      {/* Goals profile - Why this pick */}
+      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+        <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          Why This Pick
+        </h2>
         <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
@@ -408,17 +434,27 @@ function MatchPage() {
 
       {/* Parent flex container for risk flag + verdict */}
       <div className="flex flex-col gap-10 h-auto">
-        {/* Risk flag */}
+        {/* Risk flag - with enhanced styling */}
         {pick.risk_flag && (
-          <div className="bg-amber-bg border border-amber-text/20 rounded-lg p-4">
-            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1">Watch out</div>
+          <div className="bg-gradient-to-br from-amber-bg/30 to-jet-surface-2 border border-amber-text/30 rounded-xl p-4 hover:border-amber-text/50 transition-colors">
+            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Watch Out
+            </div>
             <p className="text-[14px] text-amber-text">{pick.risk_flag}</p>
           </div>
         )}
 
-        {/* Model verdict */}
-        <section className="bg-info-bg border border-info-blue/15 rounded-lg p-5">
-          <h2 className="mb-3 !text-info-blue">Model verdict</h2>
+        {/* Model verdict - with enhanced styling */}
+        <section className="bg-gradient-to-br from-info-bg/30 to-jet-surface-2 border border-info-blue/30 rounded-xl p-5 hover:border-info-blue/50 transition-colors">
+          <h2 className="text-[15px] font-semibold mb-3 !text-info-blue flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            Model Verdict
+          </h2>
           <p className="italic text-[14px] text-info-blue leading-relaxed">{pick.model_verdict}</p>
         </section>
       </div>
@@ -439,24 +475,38 @@ function MatchPage() {
         </div>
       )}
 
-      {/* Action buttons */}
+      {/* Action buttons - Enhanced with glow effects */}
       {pick.status !== "settled" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
             onClick={handleBacked}
             disabled={pick.user_backed || backing}
-            className={`min-h-[56px] rounded-md font-medium ${
+            className={`min-h-[56px] rounded-xl font-medium transition-all ${
               pick.user_backed
-                ? "bg-white/10 text-muted-foreground cursor-default"
-                : "bg-win-green text-background hover:opacity-90"
+                ? "bg-white/10 text-muted-foreground cursor-default border border-white/10"
+                : "bg-gradient-to-r from-win-green to-win-green/80 text-background hover:opacity-90 hover:shadow-lg hover:shadow-win-green/30 hover:scale-[1.02]"
             }`}
           >
-            {pick.user_backed ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
+            {pick.user_backed ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Backing This
+              </span>
+            ) : backing ? "Saving…" : (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                I Backed This
+              </span>
+            )}
           </button>
           <button
             onClick={openPreview}
             disabled={generating}
-            className="min-h-[56px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
+            className="min-h-[56px] rounded-xl font-semibold bg-gradient-to-r from-[#25D366] to-[#20BD5A] text-background hover:opacity-90 inline-flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[#25D366]/30 hover:scale-[1.02]"
             aria-label="Share on WhatsApp"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44ZM12.06 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.72.97.99-3.62-.23-.37a9.85 9.85 0 0 1-1.51-5.27c0-5.45 4.44-9.89 9.9-9.89 2.64 0 5.13 1.03 7 2.9a9.83 9.83 0 0 1 2.9 7c0 5.46-4.44 9.9-9.93 9.9Zm5.43-7.41c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/></svg>
@@ -465,10 +515,19 @@ function MatchPage() {
           <button
             onClick={openPreview}
             disabled={generating}
-            className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
+            className="min-h-[56px] rounded-xl font-medium border border-brand-border text-muted-foreground bg-card hover:bg-card/80 hover:border-primary/50 hover:text-primary transition-all"
             aria-label="Download share card image"
           >
-            {generating ? "Preparing…" : "Preview & download"}
+            <span className="flex items-center justify-center gap-2">
+              {generating ? "Preparing…" : (
+                <>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Preview & Download
+                </>
+              )}
+            </span>
           </button>
         </div>
       )}

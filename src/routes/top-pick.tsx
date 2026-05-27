@@ -78,11 +78,14 @@ function FormChips({ form }: { form?: string }) {
 
 function StatsKey() {
   return (
-    <details className="bg-card border border-brand-border rounded-lg p-3 text-[11px]">
-      <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+    <details className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 text-[12px] group">
+      <summary className="cursor-pointer text-muted-foreground hover:text-foreground flex items-center gap-2 font-medium">
+        <svg className="w-4 h-4 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         📊 What do these stats mean?
       </summary>
-      <div className="mt-2 space-y-1 text-muted-foreground grid grid-cols-2 gap-2">
+      <div className="mt-3 space-y-2 text-muted-foreground grid grid-cols-2 gap-2">
         <div><span className="text-win-green">Wins</span> — Wins in last 5 matches</div>
         <div><span className="text-win-green">Scored</span> — Avg goals scored per game</div>
         <div><span className="text-win-green">Conceded</span> — Avg goals conceded per game</div>
@@ -99,46 +102,48 @@ function StatsKey() {
 function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFormStats | undefined; team: string }) {
   if (!stats) return null;
   return (
-    <div className="bg-card border border-brand-border rounded-xl p-5">
-      <div className="text-[14px] font-medium mb-4 flex items-center justify-between">
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5 hover:border-brand-green/30 transition-colors">
+      <div className="text-[14px] font-semibold mb-4 flex items-center justify-between">
         <span className="text-info-blue">{title}</span>
-        <span className="text-[13px] text-muted-foreground">{team}</span>
+        <span className="text-[12px] text-muted-foreground bg-muted/30 px-2 py-1 rounded">{team}</span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-3 md:gap-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Wins</span>
-          <span className="text-[18px] font-bold text-win-green">{stats.wins}</span>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-4">
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Wins</span>
+          <span className="text-[20px] font-bold text-win-green">{stats.wins}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Draws</span>
-          <span className="text-[18px] font-bold">{stats.draws ?? 0}</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Draws</span>
+          <span className="text-[20px] font-bold">{stats.draws ?? 0}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Losses</span>
-          <span className="text-[18px] font-bold text-danger-red">{stats.losses ?? 0}</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Losses</span>
+          <span className="text-[20px] font-bold text-danger-red">{stats.losses ?? 0}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Games</span>
-          <span className="text-[18px] font-bold text-muted-foreground">{stats.games}</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Games</span>
+          <span className="text-[20px] font-bold text-muted-foreground">{stats.games}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Scored*</span>
-          <span className="text-[18px] font-bold">{stats.avg_scored}</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Scored*</span>
+          <span className="text-[20px] font-bold">{stats.avg_scored}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Conceded*</span>
-          <span className="text-[18px] font-bold">{stats.avg_conceded}</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Conceded*</span>
+          <span className="text-[20px] font-bold">{stats.avg_conceded}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">BTTS</span>
-          <span className="text-[18px] font-bold text-info-blue">{Math.round(stats.btts_rate)}%</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">BTTS</span>
+          <span className="text-[20px] font-bold text-info-blue">{Math.round(stats.btts_rate)}%</span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] text-muted-foreground">Over 2.5</span>
-          <span className="text-[18px] font-bold text-amber-text">{Math.round(stats.over25_rate)}%</span>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Over 2.5</span>
+          <span className="text-[20px] font-bold text-amber-text">{Math.round(stats.over25_rate)}%</span>
         </div>
       </div>
-      <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">*Averages based on last {stats.games} matches</div>
+      <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">
+        *Averages based on last {stats.games} matches
+      </div>
     </div>
   );
 }
