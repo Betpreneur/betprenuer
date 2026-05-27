@@ -110,15 +110,43 @@ function MatchPage() {
   if (appLoading) {
     return (
       <div className="space-y-5">
-        {/* Skeleton with pulsing animation */}
+        {/* Premium skeleton with glow effect */}
         <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
-          <div className="h-6 w-24 bg-muted rounded animate-pulse mb-4" />
-          <div className="h-10 w-3/4 bg-muted rounded animate-pulse mb-3" />
-          <div className="h-20 w-full bg-muted rounded-xl animate-pulse" />
+          {/* Header skeleton */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-16 h-6 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
+            <div className="flex-1" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-muted via-muted/50 to-muted animate-pulse" />
+          </div>
+          {/* Title lines */}
+          <div className="space-y-3">
+            <div className="h-8 w-3/4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
+            <div className="h-8 w-1/2 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
+          </div>
+          {/* Big odds area */}
+          <div className="mt-6 flex justify-center">
+            <div className="w-32 h-16 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse flex items-center justify-center">
+              <div className="w-16 h-3 bg-muted/50 rounded-full" />
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="h-32 bg-muted rounded-xl animate-pulse" />
-          <div className="h-32 bg-muted rounded-xl animate-pulse" />
+        
+        {/* Stats skeleton - 3 cards */}
+        <div className="grid grid-cols-3 gap-4">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+              <div className="h-24 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
+            </div>
+          ))}
+        </div>
+        
+        {/* Team stats skeleton */}
+        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-5">
+          <div className="h-8 w-32 mb-4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-40 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
+            <div className="h-40 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
+          </div>
         </div>
       </div>
     );
