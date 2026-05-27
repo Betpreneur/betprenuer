@@ -337,8 +337,10 @@ function HomePage() {
         
         {/* Tier Summary Pills */}
         <div className="flex items-center gap-2 text-[11px]">
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 text-white/70 font-medium">
-            Games
+          {/* Total Games - show as text instead of dot */}
+          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5">
+            <span className="text-white/70">Games:</span>
+            <span className="text-win-green font-bold">{allPicks.length}</span>
           </span>
           <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
