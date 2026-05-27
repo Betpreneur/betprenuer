@@ -28,16 +28,19 @@ function getDateOptions() {
 }
 
 function getStatusBadge(status: string) {
-  switch (status) {
-    case "win":
-      return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-win-green/20 text-win-green">WIN</span>;
-    case "loss":
-      return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-danger-red/20 text-danger-red">LOSS</span>;
-    case "void":
-      return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/10 text-white/60">VOID</span>;
-    default:
-      return <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-text/20 text-amber-text">PENDING</span>;
-  }
+  const styles = {
+    win: "bg-win-green/20 text-win-green border-win-green/30",
+    loss: "bg-danger-red/20 text-danger-red border-danger-red/30",
+    void: "bg-white/10 text-white/60 border-white/10",
+    pending: "bg-amber-text/20 text-amber-text border-amber-text/30",
+  };
+  const labels = { win: "WIN", loss: "LOSS", void: "VOID", pending: "PENDING" };
+  const colors = styles[status as keyof typeof styles] || styles.pending;
+  return (
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${colors}`}>
+      {labels[status as keyof typeof labels] || "PENDING"}
+    </span>
+  );
 }
 
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
@@ -50,30 +53,81 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 }
 
 function PickItem({ pick, clickable = true }: { pick: Pick; clickable?: boolean }) {
+  // Use pick.id for linking to match details - this is the correct match ID
+  const matchId = pick.id; // Use the pick ID directly
+  
   const content = (
-    <div className={`bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 hover:border-brand-green/50 transition-all hover:shadow-lg hover:shadow-brand-green/10 ${clickable ? "cursor-pointer" : "opacity-60 cursor-not-allowed"}`}>
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] text-muted-foreground">{pick.league}</span>
+    <div className={`group relative bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/50 transition-all hover:shadow-xl hover:shadow-brand-green/10 hover:-translate-y-1 cursor-pointer`}>
+      {/* Status indicator - left side with glow */}
+      <div className={`absolute left-0 top-4 w-1 h-10 rounded-r-full ${
+        pick.status === "win" ? "bg-win-green shadow-[0_0_10px_rgba(34,197,94,0.5)]" :
+        pick.status === "loss" ? "bg-danger-red shadow-[0_0_10px_rgba(220,38,38,0.5)]" :
+        "bg-amber-text shadow-[0_0_10px_rgba(251,191,36,0.5)]"
+      }`} />
+      
+      {/* League + Date */}
+      <div className="flex items-center justify-between mb-2 pl-3">
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 9l4-4m0 0l4 4m-4-4v12" />
+          </svg>
+          {pick.league}
+          <span className="text-white/40">·</span>
+          {pick.match_date}
+        </span>
         {getStatusBadge(pick.status)}
       </div>
-      <h3 className="text-[13px] font-medium truncate group-hover:text-white/90 transition-colors">{pick.fixture}</h3>
-      <div className="flex items-center justify-between mt-2 text-[11px]">
-        <span className="text-muted-foreground">{pick.market} @ {Number(pick.odds).toFixed(2)}</span>
-        <span className={`font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>
-          {pick.confidence?.toFixed(0)}%
-        </span>
+      
+      {/* Match fixture */}
+      <h3 className="text-[15px] font-semibold truncate pl-3 group-hover:text-win-green transition-colors">{pick.fixture}</h3>
+      
+      {/* Market & Odds - bottom row */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30 pl-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-muted-foreground">{pick.market}</span>
+          <span className="text-border">@</span>
+          <span className="text-[14px] font-bold text-win-green">{Number(pick.odds).toFixed(2)}</span>
+        </div>
+        {/* Confidence badge */}
+        <div className={`flex items-center gap-2 px-2 py-1 rounded-full ${
+          pick.status === "win" ? "bg-win-green/10" :
+          pick.status === "loss" ? "bg-danger-red/10" :
+          "bg-amber-text/10"
+        }`}>
+          <span className={`text-[13px] font-bold ${
+            pick.status === "win" ? "text-win-green" :
+            pick.status === "loss" ? "text-danger-red" :
+            "text-amber-text"
+          }`}>
+            {pick.confidence?.toFixed(0)}%
+          </span>
+          {/* Arrow that shows on hover */}
+          <svg className="w-4 h-4 text-win-green opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
       </div>
+      
+      {/* PnL indicator for settled picks */}
+      {pick.pnl !== undefined && pick.pnl !== null && (
+        <div className={`absolute top-4 right-14 text-[12px] font-bold ${
+          pick.pnl > 0 ? "text-win-green" : pick.pnl < 0 ? "text-danger-red" : "text-muted-foreground"
+        }`}>
+          {pick.pnl > 0 ? "+" : ""}{pick.pnl.toFixed(0)}
+        </div>
+      )}
     </div>
   );
 
-  if (!clickable) {
+  if (!clickable || !matchId) {
     return <div>{content}</div>;
   }
 
   return (
     <Link
       to="/match/$id"
-      params={{ id: String(pick.match_id || pick.id) }}
+      params={{ id: String(matchId) }}
+      className="block"
     >
       {content}
     </Link>
