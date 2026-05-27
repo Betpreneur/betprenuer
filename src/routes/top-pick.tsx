@@ -648,11 +648,45 @@ function TopPickPage() {
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 pt-2">
-        <Link to="/home" className="flex-1 text-center py-3 bg-card border border-brand-border rounded-lg font-medium hover:bg-subtle-bg transition-colors">
+      {/* Action Buttons - ENHANCED with glow effects */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+        <Link to="/home" className="flex-1 text-center py-4 bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl font-medium hover:bg-subtle-bg hover:border-win-green/30 transition-all hover:shadow-lg hover:shadow-win-green/10 flex items-center justify-center gap-2">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           Back to Dashboard
         </Link>
+        
+        {/* Enhanced Unlock/Share/Back buttons for logged in users */}
+        {showFullDetails && (
+          <button
+            onClick={handleBacked}
+            disabled={userBacked || backing}
+            className={`flex-1 text-center py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+              userBacked
+                ? "bg-white/10 text-muted-foreground cursor-default border-2 border-win-green/30"
+                : "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 bg-[length:200%_auto] text-black hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] hover:shadow-[0_0_35px_rgba(34,197,94,0.7)] hover:scale-[1.03]"
+            }`}
+          >
+            {userBacked ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                BACKED
+              </span>
+            ) : backing ? (
+              <span>Saving...</span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                BACK THIS PICK
+              </span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
