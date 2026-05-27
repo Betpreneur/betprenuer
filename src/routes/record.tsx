@@ -50,8 +50,8 @@ export const Route = createFileRoute("/record")({
 
 function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: string }) {
   return (
-    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/30 transition-colors">
-      <div className={`text-[24px] font-bold ${highlight || "text-win-green"}`}>{value}</div>
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/50 hover:shadow-lg hover:shadow-brand-green/10 hover:-translate-y-0.5 transition-all duration-300">
+      <div className={`text-[28px] font-bold ${highlight || "text-win-green"}`}>{value}</div>
       <div className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wide">{label}</div>
     </div>
   );
@@ -136,12 +136,19 @@ function RecordPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-3">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="h-20 bg-card border border-brand-border rounded-lg animate-pulse" />
+      <div className="space-y-6">
+        {/* Header skeleton */}
+        <div className="h-16 bg-card border border-brand-border rounded-xl animate-pulse" />
+        
+        {/* Stats skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className="h-24 bg-card border border-brand-border rounded-xl animate-pulse" />
           ))}
         </div>
+        
+        {/* Table skeleton */}
+        <div className="h-64 bg-card border border-brand-border rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -190,8 +197,13 @@ function RecordPage() {
       <div className="flex flex-wrap gap-2">
         {(["all", "win", "loss", "void", "pending"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-2 rounded-md text-[13px] border ${
-              filter === f ? "bg-brand-green text-primary-foreground border-brand-green" : "bg-card border-brand-border"
+            className={`px-4 py-2.5 rounded-lg text-[13px] border transition-all duration-200 hover:scale-105 ${
+              filter === f 
+                ? f === "win" ? "bg-win-green text-black border-win-green shadow-lg shadow-win-green/30" 
+                  : f === "loss" ? "bg-danger-red text-white border-danger-red shadow-lg shadow-danger-red/30"
+                  : f === "void" ? "bg-white/20 text-white border-white/30"
+                  : "bg-amber-text text-black border-amber-text shadow-lg shadow-amber-text/30"
+                : "bg-card border-brand-border hover:border-brand-green/50"
             }`}>
             {f === "all" ? "All" : f[0].toUpperCase() + f.slice(1)}
             {f !== "all" && <span className="ml-1.5 opacity-70">({records.filter(r => r.status === f).length})</span>}
@@ -199,33 +211,37 @@ function RecordPage() {
         ))}
       </div>
 
-      <div className="bg-card border border-brand-border rounded-lg overflow-x-auto">
+      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-hidden">
         <table className="w-full text-[13px]">
           <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
             <tr>
-              <th className="text-left px-3 py-2">Date</th>
-              <th className="text-left px-3 py-2">Match</th>
-              <th className="text-left px-3 py-2">Pick</th>
-              <th className="text-left px-3 py-2">Tier</th>
-              <th className="text-right px-3 py-2">Stake</th>
-              <th className="text-right px-3 py-2">Odds</th>
-              <th className="text-right px-3 py-2">Conf</th>
-              <th className="text-right px-3 py-2">Score</th>
-              <th className="text-right px-3 py-2">Result</th>
+              <th className="text-left px-3 py-3">Date</th>
+              <th className="text-left px-3 py-3">Match</th>
+              <th className="text-left px-3 py-3">Pick</th>
+              <th className="text-left px-3 py-3">Tier</th>
+              <th className="text-right px-3 py-3">Stake</th>
+              <th className="text-right px-3 py-3">Odds</th>
+              <th className="text-right px-3 py-3">Conf</th>
+              <th className="text-right px-3 py-3">Score</th>
+              <th className="text-right px-3 py-3">Result</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(pick => (
-              <tr key={pick.id} className="border-t border-brand-border">
-                <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{pick.match_date}</td>
-                <td className="px-3 py-2 max-w-[180px] truncate">{pick.fixture}</td>
-                <td className="px-3 py-2">{pick.pick || pick.market}</td>
-                <td className="px-3 py-2"><TierBadge tier={pick.tier} /></td>
-                <td className="px-3 py-2 text-right">₦{pick.stake?.toLocaleString()}</td>
-                <td className="px-3 py-2 text-right">{pick.odds}</td>
-                <td className="px-3 py-2 text-right text-muted-foreground">{pick.confidence}%</td>
-                <td className="px-3 py-2 text-right text-muted-foreground">{pick.score || "-"}</td>
-                <td className="px-3 py-2 text-right"><StatusBadge status={pick.status} score={pick.score} pnl={pick.pnl} /></td>
+              <tr key={pick.id} className={`border-t border-brand-border hover:bg-subtle-bg transition-colors cursor-pointer ${
+                pick.status === "win" ? "hover:border-win-green/30" :
+                pick.status === "loss" ? "hover:border-danger-red/30" :
+                "hover:border-amber-text/30"
+              }`}>
+                <td className="px-3 py-3 text-muted-foreground whitespace-nowrap">{pick.match_date}</td>
+                <td className="px-3 py-3 max-w-[180px] truncate font-medium">{pick.fixture}</td>
+                <td className="px-3 py-3">{pick.pick || pick.market}</td>
+                <td className="px-3 py-3"><TierBadge tier={pick.tier} /></td>
+                <td className="px-3 py-3 text-right">₦{pick.stake?.toLocaleString()}</td>
+                <td className="px-3 py-3 text-right font-semibold">{pick.odds}</td>
+                <td className="px-3 py-3 text-right text-muted-foreground">{pick.confidence}%</td>
+                <td className="px-3 py-3 text-right text-muted-foreground">{pick.score || "-"}</td>
+                <td className="px-3 py-3 text-right"><StatusBadge status={pick.status} score={pick.score} pnl={pick.pnl} /></td>
               </tr>
             ))}
           </tbody>
