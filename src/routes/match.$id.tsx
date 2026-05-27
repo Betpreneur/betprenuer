@@ -12,9 +12,10 @@ export const Route = createFileRoute("/match/$id")({
 });
 
 const tierBg = {
-  banker:  "bg-win-green-bg text-win-green",
-  gem:     "bg-teal-bg text-teal-accent",
-  wildcard:"bg-amber-bg text-amber-text",
+  banker:    "bg-brand-green text-primary-foreground",
+  value_gem: "bg-teal-600 text-white",
+  gem:       "bg-teal-600 text-white",
+  wild_card: "bg-purple-600 text-white",
 } as const;
 
 function FormChip({ r }: { r: "W" | "D" | "L" }) {
