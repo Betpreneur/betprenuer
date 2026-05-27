@@ -229,7 +229,7 @@ function MatchPage() {
       <Link to="/home" className="text-[13px] text-info-blue">← Back to today</Link>
 
       {/* Match header */}
-      <header className="bg-card border border-brand-border rounded-lg p-5">
+      <header className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
@@ -241,18 +241,24 @@ function MatchPage() {
             {tierLabel(pick.tier)}
           </span>
         </div>
-        <div className="mt-3 inline-block bg-teal-bg text-teal-accent text-[14px] font-medium px-3 py-1.5 rounded">
+        <div className="mt-3 inline-block bg-gradient-to-r from-teal-bg to-jet-surface-2 text-teal-accent text-[14px] font-medium px-3 py-1.5 rounded-lg border border-teal-accent/30">
           {pick.market_plain}
         </div>
-        <div className="mt-3 text-[13px] text-muted-foreground">
-          Confidence: <span className="font-medium text-win-green">{pick.confidence.toFixed(1)}%</span>
-          {" · "}Odds: <span className="font-medium text-foreground">{Number(pick.odds).toFixed(2)}</span>
+        <div className="mt-3 text-[13px] text-muted-foreground flex items-center gap-4">
+          <span>Confidence: <span className="font-bold text-win-green">{pick.confidence.toFixed(1)}%</span></span>
+          <span className="text-border">|</span>
+          <span>Odds: <span className="font-bold text-foreground">{Number(pick.odds).toFixed(2)}</span></span>
         </div>
       </header>
 
       {/* Recent form - full team stats */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Recent form</h2>
+      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+        <h2 className="text-[16px] font-semibold mb-3 flex items-center gap-2">
+          <svg className="w-4 h-4 text-teal-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          Recent form
+        </h2>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
         ) : (

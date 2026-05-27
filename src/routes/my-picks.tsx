@@ -42,7 +42,7 @@ function getStatusBadge(status: string) {
 
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 text-center">
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 text-center hover:border-brand-green/30 transition-colors">
       <div className={`text-[24px] font-bold ${color}`}>{value}</div>
       <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
     </div>
@@ -51,12 +51,12 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 
 function PickItem({ pick, clickable = true }: { pick: Pick; clickable?: boolean }) {
   const content = (
-    <div className={`bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 ${clickable ? "hover:border-brand-green/50 transition-colors" : "opacity-60 cursor-not-allowed"}`}>
+    <div className={`bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 hover:border-brand-green/50 transition-all hover:shadow-lg hover:shadow-brand-green/10 ${clickable ? "cursor-pointer" : "opacity-60 cursor-not-allowed"}`}>
       <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] text-muted-foreground">{pick.league}</span>
         {getStatusBadge(pick.status)}
       </div>
-      <h3 className="text-[13px] font-medium truncate">{pick.fixture}</h3>
+      <h3 className="text-[13px] font-medium truncate group-hover:text-white/90 transition-colors">{pick.fixture}</h3>
       <div className="flex items-center justify-between mt-2 text-[11px]">
         <span className="text-muted-foreground">{pick.market} @ {Number(pick.odds).toFixed(2)}</span>
         <span className={`font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>

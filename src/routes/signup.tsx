@@ -59,11 +59,20 @@ function SignupPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1>Create your account</h1>
-      <p className="text-[14px] text-muted-foreground mt-1 mb-6">
-        Free while we're in beta. Daily picks posted by 06:30 WAT.
-      </p>
-      <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
+      {/* Header with visual interest */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/60 mb-4 shadow-[0_0_30px_rgba(232,25,44,0.3)]">
+          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1a7 7 0 11-14 0v-1z" />
+          </svg>
+        </div>
+        <h1 className="text-[28px] font-bold">Create your account</h1>
+        <p className="text-[14px] text-muted-foreground mt-2">
+          Free while we're in beta. <span className="text-win-green">Daily picks posted by 06:30 WAT.</span>
+        </p>
+      </div>
+      
+      <form onSubmit={onSubmit} className="space-y-5 bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
         <Field label="Username" hint="You'll use this to log in. Letters, numbers, and underscores.">
           <input
             value={username}

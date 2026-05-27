@@ -50,9 +50,9 @@ export const Route = createFileRoute("/record")({
 
 function StatCard({ label, value, highlight }: { label: string; value: string; highlight?: string }) {
   return (
-    <div className="bg-card border border-brand-border rounded-lg p-4">
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/30 transition-colors">
       <div className={`text-[24px] font-bold ${highlight || "text-win-green"}`}>{value}</div>
-      <div className="text-[12px] text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</div>
+      <div className="text-[11px] text-muted-foreground mt-1 uppercase tracking-wide">{label}</div>
     </div>
   );
 }

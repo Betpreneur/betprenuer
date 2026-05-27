@@ -47,11 +47,20 @@ function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1>Welcome back</h1>
-      <p className="text-[14px] text-muted-foreground mt-1 mb-6">
-        Log in to see today's picks.
-      </p>
-      <form onSubmit={onSubmit} className="space-y-4 bg-card border border-brand-border rounded-lg p-5">
+      {/* Header with visual interest */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/60 mb-4 shadow-[0_0_30px_rgba(232,25,44,0.3)]">
+          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h1 className="text-[28px] font-bold">Welcome back</h1>
+        <p className="text-[14px] text-muted-foreground mt-2">
+          Log in to see today's picks. <span className="text-win-green">Boom!</span>
+        </p>
+      </div>
+      
+      <form onSubmit={onSubmit} className="space-y-5 bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
         <label className="block">
           <span className="block text-[13px] font-medium text-foreground mb-1">Username or email</span>
           <input
