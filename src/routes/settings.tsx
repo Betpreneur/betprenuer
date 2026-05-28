@@ -2,6 +2,7 @@ import { createFileRoute, Navigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { usePwaInstall } from "@/hooks/usePwaInstall";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Settings — Betpreneur" }] }),
@@ -16,6 +17,7 @@ function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { isInstallable, promptInstall } = usePwaInstall();
 
   useEffect(() => {
     if (user) {
@@ -47,20 +49,10 @@ function SettingsPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border mb-4">
-          <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.807 2.885 2.165a1.724 1.724 0 01-.129 1.826c-.238.48-1.597.407-2.253.103a1.724 1.724 0 00-1.639 1.029c-.667 1.493-2.282 1.373-2.858.476a1.724 1.724 0 01-1.139 1.022 1.724 1.724 0 01-1.107-1.455c.535-1.429.177-3.058-.89-3.664a1.724 1.724 0 00-1.605.046 1.724 1.724 0 00-1.028 1.615c.395.945.06 2.045-.574 2.609z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <h1 className="text-[24px] font-bold">Settings</h1>
-        <p className="text-[13px] text-muted-foreground mt-1">Manage your account</p>
-      </div>
+    <div className="max-w-md mx-auto space-y-5">
+      <h1>Settings</h1>
 
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-5 space-y-5">
+      <div className="bg-card border border-brand-border rounded-lg p-5 space-y-4">
         <Field label="Full name">
           <input value={name} onChange={(e) => setName(e.target.value)} className="ipt" disabled={saving} />
         </Field>
@@ -89,6 +81,21 @@ function SettingsPage() {
           {saving ? "Saving…" : "Save changes"}
         </button>
       </div>
+
+      {isInstallable && (
+        <div className="bg-card border border-brand-border rounded-lg p-5 space-y-3">
+          <h3 className="font-semibold text-foreground">Install App</h3>
+          <p className="text-sm text-muted-foreground">
+            Add BetPreneur to your home screen for quick access.
+          </p>
+          <button
+            onClick={promptInstall}
+            className="w-full bg-brand-green text-primary-foreground font-medium py-3 rounded-md"
+          >
+            Install App
+          </button>
+        </div>
+      )}
 
       <button
         onClick={async () => {
