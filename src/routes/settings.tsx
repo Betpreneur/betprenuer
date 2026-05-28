@@ -19,6 +19,10 @@ function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const { isInstallable, promptInstall } = usePwaInstall();
 
+  // Simple check: if not running as installed app, show install button
+  const canInstall = typeof window !== "undefined" && 
+    !window.matchMedia("(display-mode: standalone)").matches;
+
   useEffect(() => {
     if (user) {
       setName(user.name);
@@ -82,14 +86,14 @@ function SettingsPage() {
         </button>
       </div>
 
-      {isInstallable && (
+      {canInstall && (
         <div className="bg-card border border-brand-border rounded-lg p-5 space-y-3">
           <h3 className="font-semibold text-foreground">Install App</h3>
           <p className="text-sm text-muted-foreground">
             Add BetPreneur to your home screen for quick access.
           </p>
           <button
-            onClick={promptInstall}
+            onClick={() => promptInstall?.() || alert("To install: tap Share > Add to Home Screen")}
             className="w-full bg-brand-green text-primary-foreground font-medium py-3 rounded-md"
           >
             Install App
