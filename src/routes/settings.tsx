@@ -90,10 +90,22 @@ function SettingsPage() {
         <div className="bg-card border border-brand-border rounded-lg p-5 space-y-3">
           <h3 className="font-semibold text-foreground">Install App</h3>
           <p className="text-sm text-muted-foreground">
-            Add BetPreneur to your home screen for quick access.
+            Use BetPreneur like a native app.
           </p>
           <button
-            onClick={() => promptInstall?.() || alert("To install: tap Share > Add to Home Screen")}
+            onClick={() => {
+              if (promptInstall) {
+                promptInstall();
+              } else {
+                // Show instructions for manual install
+                const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+                if (isIos) {
+                  alert("Tap the Share button below, then tap 'Add to Home Screen'");
+                } else {
+                  alert("Tap the install icon in your browser's address bar");
+                }
+              }
+            }}
             className="w-full bg-brand-green text-primary-foreground font-medium py-3 rounded-md"
           >
             Install App
