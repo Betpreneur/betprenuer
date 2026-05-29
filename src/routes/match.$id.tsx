@@ -95,12 +95,14 @@ function MatchPage() {
           return;
         }
         const p = res.pick;
+        const f = (res as any).fixture; // Nested fixture object in API response
         console.log("[MatchPage] Got pick from API:", p.id);
+        console.log("[MatchPage] Has fixture obj:", f ? "YES" : "NO");
         
         setPick({
           ...p,
           match: p.fixture,
-          kickoff_wat: p.kickoff?.includes("WAT") ? p.kickoff : p.kickoff, // Pass raw time if already formatted
+          kickoff_wat: p.kickoff || "",
           market_plain: p.market || p.selection || "",
           meaning: p.meaning || undefined,
           one_line_reason: p.reasoning || "",
@@ -111,13 +113,13 @@ function MatchPage() {
           risk_flags: Array.isArray(p.risk_flags) ? p.risk_flags : [],
           risk_level: p.risk_level || "",
           user_backed: p.backed_by_me || false,
-          // Access fixture_context from various possible locations in response
-          fixture_context: p.fixture_context || (p as any).fixture?.fixture_context || null,
-          insights: p.insights || (p as any).fixture?.insights || null,
-          team_news: p.team_news || (p as any).fixture?.team_news || null,
-          corner_profile: p.corner_profile || (p as any).fixture?.corner_profile || null,
+          // Access fixture data from nested fixture object
+          fixture_context: p.fixture_context || f?.fixture_context || null,
+          insights: p.insights || f?.insights || null,
+          team_news: p.team_news || f?.team_news || null,
+          corner_profile: p.corner_profile || f?.corner_profile || null,
         } as any);
-        console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
+        console.log("[MatchPage] fixture_context set:", (p.fixture_context || f?.fixture_context) ? "YES" : "NO");
       })
       .catch(() => setError(true))
       .finally(() => setAppLoading(false));
@@ -255,7 +257,7 @@ function MatchPage() {
           <div>
             <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
             <p className="text-[13px] text-muted-foreground mt-0.5">
-              {pick.league} · {pick.kickoff_wat?.includes("WAT") ? pick.kickoff_wat : formatKickoff(pick.kickoff_wat)}
+              {pick.league} · {pick.kickoff_wat || "–"}
             </p>
           </div>
           <TierBadge tier={pick.tier} />
