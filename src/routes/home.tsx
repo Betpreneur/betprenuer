@@ -16,21 +16,69 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
-// Helper to get tier color
-function getTierColor(tier: string): string {
-  switch (tier) {
-    case "banker": return "bg-brand-green text-primary-foreground";
-    case "value_gem": return "bg-teal-600 text-white";
-    case "wild_card": return "bg-purple-600 text-white";
-    default: return "bg-gray-600 text-white";
-  }
-}
-
-// Helper to get confidence color
-function getConfidenceColor(confidence: number): string {
-  if (confidence >= 72) return "text-win-green";
-  if (confidence >= 68) return "text-teal-accent";
-  return "text-amber-text";
+// Component: one game card
+function GameCard({ game }: { game: GameInfo }) {
+  const [expanded, setExpanded] = useState(false);
+  
+  return (
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-hidden">
+      {/* Main row - always visible */}
+      <div 
+        className="p-4 cursor-pointer hover:bg-muted/20"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-[11px] text-muted-foreground">{game.league}</div>
+          <div className="text-[12px] font-medium">{game.kickoff}</div>
+        </div>
+        
+        <div className="flex items-center justify-between mt-2">
+          {/* Home Team */}
+          <div className="flex-1 text-center">
+            {game.home_logo && (
+              <img src={game.home_logo} alt="" className="w-8 h-8 mx-auto" />
+            )}
+            <div className="text-[13px] font-medium mt-1">{game.home_team}</div>
+          </div>
+          
+          {/* Score or vs */}
+          <div className="px-3">
+            {game.home_score !== null ? (
+              <span className="text-[18px] font-bold text-brand-green">
+                {game.home_score} - {game.away_score}
+              </span>
+            ) : (
+              <span className="text-[14px] text-muted-foreground">vs</span>
+            )}
+          </div>
+          
+          {/* Away Team */}
+          <div className="flex-1 text-center">
+            {game.away_logo && (
+              <img src={game.away_logo} alt="" className="w-8 h-8 mx-auto" />
+            )}
+            <div className="text-[13px] font-medium mt-1">{game.away_team}</div>
+          </div>
+        </div>
+        
+        {/* Picks indicator or best market */}
+        <div className="mt-2 pt-2 border-t border-border/30 flex justify-between text-[12px]">
+          {game.pick ? (
+            <span className="text-brand-green">
+              {game.pick.tier?.replace("_", " ")} • {game.pick.odds}
+            </span>
+          ) : game.best_market ? (
+            <span className="text-muted-foreground">
+              {game.best_market.selection} @ {game.best_market.odds}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+          <span> Details</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function PickRow({ pick, index = 0 }: { pick: Pick; index?: number }) {
@@ -278,7 +326,7 @@ function HomePage() {
   // Flatten picks from fixtures
   const allGames = data.games || [];
   
-  if (allPicks.length === 0) {
+  if (allGames.length === 0) {
     return (
       <div className="space-y-5">
         <EmptyState message="The model didn't find sufficient confidence today. Check back tomorrow." />
@@ -325,7 +373,7 @@ function HomePage() {
           {/* Total Games - show as text instead of dot */}
           <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5">
             <span className="text-white/70">Games:</span>
-            <span className="text-win-green font-bold">{allPicks.length}</span>
+            <span className="text-win-green font-bold">Games: {allGames.length}</span>
           </span>
           {/* Banker - RED brand */}
           <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
