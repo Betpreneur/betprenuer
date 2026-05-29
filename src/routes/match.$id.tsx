@@ -318,8 +318,8 @@ function MatchPage() {
       )}
 
       {/* Recent form - full team stats */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Recent form</h2>
+      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+        <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Recent form</h2>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
         ) : (
@@ -372,8 +372,8 @@ function MatchPage() {
 
       {/* Match context - standings, rest days, h2h, flags, goal model */}
       {(pick as any).fixture_context && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Match context</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Match context</h2>
           <div className="space-y-4 text-[13px]">
             {/* Goal Model */}
             {(pick as any).fixture_context?.goal_model && (
@@ -489,8 +489,8 @@ function MatchPage() {
 
       {/* Team News */}
       {(pick as any).team_news && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Team News</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Team News</h2>
           <div className="space-y-3 text-[13px]">
             {!(pick as any).team_news.available && (
               <div className="text-muted-foreground text-sm italic">
@@ -521,8 +521,8 @@ function MatchPage() {
 
       {/* Corner Profile */}
       {(pick as any).corner_profile && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Corner Stats</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Corner Stats</h2>
           <div className="grid grid-cols-2 gap-4 text-[13px]">
             {(pick as any).corner_profile?.home && (
               <div className="bg-muted/30 rounded-lg p-3">
@@ -561,8 +561,8 @@ function MatchPage() {
 
       {/* Key Insights */}
       {(pick as any).insights && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Key Insights</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Key Insights</h2>
           <div className="space-y-3 text-[13px]">
             {(pick as any).insights?.key_signals?.length > 0 && (
               <div className="space-y-1">
@@ -591,8 +591,8 @@ function MatchPage() {
       )}
 
       {/* Goals profile */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Why this pick</h2>
+      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+        <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
