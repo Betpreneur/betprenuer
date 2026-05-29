@@ -112,6 +112,10 @@ function MatchPage() {
           risk_level: p.risk_level || "",
           user_backed: p.backed_by_me || false,
           fixture_context: p.fixture_context,
+          // Additional fixture content fields
+          insights: (p as any).insights || null,
+          team_news: (p as any).team_news || null,
+          corner_profile: (p as any).corner_profile || null,
         } as any);
         console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
       })
@@ -475,6 +479,109 @@ function MatchPage() {
                     {flag.replace(/_/g, " ")}
                   </span>
                 ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Team News */}
+      {(pick as any).team_news && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Team News</h2>
+          <div className="space-y-3 text-[13px]">
+            {!(pick as any).team_news.available && (
+              <div className="text-muted-foreground text-sm italic">
+                Team news currently unavailable
+              </div>
+            )}
+            {(pick as any).team_news.home && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <span className="text-muted-foreground">Injuries</span>
+                  <span className="font-medium">{(pick as any).team_news.home.injuries ?? 0}</span>
+                </div>
+              </div>
+            )}
+            {(pick as any).team_news.away && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <span className="text-muted-foreground">Injuries</span>
+                  <span className="font-medium">{(pick as any).team_news.away.injuries ?? 0}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Corner Profile */}
+      {(pick as any).corner_profile && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Corner Stats</h2>
+          <div className="grid grid-cols-2 gap-4 text-[13px]">
+            {(pick as any).corner_profile?.home && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                <div className="grid grid-cols-2 gap-1">
+                  <span className="text-muted-foreground">Avg For</span>
+                  <span className="font-medium">{(pick as any).corner_profile.home.avg_for ?? "-"}</span>
+                  <span className="text-muted-foreground">Avg Against</span>
+                  <span className="font-medium">{(pick as any).corner_profile.home.avg_against ?? "-"}</span>
+                  <span className="text-muted-foreground">Avg Total</span>
+                  <span className="font-medium">{(pick as any).corner_profile.home.avg_total ?? "-"}</span>
+                </div>
+              </div>
+            )}
+            {(pick as any).corner_profile?.away && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                <div className="grid grid-cols-2 gap-1">
+                  <span className="text-muted-foreground">Avg For</span>
+                  <span className="font-medium">{(pick as any).corner_profile.away.avg_for ?? "-"}</span>
+                  <span className="text-muted-foreground">Avg Against</span>
+                  <span className="font-medium">{(pick as any).corner_profile.away.avg_against ?? "-"}</span>
+                  <span className="text-muted-foreground">Avg Total</span>
+                  <span className="font-medium">{(pick as any).corner_profile.away.avg_total ?? "-"}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          {(pick as any).corner_profile?.expected_total && (
+            <div className="mt-3 text-center text-muted-foreground text-[12px]">
+              Expected total corners: <span className="font-medium">{(pick as any).corner_profile.expected_total?.toFixed(1)}</span>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Key Insights */}
+      {(pick as any).insights && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Key Insights</h2>
+          <div className="space-y-3 text-[13px]">
+            {(pick as any).insights?.key_signals?.length > 0 && (
+              <div className="space-y-1">
+                <div className="text-muted-foreground text-[11px]">Key Signals</div>
+                {(pick as any).insights.key_signals.map((signal: string, i: number) => (
+                  <div key={i} className="text-foreground">• {signal}</div>
+                ))}
+              </div>
+            )}
+            {(pick as any).insights?.confidence_drivers?.length > 0 && (
+              <div className="space-y-1">
+                <div className="text-muted-foreground text-[11px]">Confidence Drivers</div>
+                {(pick as any).insights.confidence_drivers.map((driver: string, i: number) => (
+                  <div key={i} className="text-win-green">• {driver}</div>
+                ))}
+              </div>
+            )}
+            {(pick as any).insights?.pre_match_strategy && (
+              <div className="mt-2 pt-2 border-t border-border/30">
+                <div className="text-muted-foreground text-[11px]">Strategy</div>
+                <div className="text-foreground italic">{(pick as any).insights.pre_match_strategy}</div>
               </div>
             )}
           </div>
