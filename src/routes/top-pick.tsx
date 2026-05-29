@@ -177,7 +177,7 @@ function TopPickPage() {
 
     setLoading(true);
     setError(null);
-    api.getTodayPicks()
+    api.getTopPick()
       .then(setData)
       .catch((err) => {
         setData(null);
