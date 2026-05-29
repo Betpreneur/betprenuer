@@ -12,10 +12,9 @@ export const Route = createFileRoute("/match/$id")({
 });
 
 const tierBg = {
-  banker:    "bg-brand-green text-primary-foreground",
-  value_gem: "bg-teal-600 text-white",
-  gem:       "bg-teal-600 text-white",
-  wild_card: "bg-purple-600 text-white",
+  banker:  "bg-win-green-bg text-win-green",
+  gem:     "bg-teal-bg text-teal-accent",
+  wildcard:"bg-amber-bg text-amber-text",
 } as const;
 
 function FormChip({ r }: { r: "W" | "D" | "L" }) {
@@ -37,6 +36,20 @@ function FormChips({ form }: { form?: string }) {
         <FormChip key={i} r={char as "W" | "D" | "L"} />
       ))}
     </div>
+  );
+}
+
+function TierBadge({ tier }: { tier: string }) {
+  const colors: Record<string, string> = {
+    banker: "bg-brand-green text-primary-foreground",
+    value_gem: "bg-teal-600 text-white",
+    gem: "bg-teal-600 text-white",
+    wild_card: "bg-purple-600 text-white",
+  };
+  return (
+    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tier] || "bg-gray-600 text-white"}`}>
+      {tier?.replace("_", " ") || ""}
+    </span>
   );
 }
 
@@ -89,11 +102,14 @@ function MatchPage() {
           match: p.fixture,
           kickoff_wat: p.kickoff,
           market_plain: p.market || p.selection || "",
+          meaning: p.meaning || undefined,
           one_line_reason: p.reasoning || "",
+          model_verdict: p.model_verdict || undefined,
           form_home: p.home_recent_form,
           form_away: p.away_recent_form,
           goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
-          risk_flag: p.risk_level || p.risk_flags || "",
+          risk_flags: Array.isArray(p.risk_flags) ? p.risk_flags : [],
+          risk_level: p.risk_level || "",
           user_backed: p.backed_by_me || false,
           fixture_context: p.fixture_context,
         } as any);
@@ -110,45 +126,11 @@ function MatchPage() {
 
   if (appLoading) {
     return (
-      <div className="space-y-5">
-        {/* Premium skeleton with glow effect */}
-        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
-          {/* Header skeleton */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-16 h-6 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
-            <div className="flex-1" />
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-muted via-muted/50 to-muted animate-pulse" />
-          </div>
-          {/* Title lines */}
-          <div className="space-y-3">
-            <div className="h-8 w-3/4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
-            <div className="h-8 w-1/2 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
-          </div>
-          {/* Big odds area */}
-          <div className="mt-6 flex justify-center">
-            <div className="w-32 h-16 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse flex items-center justify-center">
-              <div className="w-16 h-3 bg-muted/50 rounded-full" />
-            </div>
-          </div>
-        </div>
-        
-        {/* Stats skeleton - 3 cards */}
-        <div className="grid grid-cols-3 gap-4">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
-              <div className="h-24 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
-            </div>
-          ))}
-        </div>
-        
-        {/* Team stats skeleton */}
-        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-5">
-          <div className="h-8 w-32 mb-4 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-lg animate-pulse" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-40 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
-            <div className="h-40 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
-          </div>
-        </div>
+      <div className="space-y-4">
+        <div className="h-8 w-32 bg-card border border-brand-border rounded animate-pulse" />
+        <div className="h-32 bg-card border border-brand-border rounded-lg animate-pulse" />
+        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
+        <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -157,19 +139,9 @@ function MatchPage() {
 
   if (error || !pick) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-4">
-          <svg className="w-10 h-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <p className="text-[15px] mb-2">This pick is no longer available or doesn't exist.</p>
-        <button 
-          onClick={() => router.navigate({ to: "/home" })} 
-          className="mt-4 px-6 py-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-all hover:shadow-lg hover:shadow-primary/30"
-        >
-          ← Back to today
-        </button>
+      <div className="text-center py-16">
+        <p>This pick is no longer available or doesn't exist.</p>
+        <button onClick={() => router.navigate({ to: "/home" })} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md">Back to today</button>
       </div>
     );
   }
@@ -273,8 +245,8 @@ function MatchPage() {
     <div className="space-y-5">
       <Link to="/home" className="text-[13px] text-info-blue">← Back to today</Link>
 
-      {/* Match header */}
-      <header className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
+{/* Match header - Top Pick styling */}
+      <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-5 shadow-lg shadow-brand-green/10">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
@@ -282,28 +254,66 @@ function MatchPage() {
               {pick.league} · {formatKickoff(pick.kickoff_wat)}
             </p>
           </div>
-          <span className={`text-[12px] px-2 py-1 rounded font-medium ${tierBg[pick.tier]}`}>
-            {tierLabel(pick.tier)}
-          </span>
+          <TierBadge tier={pick.tier} />
         </div>
-        <div className="mt-3 inline-block bg-gradient-to-r from-teal-bg to-jet-surface-2 text-teal-accent text-[14px] font-medium px-3 py-1.5 rounded-lg border border-teal-accent/30">
-          {pick.market_plain}
+        {/* Market and Odds section */}
+        <div className="mt-4 inline-flex items-center gap-2 bg-brand-green/10 border border-brand-green/30 rounded-lg px-4 py-2">
+          <span className="text-[14px] font-medium text-brand-green">{pick.market_plain}</span>
+          <span className="text-border">@</span>
+          <span className="text-[16px] font-bold text-brand-green">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
         </div>
-        <div className="mt-3 text-[13px] text-muted-foreground flex items-center gap-4">
-          <span>Confidence: <span className="font-bold text-win-green">{pick.confidence.toFixed(1)}%</span></span>
-          <span className="text-border">|</span>
-          <span>Odds: <span className="font-bold text-foreground">{Number(pick.odds).toFixed(2)}</span></span>
+        <div className="mt-3 text-[13px] text-muted-foreground">
+          Confidence: <span className="font-medium text-win-green">{pick.confidence.toFixed(1)}%</span>
+          {" · "}Odds: <span className="font-medium text-foreground">{Number(pick.odds).toFixed(2)}</span>
         </div>
       </header>
 
+      {/* Market meaning and reasoning */}
+      {(pick as any).meaning && (
+        <div className="bg-card border-l-4 border-l-teal-accent rounded-r-lg p-4">
+          <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-1">
+            📝 What does this mean?
+          </div>
+          <p className="text-[15px] font-medium">{(pick as any).meaning}</p>
+        </div>
+      )}
+
+      {pick.one_line_reason && (
+        <div className="bg-card border-l-4 border-l-info-blue rounded-r-lg p-4">
+          <div className="text-[11px] uppercase tracking-wide text-info-blue font-semibold mb-1">
+            🧠 Why this pick?
+          </div>
+          <p className="text-[13px] text-muted-foreground leading-relaxed">{pick.one_line_reason}</p>
+        </div>
+      )}
+
+      {/* Value & Stake */}
+      {pick.ev !== undefined && pick.ev !== null && pick.stake && (
+        <div className="bg-gradient-to-br from-teal-bg to-card border border-teal-accent/30 rounded-xl p-5">
+          <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-4 text-center">
+            💎 Value Indicator
+          </div>
+          <div className="flex items-center justify-around">
+            <div className="text-center">
+              <div className={`text-[24px] font-bold ${pick.ev >= 0 ? "text-teal-accent" : "text-danger-red"}`}>
+                {pick.ev >= 0 ? "+" : ""}{Number(pick.ev).toFixed(3)}
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-1">Expected Value</div>
+            </div>
+            <div className="w-px h-12 bg-border" />
+            <div className="text-center">
+              <div className="text-[24px] font-bold text-win-green">
+                ₦{Number(pick.stake).toLocaleString()}
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-1">Recommended Stake</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Recent form - full team stats */}
-      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
-        <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
-          <svg className="w-5 h-5 text-teal-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          Recent Form
-        </h2>
+      <section className="bg-card border border-brand-border rounded-lg p-5">
+        <h2 className="mb-3">Recent form</h2>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
         ) : (
@@ -324,6 +334,10 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_home.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_home.avg_conceded ?? "-"} avg</span>
+                  <span className="text-muted-foreground">BTTS</span>
+                  <span className="font-medium text-info-blue">{pick.form_home.btts_rate?.toFixed(0) ?? "-"}%</span>
+                  <span className="text-muted-foreground">Over 2.5</span>
+                  <span className="font-medium text-amber-text">{pick.form_home.over25_rate?.toFixed(0) ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_home.clean_sheets ?? 0}</span>
                 </div>
@@ -345,6 +359,10 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_away.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_away.avg_conceded ?? "-"} avg</span>
+                  <span className="text-muted-foreground">BTTS</span>
+                  <span className="font-medium text-info-blue">{pick.form_away.btts_rate?.toFixed(0) ?? "-"}%</span>
+                  <span className="text-muted-foreground">Over 2.5</span>
+                  <span className="font-medium text-amber-text">{pick.form_away.over25_rate?.toFixed(0) ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_away.clean_sheets ?? 0}</span>
                 </div>
@@ -356,13 +374,8 @@ function MatchPage() {
 
       {/* Match context - standings, rest days, h2h, flags */}
       {(pick as any).fixture_context && (
-        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
-          <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Match Context
-          </h2>
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Match context</h2>
           <div className="space-y-4 text-[13px]">
             {/* H2H stats */}
             {(pick as any).fixture_context?.h2h && (
@@ -443,14 +456,9 @@ function MatchPage() {
         </section>
       )}
 
-      {/* Goals profile - Why this pick */}
-      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5">
-        <h2 className="text-[16px] font-semibold mb-4 flex items-center gap-2">
-          <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          Why This Pick
-        </h2>
+      {/* Goals profile */}
+      <section className="bg-card border border-brand-border rounded-lg p-5">
+        <h2 className="mb-3">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
@@ -463,29 +471,37 @@ function MatchPage() {
 
       {/* Parent flex container for risk flag + verdict */}
       <div className="flex flex-col gap-10 h-auto">
-        {/* Risk flag - with enhanced styling */}
-        {pick.risk_flag && (
-          <div className="bg-gradient-to-br from-amber-bg/30 to-jet-surface-2 border border-amber-text/30 rounded-xl p-4 hover:border-amber-text/50 transition-colors">
-            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-1 flex items-center gap-2">
+        {/* Risk flags - now as array */}
+        {(pick as any).risk_flags && (pick as any).risk_flags.length > 0 && (
+          <div className="bg-gradient-to-br from-amber-bg/30 to-jet-surface-2 border border-amber-text/30 rounded-xl p-4">
+            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-3 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               Watch Out
             </div>
-            <p className="text-[14px] text-amber-text">{pick.risk_flag}</p>
+            <div className="flex flex-wrap gap-2">
+              {(pick as any).risk_flags.map((flag: string, i: number) => (
+                <span key={i} className="text-[12px] bg-amber-text/10 text-amber-text px-3 py-1.5 rounded-full font-medium">
+                  {flag.replace(/_/g, " ")}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Model verdict - with enhanced styling */}
-        <section className="bg-gradient-to-br from-info-bg/30 to-jet-surface-2 border border-info-blue/30 rounded-xl p-5 hover:border-info-blue/50 transition-colors">
-          <h2 className="text-[15px] font-semibold mb-3 !text-info-blue flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            Model Verdict
-          </h2>
-          <p className="italic text-[14px] text-info-blue leading-relaxed">{pick.model_verdict}</p>
-        </section>
+        {/* Model verdict - now properly mapped */}
+        {(pick as any).model_verdict && (
+          <section className="bg-gradient-to-br from-info-bg/30 to-jet-surface-2 border border-info-blue/30 rounded-xl p-5 hover:border-info-blue/50 transition-colors">
+            <h2 className="text-[15px] font-semibold mb-3 !text-info-blue flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Model Verdict
+            </h2>
+            <p className="italic text-[14px] text-info-blue leading-relaxed">{(pick as any).model_verdict}</p>
+          </section>
+        )}
       </div>
 
       {/* Stake guide */}
@@ -504,47 +520,24 @@ function MatchPage() {
         </div>
       )}
 
-      {/* Action buttons - Enhanced with PROMINENT glow effects */}
+      {/* Action buttons */}
       {pick.status !== "settled" && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-          {/* Backed button - PROMINENT GREEN GLOW */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
             onClick={handleBacked}
             disabled={pick.user_backed || backing}
-            className={`min-h-[60px] rounded-xl font-bold text-lg transition-all duration-300 ${
+            className={`min-h-[56px] rounded-md font-medium ${
               pick.user_backed
-                ? "bg-white/10 text-muted-foreground cursor-default border-2 border-green-500/30"
-                : "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite] text-black hover:bg-emerald-400 shadow-[0_0_25px_rgba(34,197,94,0.5)] hover:shadow-[0_0_35px_rgba(34,197,94,0.7)] hover:scale-[1.03]"
+                ? "bg-white/10 text-muted-foreground cursor-default"
+                : "bg-win-green text-background hover:opacity-90"
             }`}
           >
-            {pick.user_backed ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-                BACKED
-              </span>
-            ) : backing ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 6.627 12 12h2zm0 0a8 8 0 010 16V12h2z"></path>
-                </svg>
-                Saving...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                I BACKED THIS
-              </span>
-            )}
+            {pick.user_backed ? "Backed ✓" : backing ? "Saving…" : "I backed this"}
           </button>
           <button
             onClick={openPreview}
             disabled={generating}
-            className="min-h-[56px] rounded-xl font-semibold bg-gradient-to-r from-[#25D366] to-[#20BD5A] text-background hover:opacity-90 inline-flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[#25D366]/30 hover:scale-[1.02]"
+            className="min-h-[56px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
             aria-label="Share on WhatsApp"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44ZM12.06 21.8h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.72.97.99-3.62-.23-.37a9.85 9.85 0 0 1-1.51-5.27c0-5.45 4.44-9.89 9.9-9.89 2.64 0 5.13 1.03 7 2.9a9.83 9.83 0 0 1 2.9 7c0 5.46-4.44 9.9-9.93 9.9Zm5.43-7.41c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.18.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/></svg>
@@ -553,19 +546,10 @@ function MatchPage() {
           <button
             onClick={openPreview}
             disabled={generating}
-            className="min-h-[56px] rounded-xl font-medium border border-brand-border text-muted-foreground bg-card hover:bg-card/80 hover:border-primary/50 hover:text-primary transition-all"
+            className="min-h-[56px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
             aria-label="Download share card image"
           >
-            <span className="flex items-center justify-center gap-2">
-              {generating ? "Preparing…" : (
-                <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Preview & Download
-                </>
-              )}
-            </span>
+            {generating ? "Preparing…" : "Preview & download"}
           </button>
         </div>
       )}
