@@ -1,10 +1,78 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type TopPickResponse, type Pick } from "@/lib/api";
+import { api, type TodayPicksResponse, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { tierLabel } from "@/lib/stake";
-import { StakeGuide } from "@/components/StakeGuide";
-import logoFull from "@/assets/betpreneur-logo-horizontal.png";
+import { todayLagos } from "@/lib/time";
+
+export const Route = createFileRoute("/top-pick")({
+  head: () => ({
+    meta: [
+      { title: "Today's picks - Betpreneur" },
+      { name: "description", content: "Your daily tiered football picks." },
+      { property: "og:title", content: "Today's picks - Betpreneur" },
+      { property: "og:description", content: "Daily football picks organized by tier." },
+    ],
+  }),
+  component: TopPickPage,
+});
+
+// Helper: color for tier badge
+function getTierColor(tier: string): string {
+  switch (tier) {
+    case "banker": return "bg-brand-green text-primary-foreground";
+    case "value_gem": return "bg-teal-600 text-white";
+    case "wild_card": return "bg-purple-600 text-white";
+    default: return "bg-gray-600 text-white";
+  }
+}
+
+// Helper: color for confidence percentage
+function getConfidenceColor(confidence: number): string {
+  if (confidence >= 72) return "text-win-green";
+  if (confidence >= 68) return "text-teal-accent";
+  return "text-amber-text";
+}
+
+// Component: single pick row card
+function PickRow({ pick, index = 0 }: { pick: Pick; index?: number }) {
+  return (
+    <Link to="/match/$id" params={{ id: String(pick.id) }} className="block group">
+      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/50 hover:shadow-lg hover:shadow-brand-green/10 transition-all duration-300 hover:-translate-y-0.5">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(pick.tier)}`}>
+                {pick.tier?.replace("_", " ") || ""}
+              </span>
+              <span className="text-[11px] text-muted-foreground">{pick.league}</span>
+            </div>
+            <h3 className="text-[15px] font-medium leading-tight group-hover:text-white/90 transition-colors">{pick.fixture}</h3>
+          </div>
+          <div className="text-right">
+            <div className={`text-[18px] font-bold ${getConfidenceColor(pick.confidence)} group-hover:scale-110 transition-transform`}>
+              {pick.confidence?.toFixed(0)}%
+            </div>
+            <div className="text-[11px] text-muted-foreground">confidence</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div className="text-[13px]">
+            <span className="text-muted-foreground">{pick.market}</span>
+            <span className="text-border mx-1">@</span>
+            <span className="text-win-green font-medium">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
+          </div>
+          <div className="text-[12px] text-muted-foreground flex items-center gap-1">
+            {pick.kickoff}
+            <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
@@ -186,43 +254,150 @@ function TopPickPage() {
       .finally(() => setLoading(false));
   }, [authLoading, isAuthed]);
 
-  // Handler methods for actions
-  async function handleBacked() {
-    if (!data?.pick || userBacked || backing) return;
-    setBacking(true);
-    try {
-      await api.markBacked(data.pick.id, 0);
-      setUserBacked(true);
-    } finally {
-      setBacking(false);
+  function TopPickPage() {
+  const { isAuthed, loading: authLoading } = useAuth();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthed) {
+      setData(null);
+      setError(null);
+      setLoading(false);
+      return;
     }
+
+    setLoading(true);
+    setError(null);
+    api.getTodayPicks()
+      .then(setData)
+      .catch((err) => {
+        setData(null);
+        setError(err instanceof Error ? err.message : "Could not load today's picks.");
+      })
+      .finally(() => setLoading(false));
+  }, [authLoading, isAuthed]);
+
+  if (authLoading) {
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
-  function getShareText(): string {
-    if (!data?.pick) return "";
-    const p = data.pick;
-    const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
-    return `🎯 Betpreneur Top Pick\n\n${p.fixture}\n${p.market} @ ${Number(p.odds).toFixed(2)}\nConfidence: ${p.confidence?.toFixed(0)}%\n\n${p.reasoning || ""}\n\nDaily edge picks → ${domain}`;
+  if (!isAuthed) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-2">Subscriber exclusive</div>
+          <h1 className="text-[22px] font-bold">Login or sign up to unlock</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">Access our daily picks with full analysis.</p>
+          <div className="mt-5 flex gap-3 justify-center">
+            <Link to="/login" className="px-6 py-2.5 bg-brand-green text-white rounded-lg font-medium hover:bg-brand-green/90">Log in</Link>
+            <Link to="/signup" className="px-6 py-2.5 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80">Sign up free</Link>
+          </div>
+        </header>
+      </div>
+    );
   }
 
-  async function openPreview() {
-    if (!data?.pick || generating) return;
-    setGenerating(true);
-    setShareMsg(null);
-    try {
-      // Use basic canvas approach - full card logic would need copying
-      const canvas = document.createElement("canvas");
-      canvas.width = 1080;
-      canvas.height = 1350;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("No canvas");
+  if (loading) {
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
+  }
 
-      // Simple gradient background
-      const bg = ctx.createLinearGradient(0, 0, 1080, 1350);
-      bg.addColorStop(0, "#1a0307");
-      bg.addColorStop(1, "#000000");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, 1080, 1350);
+  if (error || !data) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-danger-red font-semibold mb-2">Error</div>
+          <h1 className="text-[22px] font-bold">Could not load picks</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">{error || "Please refresh and try again."}</p>
+        </header>
+      </div>
+    );
+  }
+
+  const allPicks = data.fixtures?.flatMap((f: any) => f.picks || []) || [];
+  
+  if (!data.published) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-amber-text font-semibold mb-2">Awaiting Picks</div>
+          <h1 className="text-[22px] font-bold">Picks Arriving Soon</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">Daily picks go live at 06:30 WAT.</p>
+        </header>
+      </div>
+    );
+  }
+
+  if (allPicks.length === 0) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">No Picks</div>
+          <h1 className="text-[22px] font-bold">No Picks Today</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">Check back tomorrow.</p>
+        </header>
+      </div>
+    );
+  }
+
+  // Categorize
+  const getTier = (p: Pick) => (p.tier as any as string) || "";
+  const bankers = allPicks.filter((p: Pick) => getTier(p) === "banker");
+  const gems = allPicks.filter((p: Pick) => getTier(p).includes("gem"));
+  const wildcards = allPicks.filter((p: Pick) => getTier(p).includes("wild"));
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-[20px] font-bold">Today's Picks</h1>
+        <p className="text-[13px] text-muted-foreground">All picks organized by tier</p>
+      </header>
+
+      {/* Summary */}
+      <div className="flex gap-3 text-[12px]">
+        <span className="px-2 py-1 rounded bg-brand-green/10 text-brand-green">Bankers: {bankers.length}</span>
+        <span className="px-2 py-1 rounded bg-teal-600/20 text-teal-600">Gems: {gems.length}</span>
+        <span className="px-2 py-1 rounded bg-purple-600/20 text-purple-600">Wildcards: {wildcards.length}</span>
+      </div>
+
+      {/* Bankers */}
+      {bankers.length > 0 && (
+        <section>
+          <h2 className="text-[16px] font-bold text-brand-green mb-2">Bankers</h2>
+          <div className="space-y-2">
+            {bankers.map((pick: Pick, i: number) => <PickRow key={pick.id || i} pick={pick} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Value Gems */}
+      {gems.length > 0 && (
+        <section>
+          <h2 className="text-[16px] font-bold text-teal-accent mb-2">Value Gems</h2>
+          <div className="space-y-2">
+            {gems.map((pick: Pick, i: number) => <PickRow key={pick.id || i} pick={pick} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Wildcards */}
+      {wildcards.length > 0 && (
+        <section>
+          <h2 className="text-[16px] font-bold text-amber-text mb-2">Wildcards</h2>
+          <div className="space-y-2">
+            {wildcards.map((pick: Pick, i: number) => <PickRow key={pick.id || i} pick={pick} />)}
+          </div>
+        </section>
+      )}
+
+      <Link to="/record" className="block text-center text-info-blue text-[14px] hover:underline py-4">
+        📊 View Track Record →
+      </Link>
+    </div>
+  );
+}
 
       // Text
       ctx.fillStyle = "#ffffff";
