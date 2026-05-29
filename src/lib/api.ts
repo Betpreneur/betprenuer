@@ -27,6 +27,9 @@ export const ENDPOINTS = {
   algoBackPick: (id: string) => `/algo/picks/${id}/back/`,
   algoTopPick: "/algo/top-pick/",
   algoTodayPicks: "/algo/picks/",
+  // Games (new - for Home page)
+  algoGames: "/algo/games/",
+  algoGame: (matchId: string) => `/algo/games/${matchId}/`,
   // Public
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
@@ -361,6 +364,96 @@ export interface TopPickResponse {
   pick: Pick | null;
 }
 
+// Algo Games response - all covered games for a matchday
+export interface AlgoGamesResponse {
+  date: string;
+  published: boolean;
+  run_id: number | null;
+  posted_at: string | null;
+  summary: string | null;
+  games: GameInfo[];
+}
+
+// Single game info from games list
+export interface GameInfo {
+  id: string;
+  league: string;
+  kickoff: string;
+  home_team: string;
+  away_team: string;
+  home_logo: string | null;
+  away_logo: string | null;
+  status: string | null;
+  home_score: number | null;
+  away_score: number | null;
+  pick: Pick | null;
+  best_market: MarketInfo | null;
+}
+
+// Market info within a game
+export interface MarketInfo {
+  selection: string;
+  odds: number;
+  market_type: string;
+  label: string;
+}
+
+// Game detail response - full context for one game
+export interface GameDetailResponse {
+  date: string;
+  published: boolean;
+  run_id: number;
+  posted_at: string;
+  game: GameFullContext;
+}
+
+// Full game context from details endpoint
+export interface GameFullContext {
+  id: string;
+  league: string;
+  kickoff: string;
+  match: string;
+  home_team: string;
+  away_team: string;
+  home_logo: string | null;
+  away_logo: string | null;
+  status: string | null;
+  home_score: number | null;
+  away_score: number | null;
+  markets: MarketInfo[];
+  picks: Pick[];
+  insights: string | null;
+  home_form: RecentFormStats | null;
+  away_form: RecentFormStats | null;
+  home_news: string | null;
+  away_news: string | null;
+  prediction: PredictionContext | null;
+}
+
+// Team form stats
+export interface RecentFormStats {
+  form: string;
+  wins: number;
+  draws: number;
+  losses: number;
+  games: number;
+  avg_scored: number;
+  avg_conceded: number;
+  clean_sheets: number;
+  btts_rate: number;
+  over25_rate: number;
+  streak: number;
+}
+
+// Prediction context
+export interface PredictionContext {
+  home_win: number;
+  draw: number;
+  away_win: number;
+  btts: number;
+  over_25: number;
+}
+
 // New wrapped pick detail response from /algo/picks/{id}/
 export interface PickDetailResponse {
   date: string;
@@ -529,6 +622,17 @@ export const api = {
   async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
     const url = date ? `${ENDPOINTS.algoPicks}?date=${date}` : ENDPOINTS.algoPicks;
     return request<TodayPicksResponse>(url);
+  },
+
+  /** GET /algo/games/ — All covered games for a matchday (new Home page) */
+  async getAlgoGames(date?: string): Promise<AlgoGamesResponse> {
+    const url = date ? `${ENDPOINTS.algoGames}?date=${date}` : ENDPOINTS.algoGames;
+    return request<AlgoGamesResponse>(url);
+  },
+
+  /** GET /algo/games/:matchId/ — Full game detail context */
+  async getGameDetail(matchId: string): Promise<GameDetailResponse> {
+    return request<GameDetailResponse>(ENDPOINTS.algoGame(matchId));
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */

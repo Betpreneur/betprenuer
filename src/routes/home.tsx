@@ -1,16 +1,16 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type TodayPicksResponse, type Pick } from "@/lib/api";
+import { api, type AlgoGamesResponse, type GameInfo, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Today's picks — Betpreneur" },
-      { name: "description", content: "Today's pre-match picks." },
-      { property: "og:title", content: "Today's picks — Betpreneur" },
-      { property: "og:description", content: "Daily football picks with confidence levels." },
+      { title: "Today's Games — Betpreneur" },
+      { name: "description", content: "All covered games with picks and analysis." },
+      { property: "og:title", content: "Today's Games — Betpreneur" },
+      { property: "og:description", content: "Browse today's covered matches with AI analysis and picks." },
     ],
   }),
   component: HomePage,
@@ -130,7 +130,6 @@ function EmptyState({ message }: { message: string }) {
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
-  // Updated: force redeploy timestamp
   return (
     <div className="bg-gradient-to-br from-danger-bg to-card border border-danger-red/30 rounded-xl p-8 text-center">
       <div className="text-4xl mb-3">⚠️</div>
@@ -146,28 +145,284 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
+function AwaitingState() {
+  return (
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-2xl p-8 text-center">
+      <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-text/10 text-amber-text rounded-full mb-4">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-text opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-text"></span>
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide">Awaiting Picks</span>
+      </div>
+      <h1 className="text-[26px] font-bold mb-2">Picks Arriving Soon</h1>
+      <p className="text-[15px] text-muted-foreground mb-6">
+        Daily picks go live at <span className="text-brand-green font-semibold">06:30 WAT</span>
+      </p>
+      <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg">
+        <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span className="text-[14px] font-medium text-white/80">06:30</span>
+        <span className="text-[11px] text-muted-foreground">(GMT+1)</span>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-8 text-center">
+      <div className="text-4xl mb-3">📭</div>
+      <h2 className="text-[20px] font-bold mb-2">No Games</h2>
+      <p className="text-[14px] text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+  );
+}
+
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
-  const [data, setData] = useState<TodayPicksResponse | null>(null);
-  const [topPickData, setTopPickData] = useState<Pick | null>(null);
+  const [data, setData] = useState<AlgoGamesResponse | null>(null);
   const [error, setError] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>("All");
 
   const load = () => {
     setError(false);
-    // Load today's picks AND the official top pick
-    Promise.all([
-      api.getTodayPicks(),
-      api.getTopPick().catch(() => null) // fall back gracefully
-    ])
-      .then(([picksRes, topPickRes]) => {
-        setData(picksRes);
-        // Extract the official top pick from the dedicated endpoint
-        setTopPickData(topPickRes?.pick || null);
-        
-        // Cache today's picks for detail page lookup
-        if (typeof window !== "undefined" && picksRes?.fixtures) {
-          const allPicks = picksRes.fixtures.flatMap((f: any) => f.picks || []) || [];
-          localStorage.setItem("todaysPicks", JSON.stringify(allPicks));
+    api.getAlgoGames()
+      .then(setData)
+      .catch(() => setError(true));
+  };
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    load();
+  }, [isAuthed]);
+
+  useEffect(() => {
+    if (!data?.published) return;
+    const id = setInterval(load, 60_000);
+    return () => clearInterval(id);
+  }, [data?.published]);
+
+  // Derived: extract unique leagues for filter tabs
+  const leagues = data?.games 
+    ? [...new Set(data.games.map(g => g.league))]
+    : [];
+  const filters = ["All", ...leagues];
+
+  // Derived: filter games by active league
+  const filteredGames = data?.games 
+    ? activeFilter === "All" 
+      ? data.games 
+      : data.games.filter(g => g.league === activeFilter)
+    : [];
+
+  if (authLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (error) {
+    return <ErrorState onRetry={load} />;
+  }
+
+  if (!data) {
+    return <LoadingSkeleton />;
+  }
+
+  // Not published yet
+  if (!data.published) {
+    return <AwaitingState />;
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Header with date */}
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[20px] font-bold">Today's Games</h1>
+          <p className="text-[13px] text-muted-foreground">{todayLagos()}</p>
+        </div>
+        <div className="text-[12px] text-muted-foreground">
+          {filteredGames.length} game{filteredGames.length !== 1 ? "s" : ""}
+        </div>
+      </header>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+        {filters.map(filter => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${
+              activeFilter === filter
+                ? "bg-brand-green text-primary-foreground"
+                : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50"
+            }`}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      {/* Games Grid */}
+      {filteredGames.length === 0 ? (
+        <EmptyState message="No games found for this filter." />
+      ) : (
+        <div className="grid gap-3">
+          {filteredGames.map(game => (
+            <GameCard key={game.id} game={game} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component: single game card
+function GameCard({ game }: { game: GameInfo }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasPick = !!game.pick;
+  const hasBestMarket = !!game.best_market;
+
+  return (
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-hidden">
+      {/* Main card row - always visible */}
+      <div 
+        className="p-4 cursor-pointer hover:bg-muted/20 transition-colors"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center justify-between">
+          {/* League + Time */}
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] text-muted-foreground mb-1 truncate">{game.league}</div>
+            <div className="text-[13px] font-medium">{game.kickoff}</div>
+          </div>
+
+          {/* Teams Grid */}
+          <div className="flex-1 flex items-center justify-center gap-2 text-center">
+            {/* Home Team */}
+            <div className="flex flex-col items-center min-w-0">
+              {game.home_logo && (
+                <img src={game.home_logo} alt="" className="w-8 h-8 object-contain mb-1" />
+              )}
+              <span className="text-[13px] font-medium truncate max-w-[80px]">{game.home_team}</span>
+            </div>
+            
+            {/* Score or VS */}
+            <div className="px-2">
+              {game.status === "FT" || game.home_score !== null ? (
+                <span className="text-[16px] font-bold text-brand-green">
+                  {game.home_score} - {game.away_score}
+                </span>
+              ) : (
+                <span className="text-[12px] text-muted-foreground">vs</span>
+              )}
+            </div>
+
+            {/* Away Team */}
+            <div className="flex flex-col items-center min-w-0">
+              {game.away_logo && (
+                <img src={game.away_logo} alt="" className="w-8 h-8 object-contain mb-1" />
+              )}
+              <span className="text-[13px] font-medium truncate max-w-[80px]">{game.away_team}</span>
+            </div>
+          </div>
+
+          {/* Best Market / Pick indicator */}
+          <div className="flex-1 min-w-0 text-right">
+            {hasPick && (
+              <div className="flex flex-col items-end">
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(game.pick!.tier)}`}>
+                  {game.pick!.tier?.replace("_", " ") || ""}
+                </span>
+                <span className="text-win-green font-bold text-[14px]">
+                  {game.pick!.odds ? Number(game.pick!.odds).toFixed(2) : "–"}
+                </span>
+              </div>
+            )}
+            {!hasPick && hasBestMarket && (
+              <div className="text-right">
+                <span className="text-[11px] text-muted-foreground block truncate max-w-[80px]">
+                  {game.best_market!.selection}
+                </span>
+                <span className="text-win-green font-medium">@ {game.best_market!.odds}</span>
+              </div>
+            )}
+            {!hasPick && !hasBestMarket && (
+              <span className="text-[11px] text-muted-foreground">—</span>
+            )}
+          </div>
+        </div>
+
+        {/* Expand arrow */}
+        <div className="flex justify-center mt-2">
+          <svg 
+            className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} 
+            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Expanded section - markets and pick */}
+      {expanded && (
+        <div className="px-4 pb-4 pt-2 border-t border-border/50 space-y-3">
+          {/* Best Market */}
+          {hasBestMarket && (
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-muted-foreground">Best Market</span>
+              <span>
+                <span className="font-medium">{game.best_market!.selection}</span>
+                <span className="text-muted-foreground mx-1">@</span>
+                <span className="text-win-green font-bold">{game.best_market!.odds}</span>
+              </span>
+            </div>
+          )}
+
+          {/* Official Pick */}
+          {hasPick && (
+            <Link 
+              to="/match/$id" 
+              params={{ id: game.pick!.id }}
+              className="block"
+            >
+              <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-green/40 rounded-lg p-3 hover:border-brand-green hover:shadow-lg hover:shadow-brand-green/10 transition-all">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(game.pick!.tier)}`}>
+                      {game.pick!.tier?.replace("_", " ") || ""}
+                    </span>
+                    <div className="text-[14px] font-medium mt-1">{game.pick!.market}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-[18px] font-bold ${getConfidenceColor(game.pick!.confidence)}`}>
+                      {game.pick!.confidence?.toFixed(0)}%
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">confidence</div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* View Details Link */}
+          <Link 
+            to="/match/$id" 
+            params={{ id: game.id }}
+            className="block text-center text-[12px] text-info-blue hover:underline py-2"
+          >
+            View Full Analysis →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component: filter tabs loading skeleton
         }
       })
       .catch(() => setError(true));
