@@ -170,18 +170,6 @@ function AwaitingState() {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-8 text-center">
-      <div className="text-4xl mb-3">📭</div>
-      <h2 className="text-[20px] font-bold mb-2">No Games</h2>
-      <p className="text-[14px] text-muted-foreground">{message}</p>
-    </div>
-  );
-}
-  );
-}
-
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<AlgoGamesResponse | null>(null);
