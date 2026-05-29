@@ -1,371 +1,693 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type TodayPicksResponse, type Pick } from "@/lib/api";
+import { api, type TopPickResponse, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { todayLagos } from "@/lib/time";
-
-// Helper: get tier badge color
-function getTierColor(tier: string): string {
-  switch (tier) {
-    case "banker": return "bg-brand-green text-primary-foreground";
-    case "value_gem": return "bg-teal-600 text-white";
-    case "wild_card": return "bg-purple-600 text-white";
-    default: return "bg-gray-600 text-white";
-  }
-}
-
-// Helper: get confidence color
-function getConfidenceColor(confidence: number): string {
-  if (confidence >= 72) return "text-win-green";
-  if (confidence >= 68) return "text-teal-accent";
-  return "text-amber-text";
-}
-
-// Component: single pick row
-function PickRow({ pick, index = 0 }: { pick: Pick; index?: number }) {
-  return (
-    <Link to="/match/$id" params={{ id: String(pick.id) }} className="block group">
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 hover:border-brand-green/50 hover:shadow-lg hover:shadow-brand-green/10 transition-all duration-300 hover:-translate-y-0.5">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${getTierColor(pick.tier)}`}>
-                {pick.tier?.replace("_", " ") || ""}
-              </span>
-              <span className="text-[11px] text-muted-foreground">{pick.league}</span>
-            </div>
-            <h3 className="text-[15px] font-medium leading-tight group-hover:text-white/90 transition-colors">{pick.fixture}</h3>
-          </div>
-          <div className="text-right">
-            <div className={`text-[18px] font-bold ${getConfidenceColor(pick.confidence)} group-hover:scale-110 transition-transform`}>
-              {pick.confidence?.toFixed(0)}%
-            </div>
-            <div className="text-[11px] text-muted-foreground">confidence</div>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="text-[13px]">
-            <span className="text-muted-foreground">{pick.market}</span>
-            <span className="text-border mx-1">@</span>
-            <span className="text-win-green font-medium">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
-          </div>
-          <div className="text-[12px] text-muted-foreground flex items-center gap-1">
-            {pick.kickoff}
-            <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-// Component: tier section wrapper
-function Section({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-[16px] font-bold">{title}</h2>
-          <p className="text-[11px] text-muted-foreground">{subtitle}</p>
-        </div>
-      </div>
-      <div className="space-y-2">
-        {children}
-      </div>
-    </section>
-  );
-}
-
-// Component: loading skeleton
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-4">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-4 w-24 bg-card rounded animate-pulse" />
-            <div className="h-4 w-16 bg-card rounded animate-pulse" />
-          </div>
-          <div className="h-28 bg-card border border-brand-border rounded-xl animate-pulse" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Component: empty state
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-8 text-center">
-      <div className="relative w-20 h-20 mx-auto mb-4">
-        <div className="absolute inset-0 bg-muted-foreground/10 rounded-full animate-pulse"></div>
-        <div className="relative flex items-center justify-center w-full h-full text-4xl">📭</div>
-      </div>
-      <h2 className="text-[20px] font-bold mb-2">No Picks Today</h2>
-      <p className="text-[14px] text-muted-foreground mb-6">{message}</p>
-      <div className="flex flex-wrap justify-center gap-3">
-        <Link to="/record" className="px-4 py-2 bg-info-blue/10 text-info-blue rounded-lg text-[13px] font-medium hover:bg-info-blue/20 transition-colors">📊 View Track Record</Link>
-        <Link to="/settings" className="px-4 py-2 bg-muted/20 text-muted-foreground rounded-lg text-[13px] font-medium hover:bg-muted/30 transition-colors">⚙️ Adjust Preferences</Link>
-      </div>
-    </div>
-  );
-}
-
-// Component: error state
-function ErrorState({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="bg-gradient-to-br from-danger-bg to-card border border-danger-red/30 rounded-xl p-8 text-center">
-      <div className="text-4xl mb-3">⚠️</div>
-      <h2 className="text-[18px] font-bold text-danger-red">Unable to load picks</h2>
-      <p className="text-[13px] text-muted-foreground mt-2 mb-4">Something went wrong. Please try again.</p>
-      <button 
-        onClick={onRetry} 
-        className="px-6 py-2 bg-brand-green text-primary-foreground font-medium rounded-lg hover:bg-brand-green/90 transition-colors"
-      >
-        Retry
-      </button>
-    </div>
-  );
-}
+import { tierLabel } from "@/lib/stake";
+import { StakeGuide } from "@/components/StakeGuide";
+import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
     meta: [
-      { title: "Today's picks - Betpreneur" },
-      { name: "description", content: "Your daily tiered football picks." },
-      { property: "og:title", content: "Today's picks - Betpreneur" },
-      { property: "og:description", content: "Daily football picks with confidence levels." },
+      { title: "Today's top pick - Betpreneur" },
+      { name: "description", content: "The single highest-confidence football pick today." },
+      { property: "og:title", content: "Today's top pick - Betpreneur" },
+      { property: "og:description", content: "Highest-confidence pre-match pick. Subscribers see the full reasoning." },
     ],
   }),
   component: TopPickPage,
 });
 
-// Main page component
+function TierBadge({ tier }: { tier: string }) {
+  const colors: Record<string, string> = {
+    banker: "bg-brand-green text-primary-foreground",
+    value_gem: "bg-teal-600 text-white",
+    wild_card: "bg-purple-600 text-white",
+  };
+  return (
+    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tier] || "bg-gray-600 text-white"}`}>
+      {tier?.replace("_", " ") || ""}
+    </span>
+  );
+}
+
+// Stats object from recent form API
+interface RecentFormStats {
+  wins: number;
+  games: number;
+  streak: number;
+  btts_rate: number;
+  avg_scored: number;
+  over25_rate: number;
+  avg_conceded: number;
+  clean_sheets: number;
+  draws?: number;
+  losses?: number;
+}
+
+function StatBar({ label, value, suffix = "", color = "text-win-green", tooltip }: { label: string; value: number; suffix?: string; color?: string; tooltip?: string }) {
+  return (
+    <div className="text-center py-2" title={tooltip}>
+      <div className={`text-[20px] font-bold ${color}`}>{value}{suffix}</div>
+      <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</div>
+    </div>
+  );
+}
+
+function FormChip({ r }: { r: "W" | "D" | "L" }) {
+  const cls =
+    r === "W"
+      ? "bg-win-green text-background"
+      : r === "L"
+      ? "bg-danger-red text-primary-foreground"
+      : "bg-white/10 text-foreground";
+  return <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-semibold ${cls}`}>{r}</span>;
+}
+
+// Convert form string "WDLWDWL" to chips - dynamic length
+function FormChips({ form }: { form?: string }) {
+  if (!form) return null;
+  return (
+    <div className="flex gap-0.5 mt-1">
+      {form.split("").map((char, i) => (
+        <FormChip key={i} r={char as "W" | "D" | "L"} />
+      ))}
+    </div>
+  );
+}
+
+function StatsKey() {
+  return (
+    <details className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-4 text-[12px] group">
+      <summary className="cursor-pointer text-muted-foreground hover:text-foreground flex items-center gap-2 font-medium">
+        <svg className="w-4 h-4 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        📊 What do these stats mean?
+      </summary>
+      <div className="mt-3 space-y-2 text-muted-foreground grid grid-cols-2 gap-2">
+        <div><span className="text-win-green">Wins</span> — Wins in last 5 matches</div>
+        <div><span className="text-win-green">Scored</span> — Avg goals scored per game</div>
+        <div><span className="text-win-green">Conceded</span> — Avg goals conceded per game</div>
+        <div><span className="text-info-blue">BTTS</span> — Both Teams To Score %</div>
+        <div><span className="text-amber-text">Over 2.5</span> — Games with 3+ goals %</div>
+        <div><span className="text-win-green">CS</span> — Clean sheets (0 goals conceded)</div>
+        <div><span className="text-win-green">Streak</span> — Unbeaten streak</div>
+        <div><span className="text-muted-foreground">Games</span> — Matches analyzed</div>
+      </div>
+    </details>
+  );
+}
+
+function FormStatsCard({ title, stats, team }: { title: string; stats: RecentFormStats | undefined; team: string }) {
+  if (!stats) return null;
+  return (
+    <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-5 hover:border-brand-green/30 transition-colors">
+      <div className="text-[14px] font-semibold mb-4 flex items-center justify-between">
+        <span className="text-info-blue">{title}</span>
+        <span className="text-[12px] text-muted-foreground bg-muted/30 px-2 py-1 rounded">{team}</span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 md:gap-x-6 gap-y-4">
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Wins</span>
+          <span className="text-[20px] font-bold text-win-green">{stats.wins}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Draws</span>
+          <span className="text-[20px] font-bold">{stats.draws ?? 0}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Losses</span>
+          <span className="text-[20px] font-bold text-danger-red">{stats.losses ?? 0}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Games</span>
+          <span className="text-[20px] font-bold text-muted-foreground">{stats.games}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Scored*</span>
+          <span className="text-[20px] font-bold">{stats.avg_scored}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Conceded*</span>
+          <span className="text-[20px] font-bold">{stats.avg_conceded}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">BTTS</span>
+          <span className="text-[20px] font-bold text-info-blue">{Math.round(stats.btts_rate)}%</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-muted-foreground uppercase">Over 2.5</span>
+          <span className="text-[20px] font-bold text-amber-text">{Math.round(stats.over25_rate)}%</span>
+        </div>
+      </div>
+      <div className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border/30 text-center">
+        *Averages based on last {stats.games} matches
+      </div>
+    </div>
+  );
+}
+
 function TopPickPage() {
   const { isAuthed, loading: authLoading } = useAuth();
-  const [data, setData] = useState<TodayPicksResponse | null>(null);
-  const [error, setError] = useState(false);
+  const [data, setData] = useState<TopPickResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [backing, setBacking] = useState(false);
+  const [userBacked, setUserBacked] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import("html2canvas").then((mod: any) => {
+        (window as any).html2canvas = mod.default || mod;
+      }).catch(() => {});
+    }
+  }, []);
 
-  const load = () => {
-    setError(false);
-    api.getTodayPicks()
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthed) {
+      setData(null);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    api.getTopPick()
       .then(setData)
-      .catch(() => setError(true));
-  };
+      .catch((err) => {
+        setData(null);
+        setError(err instanceof Error ? err.message : "Could not load today's top pick.");
+      })
+      .finally(() => setLoading(false));
+  }, [authLoading, isAuthed]);
 
-  useEffect(() => {
-    if (!isAuthed) return;
-    load();
-  }, [isAuthed]);
+  // Handler methods for actions
+  async function handleBacked() {
+    if (!data?.pick || userBacked || backing) return;
+    setBacking(true);
+    try {
+      await api.markBacked(data.pick.id, 0);
+      setUserBacked(true);
+    } finally {
+      setBacking(false);
+    }
+  }
 
-  useEffect(() => {
-    if (!data?.published) return;
-    const id = setInterval(load, 60_000);
-    return () => clearInterval(id);
-  }, [data?.published]);
+  function getShareText(): string {
+    if (!data?.pick) return "";
+    const p = data.pick;
+    const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
+    return `🎯 Betpreneur Top Pick\n\n${p.fixture}\n${p.market} @ ${Number(p.odds).toFixed(2)}\nConfidence: ${p.confidence?.toFixed(0)}%\n\n${p.reasoning || ""}\n\nDaily edge picks → ${domain}`;
+  }
+
+  async function openPreview() {
+    if (!data?.pick || generating) return;
+    setGenerating(true);
+    setShareMsg(null);
+    try {
+      // Use basic canvas approach - full card logic would need copying
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1350;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("No canvas");
+
+      // Simple gradient background
+      const bg = ctx.createLinearGradient(0, 0, 1080, 1350);
+      bg.addColorStop(0, "#1a0307");
+      bg.addColorStop(1, "#000000");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1080, 1350);
+
+      // Text
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 48px sans-serif";
+      ctx.fillText(data.pick.fixture, 60, 200);
+      
+      // Market & odds
+      ctx.font = "36px sans-serif";
+      ctx.fillText(`${data.pick.market} @ ${Number(data.pick.odds).toFixed(2)}`, 60, 280);
+      ctx.fillText(`Confidence: ${data.pick.confidence?.toFixed(0)}%`, 60, 340);
+
+      const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+      if (!blob) throw new Error("No image");
+      const url = URL.createObjectURL(blob);
+      const safeName = data.pick.fixture.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
+    } catch (e) {
+      setShareMsg("Could not generate preview");
+      setTimeout(() => setShareMsg(null), 3000);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  function downloadFromPreview() {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setShareMsg("Saved ✓");
+    setTimeout(() => setShareMsg(null), 2500);
+  }
+
+  async function shareFromPreview() {
+    if (!preview) return;
+    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    try {
+      if (nav.canShare && nav.canShare({ files: [file], text: getShareText() })) {
+        await nav.share({ files: [file], text: getShareText(), title: "Betpreneur pick" });
+        return;
+      }
+    } catch {}
+    downloadFromPreview();
+    window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, "_blank");
+    setShareMsg("Shared via WA");
+    setTimeout(() => setShareMsg(null), 3000);
+  }
 
   if (authLoading) {
-    return (
-      <div className="space-y-5">
-        <div className="h-8 w-48 bg-card border border-brand-border rounded animate-pulse" />
-        <LoadingSkeleton />
-      </div>
-    );
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
   }
 
-  if (error) {
+  // Prompt login for unauthenticated visitors
+  if (!isAuthed) {
     return (
       <div className="space-y-5">
-        <ErrorState onRetry={load} />
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="space-y-5">
-        <div className="h-8 w-48 bg-card border border-brand-border rounded animate-pulse" />
-        <LoadingSkeleton />
-      </div>
-    );
-  }
-
-  // Not published yet - awaiting state
-  if (!data.published) {
-    return (
-      <div className="space-y-6">
-        <header className="relative overflow-hidden bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-2xl p-8 text-center">
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-0 left-1/4 w-32 h-32 bg-brand-green/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-teal-accent/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-2">
+            Subscriber exclusive
           </div>
-          
-          <div className="relative">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-text/10 text-amber-text rounded-full mb-4">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-text opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-text"></span>
-              </span>
-              <span className="text-[12px] font-semibold uppercase tracking-wide">Awaiting Picks</span>
-            </div>
-            
-            <h1 className="text-[26px] font-bold mb-2">Picks Arriving Soon</h1>
-            <p className="text-[15px] text-muted-foreground mb-6 max-w-sm mx-auto">
-              Our AI model is analyzing today's matches.<br />
-              Daily picks go live at <span className="text-brand-green font-semibold">06:30 WAT</span>.
-            </p>
-            
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg">
-              <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-[14px] font-medium text-white/80">06:30</span>
-              <span className="text-[11px] text-muted-foreground">(GMT+1)</span>
-            </div>
+          <h1 className="!text-[22px] !leading-tight font-bold">Login or sign up to unlock</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            Access our daily top picks with full analysis and stake recommendations.
+          </p>
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              to="/login"
+              search={(prev) => ({ ...prev, redirect: "/top-pick" })}
+              className="inline-flex items-center justify-center rounded-lg bg-brand-green px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-green/90 transition-colors"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/signup"
+              search={(prev) => ({ ...prev, redirect: "/top-pick" })}
+              className="inline-flex items-center justify-center rounded-lg bg-secondary px-6 py-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+            >
+              Sign up free
+            </Link>
           </div>
         </header>
+        <div className="bg-card border border-brand-border rounded-xl p-5 text-center">
+          <p className="text-[13px] text-muted-foreground">
+            Already a member? <Link to="/login" className="text-brand-green hover:underline">Log in</Link> to see today's pick.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="h-64 bg-card border border-brand-border rounded-lg animate-pulse" />;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-danger-red font-semibold mb-2">
+            Top pick
+          </div>
+          <h1 className="!text-[22px] !leading-tight font-bold">Could not load top pick</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            {error ?? "Please refresh the page and try again."}
+          </p>
+        </header>
+      </div>
+    );
+  }
+
+  const pick = data.pick;
+
+  // No pick published yet
+  if (!data.published || !pick) {
+    return (
+      <div className="space-y-5">
+        <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-border rounded-xl p-6 text-center">
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-2">
+            Top pick
+          </div>
+          <h1 className="!text-[22px] !leading-tight font-bold">No pick published yet</h1>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            Check back later for today's top pick.
+          </p>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-subtle-bg rounded-lg">
+            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse"></div>
+            <span className="text-[12px] text-muted-foreground">Waiting for pick...</span>
+          </div>
+        </header>
+      </div>
+    );
+  }
+
+  // Show pick - locked for visitors, unlocked for authed users
+  const showFullDetails = isAuthed;
+
+  return (
+    <div className="space-y-5">
+      <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-5 shadow-lg shadow-brand-green/10">
+        <div className="text-[11px] uppercase tracking-wide text-brand-green font-semibold mb-1 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
+          Best pick today
+        </div>
+        <h1 className="!text-[22px] !leading-tight font-bold">{pick.fixture}</h1>
+        <p className="text-[13px] text-muted-foreground mt-0.5">
+          <span>{pick.league}</span>
+        </p>
         
-        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-2xl p-6">
-          <h2 className="text-[15px] font-semibold mb-4 flex items-center gap-2">
-            <svg className="w-4 h-4 text-teal-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            How It Works
-          </h2>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-brand-green/5 rounded-xl border border-brand-green/20">
-              <span className="w-6 h-6 rounded-full bg-brand-green flex items-center justify-center text-[12px] font-bold">72+</span>
-              <div>
-                <p className="text-[13px] font-medium text-brand-green">Bankers</p>
-                <p className="text-[11px] text-muted-foreground">Highest confidence picks</p>
-              </div>
+        <div className="mt-4 inline-flex items-center gap-2 bg-brand-green/10 border border-brand-green/30 rounded-lg px-4 py-2">
+          <span className="text-[14px] font-medium text-brand-green">{pick.market}</span>
+          <span className="text-border">@</span>
+          <span className="text-[16px] font-bold text-brand-green">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
+        </div>
+        
+        <div className="mt-3">
+          <TierBadge tier={pick.tier} />
+        </div>
+        
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-[13px] text-muted-foreground">
+            Confidence level
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-24 h-2 bg-subtle-bg rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-win-green rounded-full"
+                style={{ width: `${pick.confidence}%` }}
+              />
             </div>
-            <div className="flex items-center gap-3 p-3 bg-teal-accent/5 rounded-xl border border-teal-accent/20">
-              <span className="w-6 h-6 rounded-full bg-teal-accent flex items-center justify-center text-[12px] font-bold text-black">68+</span>
-              <div>
-                <p className="text-[13px] font-medium text-teal-accent">Value Gems</p>
-                <p className="text-[11px] text-muted-foreground">Underrated undervalued picks</p>
+            <span className="text-[14px] font-bold text-win-green">{pick.confidence?.toFixed(0)}%</span>
+          </div>
+        </div>
+      </header>
+
+      {pick.kickoff && (
+        <div className="bg-card border-l-4 border-l-info-blue rounded-r-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-info-blue font-semibold mb-1">
+                Match Kickoff
               </div>
+              <div className="text-[16px] font-medium">{pick.kickoff}</div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-amber-text/5 rounded-xl border border-amber-text/20">
-              <span className="w-6 h-6 rounded-full bg-amber-text flex items-center justify-center text-[12px] font-bold text-black">62+</span>
-              <div>
-                <p className="text-[13px] font-medium text-amber-text">Wildcards</p>
-                <p className="text-[11px] text-muted-foreground">Higher risk, higher reward</p>
-              </div>
+            <div className="text-right">
+              <div className="text-[11px] text-muted-foreground">{pick.match_date}</div>
             </div>
           </div>
         </div>
-        
-        <Link to="/record" className="flex items-center justify-center gap-2 text-info-blue text-[14px] hover:underline py-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          See Our 90-Day Track Record →
-        </Link>
-      </div>
-    );
-  }
+      )}
 
-  // Get all picks from fixtures
-  const allPicks = data.fixtures?.flatMap(f => f.picks || []) || [];
-  
-  if (allPicks.length === 0) {
-    return (
-      <div className="space-y-5">
-        <EmptyState message="The model didn't find sufficient confidence today. Check back tomorrow." />
-        <Link to="/record" className="block text-center text-info-blue text-[14px] hover:underline">
-          📊 See our 90-day track record →
-        </Link>
-      </div>
-    );
-  }
+      {showFullDetails ? (
+        <>
+          {/* Market meaning and reasoning */}
+          {(pick.meaning || pick.reasoning) && (
+            <div className="space-y-3">
+              {pick.meaning && (
+                <div className="bg-card border-l-4 border-l-teal-accent rounded-r-lg p-4">
+                  <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-1">
+                    📝 What does this mean?
+                  </div>
+                  <p className="text-[15px] font-medium">{pick.meaning}</p>
+                </div>
+              )}
+              {pick.reasoning && (
+                <div className="bg-card border-l-4 border-l-info-blue rounded-r-lg p-4">
+                  <div className="text-[11px] uppercase tracking-wide text-info-blue font-semibold mb-1">
+                    🧠 Why this pick?
+                  </div>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">{pick.reasoning}</p>
+                </div>
+              )}
+            </div>
+          )}
 
-  // Categorize by tier
-  const getTier = (p: Pick) => (p.tier as any as string) || "";
-  const bankers = allPicks.filter((p) => getTier(p) === "banker");
-  const gems = allPicks.filter((p) => getTier(p).includes("gem"));
-  const wildcards = allPicks.filter((p) => getTier(p).includes("wild"));
+          {/* Value & Stake */}
+          {pick.ev !== undefined && pick.ev !== null && pick.stake && (
+            <div className="bg-gradient-to-br from-teal-bg to-card border border-teal-accent/30 rounded-xl p-5">
+              <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-4 text-center">
+                💎 Value Indicator
+              </div>
+              <div className="flex items-center justify-around">
+                <div className="text-center">
+                  <div className={`text-[24px] font-bold ${pick.ev >= 0 ? "text-teal-accent" : "text-danger-red"}`}>
+                    {pick.ev >= 0 ? "+" : ""}{Number(pick.ev).toFixed(3)}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1">Expected Value</div>
+                </div>
+                <div className="w-px h-12 bg-border" />
+                <div className="text-center">
+                  <div className="text-[24px] font-bold text-win-green">
+                    ₦{Number(pick.stake).toLocaleString()}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1">Recommended Stake</div>
+                </div>
+              </div>
+            </div>
+          )}
 
-  return (
-    <div className="space-y-6">
-      {/* Stats Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
-          </span>
-          <p className="text-[13px] text-muted-foreground">
-            {todayLagos()} · Picks live
+          {pick.model_verdict && (
+            <div className="bg-gradient-to-br from-info-bg to-card border border-info-blue/30 rounded-xl p-4">
+              <div className="text-[11px] uppercase tracking-wide text-info-blue font-semibold mb-2">
+                🎯 Model Verdict
+              </div>
+              <p className="text-[14px] text-muted-foreground">{pick.model_verdict}</p>
+            </div>
+          )}
+
+          {/* Risk Flags */}
+          {pick.risk_flags && pick.risk_flags.length > 0 && (
+            <div className="bg-gradient-to-br from-amber-bg to-card border border-amber-text/30 rounded-xl p-4">
+              <div className="text-[11px] uppercase tracking-wide text-amber-text font-semibold mb-3 flex items-center gap-2">
+                ⚠️ Risk Factors
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {pick.risk_flags.map((flag, i) => (
+                  <span key={i} className="text-[12px] bg-amber-text/10 text-amber-text px-3 py-1.5 rounded-full font-medium">
+                    {flag.replace(/_/g, " ")}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Full recent form stats - new robust format */}
+          {(pick.home_recent_form || pick.away_recent_form) && typeof pick.home_recent_form === "object" && pick.home_recent_form !== null && (
+            <>
+              {pick.home_recent_form && (pick.home_recent_form as any).games > 0 && (
+                <div className="bg-card border border-brand-border rounded-lg p-4">
+                  <h3 className="text-[14px] font-semibold mb-2 text-win-green">
+                    {pick.fixture?.split(" vs ")[0] || "Home"} Recent Form
+                  </h3>
+                  <FormChips form={(pick.home_recent_form as any).form as string} />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-[13px] mt-2">
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Record</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).wins ?? 0}W-{(pick.home_recent_form as any).draws ?? 0}D-{(pick.home_recent_form as any).losses ?? 0}L ({(pick.home_recent_form as any).games ?? 0})</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Scored</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).avg_scored ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Conceded</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).avg_conceded ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Clean sheets</div>
+                      <div className="font-bold">{(pick.home_recent_form as any).clean_sheets ?? 0}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pick.away_recent_form && (pick.away_recent_form as any).games > 0 && (
+                <div className="bg-card border border-brand-border rounded-lg p-4">
+                  <h3 className="text-[14px] font-semibold mb-2 text-danger-red">
+                    {pick.fixture?.split(" vs ")[1] || "Away"} Recent Form
+                  </h3>
+                  <FormChips form={(pick.away_recent_form as any).form as string} />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-[13px] mt-2">
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Record</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).wins ?? 0}W-{(pick.away_recent_form as any).draws ?? 0}D-{(pick.away_recent_form as any).losses ?? 0}L ({(pick.away_recent_form as any).games ?? 0})</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Scored</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).avg_scored ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Conceded</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).avg_conceded ?? "-"} avg</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-[10px]">Clean sheets</div>
+                      <div className="font-bold">{(pick.away_recent_form as any).clean_sheets ?? 0}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Fixture context - standings, rest days, h2h, flags */}
+          {(pick as any).fixture_context && (
+            <>{(pick as any).fixture_context.h2h && (
+              <div className="bg-card border border-brand-border rounded-lg p-4">
+                <h3 className="text-[14px] font-semibold mb-3">Head-to-Head</h3>
+                <div className="grid grid-cols-4 gap-2 text-center text-[13px]">
+                  <div><div className="font-bold text-win-green">{(pick as any).fixture_context.h2h.t1w ?? 0}</div><div className="text-[10px] text-muted-foreground">Home wins</div></div>
+                  <div><div className="font-bold">{(pick as any).fixture_context.h2h.draws ?? 0}</div><div className="text-[10px] text-muted-foreground">Draws</div></div>
+                  <div><div className="font-bold text-danger-red">{(pick as any).fixture_context.h2h.t2w ?? 0}</div><div className="text-[10px] text-muted-foreground">Away wins</div></div>
+                  <div><div className="font-bold">{(pick as any).fixture_context.h2h.avg_goals ?? "-"}</div><div className="text-[10px] text-muted-foreground">Avggoals</div></div>
+                </div>
+              </div>
+            )}
+
+            {((pick as any).fixture_context.home_standing?.rank || (pick as any).fixture_context.away_standing?.rank) && (
+              <div className="grid grid-cols-2 gap-3">
+                {(pick as any).fixture_context.home_standing?.rank && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[0]}</div>
+                    <div className="font-bold text-win-green">#{(pick as any).fixture_context.home_standing.rank} · {(pick as any).fixture_context.home_standing.points}pts</div>
+                  </div>
+                )}
+                {(pick as any).fixture_context.away_standing?.rank && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[1]}</div>
+                    <div className="font-bold text-danger-red">#{(pick as any).fixture_context.away_standing.rank} · {(pick as any).fixture_context.away_standing.points}pts</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {((pick as any).fixture_context.home_rest_days || (pick as any).fixture_context.away_rest_days) && (
+              <div className="grid grid-cols-2 gap-3">
+                {(pick as any).fixture_context.home_rest_days && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[0]} rest</div>
+                    <div className="font-bold">{(pick as any).fixture_context.home_rest_days} days</div>
+                  </div>
+                )}
+                {(pick as any).fixture_context.away_rest_days && (
+                  <div className="bg-card border border-brand-border rounded-lg p-3">
+                    <div className="text-[10px] text-muted-foreground">{pick.fixture?.split(" vs ")[1]} rest</div>
+                    <div className="font-bold">{(pick as any).fixture_context.away_rest_days} days</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {((pick as any).fixture_context.flags?.length > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {(pick as any).fixture_context.flags.map((flag: string, i: number) => (
+                  <span key={i} className="text-[11px] px-2 py-1 bg-amber-bg text-amber-text rounded">
+                    {flag.replace(/_/g, " ")}
+                  </span>
+                ))}
+              </div>
+            )}
+            </>
+          )}
+
+          <StakeGuide odds={pick.odds} highlight={pick.tier} />
+
+          {pick.status && pick.status !== "pending" && (
+            <div className="bg-card border rounded-lg p-4 text-center">
+              <span className={`text-[16px] font-bold ${
+                pick.status === "win" ? "text-win-green" :
+                pick.status === "loss" ? "text-danger-red" :
+                "text-muted-foreground"
+              }`}>
+                {pick.status === "win" ? "✅ Won" :
+                 pick.status === "loss" ? "❌ Lost" :
+                 "➖ Voided"}
+              </span>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-6 text-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green text-2xl mb-3">
+            🔒
+          </div>
+          <h2 className="text-[18px] font-bold">Unlock Full Analysis</h2>
+          <p className="text-[13px] text-muted-foreground mt-2 mb-4">
+            Sign up free to see the model's reasoning,<br/>stake guide, and team stats.
+          </p>
+          <Link to="/signup" className="inline-block w-full bg-brand-green text-primary-foreground font-semibold py-3 rounded-lg hover:bg-brand-green/90 transition-colors">
+            Create Free Account
+          </Link>
+          <p className="text-[12px] text-muted-foreground mt-3">
+            Already have an account? <Link to="/login" className="text-info-blue underline">Sign in</Link>
           </p>
         </div>
+      )}
+
+      {/* Action Buttons - ENHANCED with glow effects */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+        <Link to="/home" className="flex-1 text-center py-4 bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl font-medium hover:bg-subtle-bg hover:border-win-green/30 transition-all hover:shadow-lg hover:shadow-win-green/10 flex items-center justify-center gap-2">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Dashboard
+        </Link>
         
-        <div className="flex items-center gap-2 text-[11px]">
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5">
-            <span className="text-white/70">Games:</span>
-            <span className="text-win-green font-bold">{allPicks.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
-            <span className="text-brand-green font-medium">{bankers.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-600/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
-            <span className="text-teal-600 font-medium">{gems.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-purple-600/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-            <span className="text-purple-600 font-medium">{wildcards.length}</span>
-          </span>
-        </div>
+        {/* Enhanced Unlock/Share/Back buttons for logged in users */}
+        {showFullDetails && (
+          <button
+            onClick={handleBacked}
+            disabled={userBacked || backing}
+            className={`flex-1 text-center py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+              userBacked
+                ? "bg-white/10 text-muted-foreground cursor-default border-2 border-win-green/30"
+                : "bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 bg-[length:200%_auto] text-black hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] hover:shadow-[0_0_35px_rgba(34,197,94,0.7)] hover:scale-[1.03]"
+            }`}
+          >
+            {userBacked ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                BACKED
+              </span>
+            ) : backing ? (
+              <span>Saving...</span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                BACK THIS PICK
+              </span>
+            )}
+          </button>
+        )}
       </div>
-
-      {data.posted_at && (
-        <div className="text-[11px] text-muted-foreground/60 text-right -mt-2">
-          Published {new Date(data.posted_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos" })} WAT
-        </div>
-      )}
-
-      {/* Bankers Section */}
-      {bankers.length > 0 && (
-        <Section title="Bankers" subtitle="Highest confidence picks (72+%)">
-          {bankers.map((pick, i) => (
-            <PickRow key={pick.id || i} pick={pick} index={i} />
-          ))}
-        </Section>
-      )}
-
-      {/* Value Gems Section */}
-      {gems.length > 0 && (
-        <Section title="Value Gems" subtitle="Underrated picks with strong edge (68+%)">
-          {gems.map((pick, i) => (
-            <PickRow key={pick.id || i} pick={pick} index={i} />
-          ))}
-        </Section>
-      )}
-
-      {/* Wildcards Section */}
-      {wildcards.length > 0 && (
-        <Section title="Wildcards" subtitle="Higher risk, higher reward (62+%)">
-          {wildcards.map((pick, i) => (
-            <PickRow key={pick.id || i} pick={pick} index={i} />
-          ))}
-        </Section>
-      )}
-
-      <Link to="/record" className="flex items-center justify-center gap-2 text-info-blue text-[14px] hover:underline py-4 mt-4 group">
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-        📊 See Our 90-Day Track Record
-        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </Link>
     </div>
   );
 }
