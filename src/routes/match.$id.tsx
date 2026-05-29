@@ -100,7 +100,7 @@ function MatchPage() {
         setPick({
           ...p,
           match: p.fixture,
-          kickoff_wat: p.kickoff,
+          kickoff_wat: p.kickoff?.includes("WAT") ? p.kickoff : p.kickoff, // Pass raw time if already formatted
           market_plain: p.market || p.selection || "",
           meaning: p.meaning || undefined,
           one_line_reason: p.reasoning || "",
@@ -111,11 +111,11 @@ function MatchPage() {
           risk_flags: Array.isArray(p.risk_flags) ? p.risk_flags : [],
           risk_level: p.risk_level || "",
           user_backed: p.backed_by_me || false,
-          fixture_context: p.fixture_context,
-          // Additional fixture content fields
-          insights: (p as any).insights || null,
-          team_news: (p as any).team_news || null,
-          corner_profile: (p as any).corner_profile || null,
+          // Access fixture_context from various possible locations in response
+          fixture_context: p.fixture_context || (p as any).fixture?.fixture_context || null,
+          insights: p.insights || (p as any).fixture?.insights || null,
+          team_news: p.team_news || (p as any).fixture?.team_news || null,
+          corner_profile: p.corner_profile || (p as any).fixture?.corner_profile || null,
         } as any);
         console.log("[MatchPage] setPick - fixture_context:", p.fixture_context ? "YES" : "NO/MISSING");
       })
@@ -255,7 +255,7 @@ function MatchPage() {
           <div>
             <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
             <p className="text-[13px] text-muted-foreground mt-0.5">
-              {pick.league} · {formatKickoff(pick.kickoff_wat)}
+              {pick.league} · {pick.kickoff_wat?.includes("WAT") ? pick.kickoff_wat : formatKickoff(pick.kickoff_wat)}
             </p>
           </div>
           <TierBadge tier={pick.tier} />
