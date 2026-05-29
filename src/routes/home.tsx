@@ -1,16 +1,16 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type TodayPicksResponse, type Pick } from "@/lib/api";
+import { api, type TodayPicksResponse, type Pick, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Today's picks — Betpreneur" },
-      { name: "description", content: "Today's pre-match picks." },
-      { property: "og:title", content: "Today's picks — Betpreneur" },
-      { property: "og:description", content: "Daily football picks with confidence levels." },
+      { title: "Today's Games — Betpreneur" },
+      { name: "description", content: "All covered games with analysis." },
+      { property: "og:title", content: "Today's Games — Betpreneur" },
+      { property: "og:description", content: "Daily covered matches with AI analysis." },
     ],
   }),
   component: HomePage,
@@ -148,28 +148,13 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
-  const [data, setData] = useState<TodayPicksResponse | null>(null);
-  const [topPickData, setTopPickData] = useState<Pick | null>(null);
+  const [data, setData] = useState<AlgoGamesResponse | null>(null);
   const [error, setError] = useState(false);
 
   const load = () => {
     setError(false);
-    // Load today's picks AND the official top pick
-    Promise.all([
-      api.getTodayPicks(),
-      api.getTopPick().catch(() => null) // fall back gracefully
-    ])
-      .then(([picksRes, topPickRes]) => {
-        setData(picksRes);
-        // Extract the official top pick from the dedicated endpoint
-        setTopPickData(topPickRes?.pick || null);
-        
-        // Cache today's picks for detail page lookup
-        if (typeof window !== "undefined" && picksRes?.fixtures) {
-          const allPicks = picksRes.fixtures.flatMap((f: any) => f.picks || []) || [];
-          localStorage.setItem("todaysPicks", JSON.stringify(allPicks));
-        }
-      })
+    api.getAlgoGames()
+      .then(setData)
       .catch(() => setError(true));
   };
 
@@ -291,7 +276,7 @@ function HomePage() {
   }
 
   // Flatten picks from fixtures
-  const allPicks = data.fixtures?.flatMap(f => f.picks || []) || [];
+  const allGames = data.games || [];
   
   if (allPicks.length === 0) {
     return (
