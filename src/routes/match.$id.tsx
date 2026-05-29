@@ -334,10 +334,6 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_home.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_home.avg_conceded ?? "-"} avg</span>
-                  <span className="text-muted-foreground">BTTS</span>
-                  <span className="font-medium text-info-blue">{pick.form_home.btts_rate?.toFixed(0) ?? "-"}%</span>
-                  <span className="text-muted-foreground">Over 2.5</span>
-                  <span className="font-medium text-amber-text">{pick.form_home.over25_rate?.toFixed(0) ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_home.clean_sheets ?? 0}</span>
                 </div>
@@ -359,10 +355,6 @@ function MatchPage() {
                   <span className="font-medium">{pick.form_away.avg_scored ?? "-"} avg</span>
                   <span className="text-muted-foreground">Conceded</span>
                   <span className="font-medium">{pick.form_away.avg_conceded ?? "-"} avg</span>
-                  <span className="text-muted-foreground">BTTS</span>
-                  <span className="font-medium text-info-blue">{pick.form_away.btts_rate?.toFixed(0) ?? "-"}%</span>
-                  <span className="text-muted-foreground">Over 2.5</span>
-                  <span className="font-medium text-amber-text">{pick.form_away.over25_rate?.toFixed(0) ?? "-"}%</span>
                   <span className="text-muted-foreground">Clean sheets</span>
                   <span className="font-medium">{pick.form_away.clean_sheets ?? 0}</span>
                 </div>
@@ -372,13 +364,38 @@ function MatchPage() {
         )}
       </section>
 
-      {/* Match context - standings, rest days, h2h, flags */}
+      {/* Match context - standings, rest days, h2h, flags, goal model */}
       {(pick as any).fixture_context && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Match context</h2>
           <div className="space-y-4 text-[13px]">
+            {/* Goal Model */}
+            {(pick as any).fixture_context?.goal_model && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-2">Goal Model Predictions</div>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <div className="font-bold text-win-green">{(pick as any).fixture_context.goal_model.expected_total?.toFixed(2) ?? "-"}</div>
+                    <div className="text-[10px] text-muted-foreground">Expected Goals</div>
+                  </div>
+                  <div>
+                    <div className="font-bold">{(pick as any).fixture_context.goal_model.over15_margin?.toFixed(2) ?? "-"}</div>
+                    <div className="text-[10px] text-muted-foreground">Over 1.5</div>
+                  </div>
+                  <div>
+                    <div className="font-bold">{(pick as any).fixture_context.goal_model.over25_margin?.toFixed(2) ?? "-"}</div>
+                    <div className="text-[10px] text-muted-foreground">Over 2.5</div>
+                  </div>
+                  <div>
+                    <div className="font-bold text-info-blue">{(pick as any).fixture_context.goal_model.draw_confidence ?? "-"}%</div>
+                    <div className="text-[10px] text-muted-foreground">Draw %</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* H2H stats */}
-            {(pick as any).fixture_context?.h2h && (
+            {(pick as any).fixture_context?.h2h && (pick as any).fixture_context.h2h.games > 0 && (
               <div className="bg-muted/30 rounded-lg p-3">
                 <div className="text-muted-foreground text-[11px] mb-2">Head-to-head (last { (pick as any).fixture_context.h2h.games } games)</div>
                 <div className="grid grid-cols-4 gap-2 text-center">
@@ -399,6 +416,14 @@ function MatchPage() {
                     <div className="text-[10px] text-muted-foreground">Avg goals</div>
                   </div>
                 </div>
+              </div>
+            )}
+            
+            {/* League strength */}
+            {(pick as any).fixture_context?.league_strength > 0 && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-1">League Strength Factor</div>
+                <div className="font-medium">{(pick as any).fixture_context.league_strength?.toFixed(2) ?? "-"}</div>
               </div>
             )}
             
