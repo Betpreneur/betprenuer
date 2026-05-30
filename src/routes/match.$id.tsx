@@ -94,14 +94,14 @@ function MatchPage() {
           return;
         }
         const g = res.game;
-        const p = g.picks?.[0]; // First pick if exists
-        console.log("[MatchPage] Got game from API:", g.id);
+        const p = g.official_pick; // Selected pick from official_pick field
+        console.log("[MatchPage] Got game from API:", g.id, " Picks:", g.official_picks?.length);
         
         setPick({
           ...p,
-          id: Number(g.id),
-          match: g.match,
-          fixture: g.match,
+          id: p?.id || Number(g.match_id) || 0,
+          match: g.fixture,
+          fixture: g.fixture,
           kickoff: g.kickoff,
           kickoff_wat: g.kickoff || "",
           market_plain: p?.market || p?.selection || "",
@@ -116,14 +116,15 @@ function MatchPage() {
           away_score: g.away_score,
           status: g.status,
           league: g.league,
-          form_home: g.home_form,
-          form_away: g.away_form,
+          // Use recent_form fields
+          form_home: g.home_recent_form,
+          form_away: g.away_recent_form,
           goals_profile: p?.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
           risk_flags: Array.isArray(p?.risk_flags) ? p.risk_flags : [],
           risk_level: p?.risk_level || "",
           user_backed: p?.backed_by_me || false,
           insights: g.insights,
-          team_news: { home: g.home_news, away: g.away_news },
+          team_news: { home: g.team_news?.home, away: g.team_news?.away },
           market: p?.market || "",
           odds: p?.odds || "",
           confidence: p?.confidence || 0,
