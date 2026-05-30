@@ -3,57 +3,44 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/games/$match_id")({
-  head: ({ params }) => ({
-    meta: [{ title: `Game ${params.match_id} - Betpreneur` }],
-  }),
-  component: GamePage,
+export const Route = createFileRoute("/games")({
+  head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
+  component: GameAnalysisPage,
 });
 
-function GamePage({ params }: { params: { match_id: string } }) {
+function GameAnalysisPage() {
   const { isAuthed, loading } = useAuth();
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState(false);
+  const [loadingId, setLoadingId] = useState(true);
 
   useEffect(() => {
-    if (!isAuthed || !params?.match_id) return;
-    api.getGameDetail(params.match_id).then(setData).catch(() => setError(true));
-  }, [isAuthed, params?.match_id]);
+    // Get ID from URL path: games/1234567 -> 1234567
+    const pathname = window.location.pathname;
+    const match = pathname.match(/\/games\/(\d+)/);
+    const gameId = match ? match[1] : null;
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error || !data) return <div className="p-4">Load failed.</div>;
+    setLoadingId(false);
+    if (!gameId) { setError(true); return; }
+    if (!isAuthed) return;
+
+    api.getGameDetail(gameId).then(setData).catch(() => setError(true));
+  }, [isAuthed]);
+
+  if (loading || loadingId) return <div className="p-4">Loading...</div>;
+  if (error || !data) return <div className="p-4">Failed load.</div>;
 
   const g = data.game;
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-xl font-bold">{g.match}</h1>
       <p className="text-sm text-muted-foreground">{g.league} · {g.kickoff}</p>
-      
-      <div className="flex justify-center gap-8 py-4">
-        <div className="text-center">
-          {g.home_logo && <img src={g.home_logo} alt="" className="w-12 h-12 mx-auto" />}
-          <div className="font-medium">{g.home_team}</div>
-        </div>
-        <div className="text-2xl font-bold text-brand-green">
-          {g.home_score ?? 0} - {g.away_score ?? 0}
-        </div>
-        <div className="text-center">
-          {g.away_logo && <img src={g.away_logo} alt="" className="w-12 h-12 mx-auto" />}
-          <div className="font-medium">{g.away_team}</div>
-        </div>
+      <div className="flex justify-center items-center gap-8 py-4">
+        <div className="center">{g.home_logo && <img src={g.home_logo} className="w-12 h-12"/>}<div>{g.home_team}</div></div>
+        <div className="text-xl font-bold">{g.home_score??0} - {g.away_score??0}</div>
+        <div className="center">{g.away_logo && <img src={g.away_logo} className="w-12 h-12"/>}<div>{g.away_team}</div></div>
       </div>
-
-      {g.picks?.length > 0 && (
-        <section>
-          <h2 className="font-bold">Picks</h2>
-          {g.picks.map((p: any, i: number) => (
-            <div key={i} className="p-3 bg-card rounded border border-brand-border">
-              <div>{p.market}</div>
-              <div className="font-bold text-brand-green">{p.odds}</div>
-            </div>
-          ))}
-        </section>
-      )}
+      {g.picks?.map((p,i)=><div key={i} className="p-2 border my-1">{p.market} @ {p.odds}</div>)}
     </div>
   );
 }
