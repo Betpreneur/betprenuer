@@ -496,7 +496,7 @@ function MatchPage() {
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} position</div>
                     <div className="font-bold text-win-green">
-                      #{(pick as any).fixture_context.home_standing.rank} · {(pick as any).fixture_context.home_standing.points} pts
+                      #{(pick as any).home_standing?.rank} · {(pick as any).home_standing?.points} pts
                     </div>
                   </div>
                 )}
@@ -504,7 +504,7 @@ function MatchPage() {
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} position</div>
                     <div className="font-bold text-danger-red">
-                      #{(pick as any).fixture_context.away_standing.rank} · {(pick as any).fixture_context.away_standing.points} pts
+                      #{(pick as any).away_standing?.rank} · {(pick as any).away_standing?.points} pts
                     </div>
                   </div>
                 )}
@@ -520,7 +520,7 @@ function MatchPage() {
                     <div className="font-medium">{(pick as any).home_rest_days} days</div>
                   </div>
                 )}
-                {(pick as any).fixture_context.away_rest_days && (
+                {(pick as any).away_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} rest</div>
                     <div className="font-medium">{(pick as any).away_rest_days} days</div>
@@ -642,6 +642,64 @@ function MatchPage() {
                 <div className="text-foreground italic">{(pick as any).insights.pre_match_strategy}</div>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* Markets Overview */}
+      {(pick as any).market_count > 0 && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Markets Overview</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[13px]">
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-info-blue">{(pick as any).market_count}</div>
+              <div className="text-muted-foreground text-[11px]">Total Markets</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-win-green">{(pick as any).markets_70_plus}</div>
+              <div className="text-muted-foreground text-[11px]">70%+ Conf.</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-teal-accent">{(pick as any).markets_65_plus}</div>
+              <div className="text-muted-foreground text-[11px]">65%+ Conf.</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-amber-text">{(pick as any).official_pick_count}</div>
+              <div className="text-muted-foreground text-[11px]">Official Picks</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* All Available Markets */}
+      {(pick as any)?.markets?.length > 0 && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">All Available Markets</h2>
+          <div className="max-h-64 overflow-y-auto space-y-2 text-[13px]">
+            {(pick as any).markets.map((m: any, i: number) => (
+              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{m.name || m.market}</div>
+                  {m.selection && (
+                    <div className="text-muted-foreground text-[12px] truncate">{m.selection}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-2">
+                  {m.odds && (
+                    <span className="font-semibold text-brand-green">@{m.odds}</span>
+                  )}
+                  {m.confidence && (
+                    <span className={`text-[11px] px-1.5 py-0.5 rounded ${
+                      m.confidence >= 70 ? 'bg-win-green/20 text-win-green' :
+                      m.confidence >= 65 ? 'bg-teal-accent/20 text-teal-accent' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {m.confidence}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}
