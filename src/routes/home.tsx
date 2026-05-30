@@ -96,20 +96,7 @@ function GameCard({ game }: { game: GameInfo }) {
           </div>
         )}
         
-        {/* No analysis yet indicator */}
-        {!isLive && !game.pick && (
-          <div className="
-            px-4 py-1.5 text-xs font-medium tracking-wide uppercase flex items-center gap-2
-            bg-gradient-to-r from-muted/50 to-muted/30 text-muted-foreground
-            border-b border-border/30
-          ">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-muted-foreground opacity-50"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground"></span>
-            </span>
-            Coming Soon
-          </div>
-        )}
+        
         
         <div className="p-5">
           {/* League Tag - Color Coded */}
