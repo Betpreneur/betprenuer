@@ -24,8 +24,10 @@ function getTierColor(tier: string): string {
 }
 
 function PickCard({ pick }: { pick: Pick }) {
+  // Use match_id if available, otherwise fall back to id
+  const matchId = pick.match_id || String(pick.id);
   return (
-    <Link to="/match/$id" params={{ id: pick.match_id }} className="block group">
+    <Link to="/match/$id" params={{ id: matchId }} className="block group">
       <div className="bg-card border border-brand-border rounded-xl p-4 hover:border-brand-green/50 transition-colors">
         <div className="flex justify-between">
           <div>
