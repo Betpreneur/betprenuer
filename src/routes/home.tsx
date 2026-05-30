@@ -66,6 +66,10 @@ function GameCard({ game }: { game: GameInfo }) {
             to="/games"
             params={{ id: String(game.match_id) }}
             className="block text-center text-sm text-info-blue hover:underline py-2"
+            onClick={() => {
+              // Pre-fetch game detail when clicking the link
+              api.getGameDetail(String(game.match_id)).catch(() => {});
+            }}
           >
             View Full Analysis →
           </Link>
