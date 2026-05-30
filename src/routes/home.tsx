@@ -280,7 +280,7 @@ function HomePage() {
         ))}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 overflow-x-hidden">
         {filteredGames.map(game => (
           <GameCard key={game.id} game={game} />
         ))}

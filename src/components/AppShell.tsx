@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className="flex-1 w-full pb-24 md:pb-10 pt-4 max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">{children}</main>
+      <main className="flex-1 w-full overflow-hidden pb-24 md:pb-10 pt-4 max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">{children}</main>
 
       {/* Mobile bottom nav */}
       {isAuthed && (
