@@ -19,8 +19,34 @@ export const Route = createFileRoute("/home")({
 });
 
 // Bento Grid GameCard - Modern Apple-style with glass touches
+// League color mappings for visual distinction
+const LEAGUE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  "Premier League": { bg: "from-red-500/20 to-red-500/5", text: "text-red-400", border: "border-red-500/30" },
+  "La Liga": { bg: "from-yellow-500/20 to-yellow-500/5", text: "text-yellow-400", border: "border-yellow-500/30" },
+  "Bundesliga": { bg: "from-red-600/20 to-red-600/5", text: "text-red-500", border: "border-red-600/30" },
+  "Serie A": { bg: "from-blue-500/20 to-blue-500/5", text: "text-blue-400", border: "border-blue-500/30" },
+  "Ligue 1": { bg: "from-indigo-500/20 to-indigo-500/5", text: "text-indigo-400", border: "border-indigo-500/30" },
+  "Champions League": { bg: "from-purple-500/20 to-purple-500/5", text: "text-purple-400", border: "border-purple-500/30" },
+  "Europa League": { bg: "from-amber-500/20 to-amber-500/5", text: "text-amber-400", border: "border-amber-500/30" },
+  "Conference": { bg: "from-teal-500/20 to-teal-500/5", text: "text-teal-400", border: "border-teal-500/30" },
+  "FA Cup": { bg: "from-blue-600/20 to-blue-600/5", text: "text-blue-500", border: "border-blue-600/30" },
+  "EFL": { bg: "from-emerald-500/20 to-emerald-500/5", text: "text-emerald-400", border: "border-emerald-500/30" },
+};
+
+function getLeagueStyle(league: string) {
+  // Try to find a matching league or use defaults
+  for (const [key, style] of Object.entries(LEAGUE_COLORS)) {
+    if (league.toLowerCase().includes(key.toLowerCase())) {
+      return style;
+    }
+  }
+  return { bg: "from-brand-green/20 to-brand-green/5", text: "text-brand-green", border: "border-brand-green/30" };
+}
+
 function GameCard({ game }: { game: GameInfo }) {
   const [expanded, setExpanded] = useState(false);
+  const leagueStyle = getLeagueStyle(game.league);
+  const isLive = game.status === "live" || game.home_score != null;
   
   const tierColors: Record<string, string> = {
     banker: "bg-win-green/20 text-win-green border-win-green/30",
@@ -41,8 +67,24 @@ function GameCard({ game }: { game: GameInfo }) {
         hover:border-brand-green/40 hover:shadow-lg hover:shadow-brand-green/5
         hover:translate-y-[-2px]
       ">
-        {/* Header bar with tier indicator */}
-        {game.pick?.tier && (
+        {/* Pulsing live indicator */}
+        {isLive && (
+          <div className="relative">
+            <div className="
+              px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
+              bg-gradient-to-r from-red-500/20 to-red-500/5 text-red-400 border-b border-red-500/30
+            ">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
+              </span>
+              LIVE
+            </div>
+          </div>
+        )}
+        
+        {/* Tier indicator */}
+        {!isLive && game.pick?.tier && (
           <div className={`
             px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
             ${tierColors[game.pick.tier] || "bg-muted/50"}
@@ -53,10 +95,28 @@ function GameCard({ game }: { game: GameInfo }) {
           </div>
         )}
         
+        {/* No analysis yet indicator */}
+        {!isLive && !game.pick && (
+          <div className="
+            px-4 py-1.5 text-xs font-medium tracking-wide uppercase flex items-center gap-2
+            bg-gradient-to-r from-muted/50 to-muted/30 text-muted-foreground
+            border-b border-border/30
+          ">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-muted-foreground opacity-50"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground"></span>
+            </span>
+            Coming Soon
+          </div>
+        )}
+        
         <div className="p-5">
-          {/* League & Time */}
+          {/* League Tag - Color Coded */}
           <div className="flex justify-between items-center mb-4">
-            <span className="text-xs font-medium text-muted-foreground/80 uppercase tracking-wider">
+            <span className={`
+              text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md
+              bg-gradient-to-r ${leagueStyle.bg} ${leagueStyle.text} border ${leagueStyle.border}
+            `}>
               {game.league}
             </span>
             <span className="text-sm font-semibold text-foreground/60">
@@ -134,14 +194,30 @@ function GameCard({ game }: { game: GameInfo }) {
                 {game.best_market.selection} @ {Number(game.best_market.odds).toFixed(2)}
               </div>
             </div>
+          ) : !game.best_market ? (
+            // Show animated coming soon state instead of "Analyzing..."
+            <div className="
+              bg-gradient-to-r from-muted/20 to-transparent
+              rounded-xl p-4 border border-dashed border-border/40
+            ">
+              <div className="flex items-center justify-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-30"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-green"></span>
+                </span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  Analysis loading...
+                </span>
+              </div>
+            </div>
           ) : (
-            <div className="text-center py-2 text-sm text-muted-foreground/50">
-              Analyzing...
+            <div className="bg-muted/20 rounded-xl p-3">
+              <div className="text-sm text-muted-foreground">
+                {game.best_market.selection} @ {Number(game.best_market.odds).toFixed(2)}
+              </div>
             </div>
           )}
         </div>
-
-        {/* Hover reveal footer */}
         <div className="
           px-5 py-3 border-t border-border/30
           flex items-center justify-between
