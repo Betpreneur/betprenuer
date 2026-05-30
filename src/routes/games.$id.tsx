@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api, type GameDetailResponse } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -14,8 +14,7 @@ export const Route = createFileRoute("/games/$id")({
   component: GamePage,
 });
 
-function GamePage() {
-  const { id } = useParams({ from: "/games/$id" });
+function GamePage({ params }: { params?: { id: string } }) {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<GameDetailResponse | null>(null);
   const [error, setError] = useState(false);
