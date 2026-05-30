@@ -1,20 +1,175 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type TodayPicksResponse, type Pick } from "@/lib/api";
+import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Today's picks — Betpreneur" },
-      { name: "description", content: "Today's pre-match picks." },
-      { property: "og:title", content: "Today's picks — Betpreneur" },
-      { property: "og:description", content: "Daily football picks with confidence levels." },
+      { title: "Today's Games — Betpreneur" },
+      { name: "description", content: "All covered games with analysis." },
     ],
   }),
   component: HomePage,
 });
+
+function GameCard({ game, onClick }: { game: GameInfo; onClick?: () => void }) {
+  return (
+    <div 
+      className="bg-card border border-brand-border rounded-xl p-4 hover:border-brand-green/30 cursor-pointer transition-colors"
+      onClick={onClick}
+    >
+      {/* League + Kickoff */}
+      <div className="flex justify-between text-xs text-muted-foreground mb-2">
+        <span>{game.league}</span>
+        <span>{game.kickoff}</span>
+      </div>
+      
+      {/* Teams */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1 text-center">
+          {game.home_logo && <img src={game.home_logo} alt="" className="w-8 h-8 mx-auto" />}
+          <div className="font-medium text-sm">{game.home_team}</div>
+        </div>
+        
+        {/* Score or vs */}
+        <div className="px-3">
+          {game.status === "FT" || game.home_score !== null ? (
+            <span className="text-lg font-bold text-brand-green">
+              {game.home_score} - {game.away_score}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">vs</span>
+          )}
+        </div>
+        
+        <div className="flex-1 text-center">
+          {game.away_logo && <img src={game.away_logo} alt="" className="w-8 h-8 mx-auto" />}
+          <div className="font-medium text-sm">{game.away_team}</div>
+        </div>
+      </div>
+      
+      {/* Pick/Market indicator */}
+      <div className="mt-3 pt-2 border-t border-border/30 flex justify-between text-sm">
+        {game.pick ? (
+          <span className="text-brand-green font-medium">
+            {game.pick.tier?.replace("_", " ")} • {game.pick.odds}
+          </span>
+        ) : game.best_market ? (
+          <span className="text-muted-foreground">
+            {game.best_market.selection} @ {game.best_market.odds}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
+        <Link to="/match/$id" params={{ id: game.id }} className="text-info-blue">
+          Details →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function HomePage() {
+  const { isAuthed, loading: authLoading } = useAuth();
+  const [data, setData] = useState<AlgoGamesResponse | null>(null);
+  const [error, setError] = useState(false);
+  const [leagueFilter, setLeagueFilter] = useState("All");
+
+  const load = () => {
+    setError(false);
+    api.getAlgoGames()
+      .then(setData)
+      .catch(() => setError(true));
+  };
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    load();
+  }, [isAuthed]);
+
+  useEffect(() => {
+    if (!data?.published) return;
+    const id = setInterval(load, 60_000);
+    return () => clearInterval(id);
+  }, [data?.published]);
+
+  const leagues = data?.games ? [...new Set(data.games.map(g => g.league))] : [];
+  const filters = ["All", ...leagues];
+
+  const filteredGames = data?.games 
+    ? leagueFilter === "All" ? data.games : data.games.filter(g => g.league === leagueFilter)
+    : [];
+
+  if (authLoading) {
+    return <div className="p-4 animate-pulse bg-card rounded-xl">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center">
+        <p>Failed to load games.</p>
+        <button onClick={load} className="mt-2 px-4 py-2 bg-brand-green text-white rounded">Retry</button>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div className="p-4 animate-pulse bg-card rounded-xl">Loading...</div>;
+  }
+
+  if (!data.published) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-lg font-bold mb-2">Awaiting Games</h2>
+        <p className="text-muted-foreground">Games not yet published. Check back later.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 p-4">
+      <header className="flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-bold">Today's Games</h1>
+          <p className="text-sm text-muted-foreground">{todayLagos()}</p>
+        </div>
+        <div className="text-sm">
+          {filteredGames.length} game{filteredGames.length !== 1 ? "s" : ""}
+        </div>
+      </header>
+
+      {/* League Filters */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {filters.map(l => (
+          <button
+            key={l}
+            onClick={() => setLeagueFilter(l)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
+              leagueFilter === l 
+                ? "bg-brand-green text-white" 
+                : "bg-card border border-brand-border text-muted-foreground"
+            }`}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {/* Games Grid */}
+      <div className="space-y-3">
+        {filteredGames.length === 0 ? (
+          <div className="p-4 text-center text-muted-foreground">No games in this filter.</div>
+        ) : (
+          filteredGames.map(game => (
+            <GameCard key={game.id} game={game} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Helper to get tier color
 function getTierColor(tier: string): string {
