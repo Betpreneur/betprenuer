@@ -376,8 +376,7 @@ export interface AlgoGamesResponse {
 
 // Single game info from games list
 export interface GameInfo {
-  match_id: string;
-  fixture: string;
+  id: string;
   league: string;
   kickoff: string;
   home_team: string;
@@ -387,9 +386,8 @@ export interface GameInfo {
   status: string | null;
   home_score: number | null;
   away_score: number | null;
-  published: boolean;
-  official_pick: Pick | null;
-  top_market: MarketInfo | null;
+  pick: Pick | null;
+  best_market: MarketInfo | null;
 }
 
 // Market info within a game
