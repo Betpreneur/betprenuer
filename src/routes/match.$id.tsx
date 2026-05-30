@@ -1,11 +1,37 @@
 import { createFileRoute, Link, Navigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type PickDetail } from "@/lib/api";
+import { api, type PickDetail, type GameDetailResponse } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
 import logoFull from "@/assets/betpreneur-logo-horizontal.png";
+
+// Extended type for full game details
+interface GameDetails {
+  fixture: string;
+  home_team: string;
+  away_team: string;
+  league: string;
+  kickoff: string;
+  match_id: string;
+  published: boolean;
+  official_pick_count: number;
+  official_pick: any;
+  official_picks: any[];
+  top_market: any;
+  market_count: number;
+  eligible_market_count: number;
+  markets_70_plus: number;
+  markets_65_plus: number;
+  home_recent_form: any;
+  away_recent_form: any;
+  fixture_context: any;
+  team_news: any;
+  corner_profile: any;
+  insights: any;
+  markets: any[];
+}
 
 export const Route = createFileRoute("/match/$id")({
   component: MatchPage,
@@ -64,6 +90,7 @@ function MatchPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const router = useRouter();
   const [pick, setPick] = useState<PickDetail | null>(null);
+  const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
   const [error, setError] = useState(false);
   const [backing, setBacking] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
@@ -97,6 +124,9 @@ function MatchPage() {
         const p = g.official_pick; // Selected pick from official_pick field
         console.log("[MatchPage] Got game from API:", g.id, " Picks:", g.official_picks?.length);
         
+        // Store full game details for additional display
+        setGameDetails(g as GameDetails);
+        
         setPick({
           ...p,
           id: p?.id || Number(g.match_id) || 0,
@@ -116,7 +146,6 @@ function MatchPage() {
           away_score: g.away_score,
           status: g.status,
           league: g.league,
-          // Use recent_form fields
           form_home: g.home_recent_form,
           form_away: g.away_recent_form,
           goals_profile: p?.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
@@ -129,6 +158,23 @@ function MatchPage() {
           odds: p?.odds || "",
           confidence: p?.confidence || 0,
           tier: p?.tier || "",
+          stake: p?.stake || "",
+          ev: p?.ev || 0,
+          // Map all extra fields for display
+          fixture_context: g.fixture_context,
+          corner_profile: g.corner_profile,
+          top_market: g.top_market,
+          market_count: g.market_count,
+          markets_70_plus: g.markets_70_plus,
+          markets_65_plus: g.markets_65_plus,
+          official_pick_count: g.official_pick_count,
+          official_picks: g.official_picks,
+          markets: g.markets,
+          home_standing: g.fixture_context?.home_standing,
+          away_standing: g.fixture_context?.away_standing,
+          home_rest_days: g.fixture_context?.home_rest_days,
+          away_rest_days: g.fixture_context?.away_rest_days,
+          league_strength: g.fixture_context?.league_strength,
         } as any);
       })
       .catch(() => setError(true))
