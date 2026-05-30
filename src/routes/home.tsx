@@ -4,6 +4,7 @@ import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
+import { StakeGuide } from "@/components/StakeGuide";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -17,62 +18,141 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
+// Bento Grid GameCard - Modern Apple-style with glass touches
 function GameCard({ game }: { game: GameInfo }) {
   const [expanded, setExpanded] = useState(false);
+  
+  const tierColors: Record<string, string> = {
+    banker: "bg-win-green/20 text-win-green border-win-green/30",
+    gem: "bg-teal-500/20 text-teal-500 border-teal-500/30",
+    wild_card: "bg-amber-500/20 text-amber-500 border-amber-500/30",
+  };
 
   return (
-    <div className="bg-card border border-brand-border rounded-xl overflow-hidden">
-      <div 
-        className="p-4 cursor-pointer hover:bg-muted/20"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground">{game.league}</span>
-          <span className="text-sm font-medium">{game.kickoff}</span>
-        </div>
-
-        <div className="flex justify-between items-center mt-2">
-          <div className="text-center flex-1">
-            {game.home_logo && <img src={game.home_logo} alt="" className="w-8 h-8 mx-auto" />}
-            <div className="text-sm font-medium mt-1">{game.home_team}</div>
+    <Link 
+      to="/match/$id" 
+      params={{ id: game.match_id }}
+      className="group block"
+    >
+      <div className="
+        bg-card/80 backdrop-blur-sm 
+        border border-border/50 rounded-2xl 
+        overflow-hidden transition-all duration-300
+        hover:border-brand-green/40 hover:shadow-lg hover:shadow-brand-green/5
+        hover:translate-y-[-2px]
+      ">
+        {/* Header bar with tier indicator */}
+        {game.pick?.tier && (
+          <div className={`
+            px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
+            ${tierColors[game.pick.tier] || "bg-muted/50"}
+            border-b border-transparent
+          `}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+            {game.pick.tier?.replace("_", " ")}
           </div>
-          <span className="px-2 text-lg font-bold text-brand-green">
-            {game.home_score != null ? `${game.home_score} - ${game.away_score}` : "vs"}
-          </span>
-          <div className="text-center flex-1">
-            {game.away_logo && <img src={game.away_logo} alt="" className="w-8 h-8 mx-auto" />}
-            <div className="text-sm font-medium mt-1">{game.away_team}</div>
+        )}
+        
+        <div className="p-5">
+          {/* League & Time */}
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-xs font-medium text-muted-foreground/80 uppercase tracking-wider">
+              {game.league}
+            </span>
+            <span className="text-sm font-semibold text-foreground/60">
+              {game.kickoff}
+            </span>
           </div>
-        </div>
 
-        <div className="mt-2 pt-2 border-t border-border/30 flex justify-between text-xs">
-          {game.pick ? (
-            <span className="text-brand-green">
-              {game.pick.tier?.replace("_", " ")} @ {game.pick.odds}
-            </span>
-          ) : game.best_market ? (
-            <span className="text-muted-foreground">
-              {game.best_market.selection} @ {game.best_market.odds}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">—</span>
+          {/* Teams Matchup - Centered Layout */}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="flex-1 text-center min-w-0">
+              {game.home_logo && (
+                <img src={game.home_logo} alt="" className="w-12 h-12 mx-auto mb-2" />
+              )}
+              <div className="text-sm font-bold truncate text-foreground group-hover:text-brand-green transition-colors">
+                {game.home_team}
+              </div>
+            </div>
+            
+            <div className="text-center shrink-0">
+              <div className="text-xs text-muted-foreground mb-1">vs</div>
+              <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center">
+                <span className="text-sm font-bold text-muted-foreground">
+                  {game.home_score != null ? "-" : "VS"}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex-1 text-center min-w-0">
+              {game.away_logo && (
+                <img src={game.away_logo} alt="" className="w-12 h-12 mx-auto mb-2" />
+              )}
+              <div className="text-sm font-bold truncate text-foreground group-hover:text-brand-green transition-colors">
+                {game.away_team}
+              </div>
+            </div>
+          </div>
+
+          {/* Score display (when live/finished) */}
+          {game.home_score != null && (
+            <div className="text-center py-2 mb-3">
+              <span className="text-3xl font-black tracking-wider">
+                {game.home_score} <span className="text-muted-foreground/50 mx-2">:</span> {game.away_score}
+              </span>
+            </div>
           )}
-          <span>{expanded ? "Hide" : "More"}</span>
+
+          {/* Pick Preview Card - Embedded */}
+          {game.pick ? (
+            <div className="
+              bg-gradient-to-r from-muted/30 to-muted/10 
+              rounded-xl p-3 border border-border/30
+            ">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-foreground">
+                    {game.pick.selection}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {Number(game.pick.odds).toFixed(2)} odds · {game.pick.confidence?.toFixed(0)}% confidence
+                  </div>
+                </div>
+                <div className="
+                  px-3 py-1.5 rounded-lg
+                  bg-brand-green/20 text-brand-green 
+                  text-sm font-bold
+                  border border-brand-green/30
+                ">
+                  →
+                </div>
+              </div>
+            </div>
+          ) : game.best_market ? (
+            <div className="bg-muted/20 rounded-xl p-3">
+              <div className="text-sm text-muted-foreground">
+                {game.best_market.selection} @ {Number(game.best_market.odds).toFixed(2)}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-2 text-sm text-muted-foreground/50">
+              Analyzing...
+            </div>
+          )}
+        </div>
+
+        {/* Hover reveal footer */}
+        <div className="
+          px-5 py-3 border-t border-border/30
+          flex items-center justify-between
+          text-xs text-muted-foreground
+          opacity-0 group-hover:opacity-100 transition-opacity duration-300
+        ">
+          <span>View full analysis</span>
+          <span className="text-brand-green">→</span>
         </div>
       </div>
-
-      {expanded && (
-        <div className="px-4 pb-4 border-t border-border/30">
-          <Link
-            to="/match/$id"
-            params={{ id: game.match_id }}
-            className="block text-center text-sm text-info-blue hover:underline py-2"
-          >
-            View Full Analysis →
-          </Link>
-        </div>
-      )}
-    </div>
+    </Link>
   );
 }
 
