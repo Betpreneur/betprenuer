@@ -23,7 +23,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as GamesIdRouteImport } from './routes/games.$id'
-import { Route as MatchRouteImport } from './routes/match.'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -95,11 +94,6 @@ const GamesIdRoute = GamesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => GamesRoute,
 } as any)
-const MatchRoute = MatchRouteImport.update({
-  id: '/match/',
-  path: '/match/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -114,7 +108,6 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/match/': typeof MatchRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -131,7 +124,6 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/match': typeof MatchRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -149,7 +141,6 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/match/': typeof MatchRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -168,7 +159,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/match/'
     | '/games/$id'
     | '/match/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -185,7 +175,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/match'
     | '/games/$id'
     | '/match/$id'
   id:
@@ -202,7 +191,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/match/'
     | '/games/$id'
     | '/match/$id'
   fileRoutesById: FileRoutesById
@@ -220,7 +208,6 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TopPickRoute: typeof TopPickRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
-  MatchRoute: typeof MatchRoute
   MatchIdRoute: typeof MatchIdRoute
 }
 
@@ -324,13 +311,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesIdRouteImport
       parentRoute: typeof GamesRoute
     }
-    '/match/': {
-      id: '/match/'
-      path: '/match'
-      fullPath: '/match/'
-      preLoaderRoute: typeof MatchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -357,7 +337,6 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TopPickRoute: TopPickRoute,
   VerifyEmailRoute: VerifyEmailRoute,
-  MatchRoute: MatchRoute,
   MatchIdRoute: MatchIdRoute,
 }
 export const routeTree = rootRouteImport
