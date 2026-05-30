@@ -133,36 +133,38 @@ function TopPickPage() {
 
   return (
     <div className="space-y-6 p-4">
-      {/* Stats Bar - identical to Home page */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
-          </span>
-          <p className="text-[13px] text-muted-foreground">
-            {todayLagos()} · Picks live
-          </p>
-        </div>
-        
-        {/* Tier Summary Pills */}
-        <div className="flex items-center gap-2 text-[11px]">
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5">
-            <span className="text-white/70">Games:</span>
-            <span className="text-win-green font-bold">{allPicks.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
-            <span className="text-brand-green font-medium">{bankers.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-600/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
-            <span className="text-teal-600 font-medium">{gems.length}</span>
-          </span>
-          <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-purple-600/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-            <span className="text-purple-600 font-medium">{wildcards.length}</span>
-          </span>
+      {/* Stats Bar - enhanced glow */}
+      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
+            </span>
+            <p className="text-[13px] text-muted-foreground">
+              {todayLagos()} · Picks live
+            </p>
+          </div>
+          
+          {/* Tier Summary Pills */}
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5">
+              <span className="text-white/70">Games:</span>
+              <span className="text-win-green font-bold">{allPicks.length}</span>
+            </span>
+            <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-green/10">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green"></span>
+              <span className="text-brand-green font-medium">{bankers.length}</span>
+            </span>
+            <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-600/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+              <span className="text-teal-600 font-medium">{gems.length}</span>
+            </span>
+            <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-purple-600/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+              <span className="text-purple-600 font-medium">{wildcards.length}</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -173,27 +175,29 @@ function TopPickPage() {
       )}
 
       {topPick && (
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-50"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
-            </span>
-            <h2 className="text-[16px] font-bold text-brand-green uppercase tracking-wide">Top Pick</h2>
-            <span className="ml-auto animate-pulse">
-              <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </span>
+        <section className="bg-gradient-to-br from-brand-green/10 to-jet-surface-2 border-2 border-brand-green/40 rounded-2xl p-0.5 shadow-lg shadow-brand-green/20">
+          <div className="bg-jet-surface-2/50 rounded-[calc(0.5rem-2px)] p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-50"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
+              </span>
+              <h2 className="text-[16px] font-bold text-brand-green uppercase tracking-wide">Top Pick</h2>
+              <span className="ml-auto animate-pulse">
+                <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </span>
+            </div>
+            <PickRow pick={topPick} />
           </div>
-          <PickRow pick={topPick} />
         </section>
       )}
 
       {/* Bankers Section */}
       {bankers.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-[14px] font-bold text-brand-green tracking-wide">Bankers ({bankers.length})</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="text-[14px] font-semibold text-brand-green mb-3 tracking-wide">Bankers ({bankers.length})</h2>
           <div className="space-y-2">
             {bankers.map(pick => (
               <PickRow key={pick.id} pick={pick} />
@@ -204,8 +208,8 @@ function TopPickPage() {
 
       {/* Value Gems Section */}
       {gems.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-[14px] font-bold text-teal-accent tracking-wide">Value Gems ({gems.length})</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="text-[14px] font-semibold text-teal-accent mb-3 tracking-wide">Value Gems ({gems.length})</h2>
           <div className="space-y-2">
             {gems.map(pick => (
               <PickRow key={pick.id} pick={pick} />
@@ -216,8 +220,8 @@ function TopPickPage() {
 
       {/* Wildcards Section */}
       {wildcards.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-[14px] font-bold text-purple-500 tracking-wide">Wildcards ({wildcards.length})</h2>
+        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
+          <h2 className="text-[14px] font-semibold text-purple-500 mb-3 tracking-wide">Wildcards ({wildcards.length})</h2>
           <div className="space-y-2">
             {wildcards.map(pick => (
               <PickRow key={pick.id} pick={pick} />
