@@ -3,22 +3,22 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/games/$id")({
+export const Route = createFileRoute("/games/$match_id")({
   head: ({ params }) => ({
-    meta: [{ title: `Game ${params.id} - Betpreneur` }],
+    meta: [{ title: `Game ${params.match_id} - Betpreneur` }],
   }),
   component: GamePage,
 });
 
-function GamePage({ params }: { params: { id: string } }) {
+function GamePage({ params }: { params: { match_id: string } }) {
   const { isAuthed, loading } = useAuth();
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!isAuthed || !params?.id) return;
-    api.getGameDetail(params.id).then(setData).catch(() => setError(true));
-  }, [isAuthed, params?.id]);
+    if (!isAuthed || !params?.match_id) return;
+    api.getGameDetail(params.match_id).then(setData).catch(() => setError(true));
+  }, [isAuthed, params?.match_id]);
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (error || !data) return <div className="p-4">Load failed.</div>;
