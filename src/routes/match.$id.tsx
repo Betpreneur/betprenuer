@@ -518,7 +518,7 @@ function MatchPage() {
             {(pick as any).fixture_context?.goal_model && (
               <div className="bg-muted/30 rounded-lg p-3">
                 <div className="text-muted-foreground text-[11px] mb-2">Goal Model Predictions</div>
-                <div className="grid grid-cols-4 gap-2 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div>
                     <div className="font-bold text-win-green">{(pick as any).fixture_context.goal_model.expected_total?.toFixed(2) ?? "-"}</div>
                     <div className="text-[10px] text-muted-foreground">Expected Goals</div>
@@ -543,7 +543,7 @@ function MatchPage() {
             {(pick as any).fixture_context?.h2h && (pick as any).fixture_context.h2h.games > 0 && (
               <div className="bg-muted/30 rounded-lg p-3">
                 <div className="text-muted-foreground text-[11px] mb-2">Head-to-head (last { (pick as any).fixture_context.h2h.games } games)</div>
-                <div className="grid grid-cols-4 gap-2 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div>
                     <div className="font-bold text-win-green">{(pick as any).fixture_context.h2h.t1w ?? 0}</div>
                     <div className="text-[10px] text-muted-foreground">{pick.match.split(" vs ")[0].split(" ")[0]} wins</div>
@@ -574,7 +574,7 @@ function MatchPage() {
             
             {/* League standings */}
             {(pick as any).home_standing?.rank && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(pick as any).home_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} position</div>
@@ -596,7 +596,7 @@ function MatchPage() {
             
             {/* Rest days */}
             {((pick as any).home_rest_days || (pick as any).away_rest_days) && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(pick as any).home_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
                     <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} rest</div>
@@ -662,7 +662,7 @@ function MatchPage() {
       {(pick as any).corner_profile && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Corner Stats</h2>
-          <div className="grid grid-cols-2 gap-4 text-[13px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
             {(pick as any).corner_profile?.home && (
               <div className="bg-muted/30 rounded-lg p-3">
                 <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>

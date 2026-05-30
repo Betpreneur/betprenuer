@@ -162,7 +162,7 @@ function MyPicksPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <StatCard label="Total" value={stats.total} color="text-white" />
         <StatCard label="Wins" value={stats.wins} color="text-win-green" />
         <StatCard label="Loss" value={stats.losses} color="text-danger-red" />

@@ -197,8 +197,8 @@ function RecordPage() {
         ))}
       </div>
 
-      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-x-auto overscroll-x-contain">
-        <table className="w-full text-[13px] min-w-[600px]">
+      <div className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl overflow-x-auto">
+        <table className="w-full text-[13px]">
           <thead className="bg-subtle-bg text-muted-foreground text-[11px] uppercase">
             <tr>
               <th className="text-left px-3 py-3">Date</th>

@@ -146,7 +146,7 @@ function Landing() {
 
           {/* Animated live stat strip with gaming style */}
           {/* Live stat strip */}
-          <div className="mt-9 grid grid-cols-3 gap-3 max-w-xl">
+          <div className="mt-9 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl">
             <StatChip
               label="Hit rate"
               value={stats ? `${stats.hit_rate.toFixed(1)}%` : "—"}
