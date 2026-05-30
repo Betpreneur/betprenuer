@@ -18,9 +18,11 @@ import { Route as RecordRouteImport } from './routes/record'
 import { Route as MyPicksRouteImport } from './routes/my-picks'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as GamesRouteImport } from './routes/games'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
+import { Route as GamesIdRouteImport } from './routes/games.$id'
 import { Route as MatchRouteImport } from './routes/match.'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -68,6 +70,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesRoute = GamesRouteImport.update({
+  id: '/games',
+  path: '/games',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -83,6 +90,11 @@ const MatchIdRoute = MatchIdRouteImport.update({
   path: '/match/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesIdRoute = GamesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => GamesRoute,
+} as any)
 const MatchRoute = MatchRouteImport.update({
   id: '/match/',
   path: '/match/',
@@ -92,6 +104,7 @@ const MatchRoute = MatchRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/my-picks': typeof MyPicksRoute
@@ -102,11 +115,13 @@ export interface FileRoutesByFullPath {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/match/': typeof MatchRoute
+  '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/my-picks': typeof MyPicksRoute
@@ -117,12 +132,14 @@ export interface FileRoutesByTo {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/match': typeof MatchRoute
+  '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/games': typeof GamesRouteWithChildren
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/my-picks': typeof MyPicksRoute
@@ -133,6 +150,7 @@ export interface FileRoutesById {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/match/': typeof MatchRoute
+  '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
 export interface FileRouteTypes {
@@ -140,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/forgot-password'
+    | '/games'
     | '/home'
     | '/login'
     | '/my-picks'
@@ -150,11 +169,13 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/match/'
+    | '/games/$id'
     | '/match/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/forgot-password'
+    | '/games'
     | '/home'
     | '/login'
     | '/my-picks'
@@ -165,11 +186,13 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/match'
+    | '/games/$id'
     | '/match/$id'
   id:
     | '__root__'
     | '/'
     | '/forgot-password'
+    | '/games'
     | '/home'
     | '/login'
     | '/my-picks'
@@ -180,12 +203,14 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/match/'
+    | '/games/$id'
     | '/match/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  GamesRoute: typeof GamesRouteWithChildren
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MyPicksRoute: typeof MyPicksRoute
@@ -264,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games': {
+      id: '/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -285,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatchIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/$id': {
+      id: '/games/$id'
+      path: '/$id'
+      fullPath: '/games/$id'
+      preLoaderRoute: typeof GamesIdRouteImport
+      parentRoute: typeof GamesRoute
+    }
     '/match/': {
       id: '/match/'
       path: '/match'
@@ -295,9 +334,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface GamesRouteChildren {
+  GamesIdRoute: typeof GamesIdRoute
+}
+
+const GamesRouteChildren: GamesRouteChildren = {
+  GamesIdRoute: GamesIdRoute,
+}
+
+const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  GamesRoute: GamesRouteWithChildren,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MyPicksRoute: MyPicksRoute,

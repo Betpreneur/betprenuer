@@ -45,13 +45,13 @@ function GameCard({ game }: { game: GameInfo }) {
         </div>
 
         <div className="mt-2 pt-2 border-t border-border/30 flex justify-between text-xs">
-          {game.pick ? (
+          {game.official_pick ? (
             <span className="text-brand-green">
-              {game.pick.tier?.replace("_", " ")} @ {game.pick.odds}
+              {game.official_pick.tier?.replace("_", " ")} @ {game.official_pick.odds}
             </span>
-          ) : game.best_market ? (
+          ) : game.top_market ? (
             <span className="text-muted-foreground">
-              {game.best_market.selection} @ {game.best_market.odds}
+              {game.top_market.market} @ {game.top_market.odds}
             </span>
           ) : (
             <span className="text-muted-foreground">—</span>
@@ -62,17 +62,12 @@ function GameCard({ game }: { game: GameInfo }) {
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-border/30">
-          <Link
-            to="/games"
-            params={{ id: String(game.match_id) }}
+          <a
+            href={`/match/${game.match_id}`}
             className="block text-center text-sm text-info-blue hover:underline py-2"
-            onClick={() => {
-              // Pre-fetch game detail when clicking the link
-              api.getGameDetail(String(game.match_id)).catch(() => {});
-            }}
           >
             View Full Analysis →
-          </Link>
+          </a>
         </div>
       )}
     </div>
@@ -164,7 +159,7 @@ function HomePage() {
 
       <div className="grid gap-3">
         {filteredGames.map(game => (
-          <GameCard key={game.id} game={game} />
+          <GameCard key={game.match_id} game={game} />
         ))}
       </div>
     </div>
