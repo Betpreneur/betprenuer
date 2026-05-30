@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api, type GameDetailResponse } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -15,16 +15,17 @@ export const Route = createFileRoute("/games/$id")({
 });
 
 function GamePage() {
+  const { id } = useParams({ from: "/games/$id" });
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<GameDetailResponse | null>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!isAuthed) return;
-    api.getGameDetail(Route.useParams().id)
+    if (!isAuthed || !id) return;
+    api.getGameDetail(id)
       .then(setData)
       .catch(() => setError(true));
-  }, [isAuthed]);
+  }, [isAuthed, id]);
 
   if (authLoading) return <div className="p-4">Loading...</div>;
   if (error || !data) return <div className="p-4">Failed to load game.</div>;
