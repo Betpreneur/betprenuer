@@ -1,6 +1,7 @@
 // filepath: src/routes/record.tsx
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { RecordPageSkeleton } from "@/components/skeletons";
 
 const API_BASE = "";
 
@@ -135,22 +136,7 @@ function RecordPage() {
   }
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        {/* Header skeleton */}
-        <div className="h-16 bg-card border border-brand-border rounded-xl animate-pulse" />
-        
-        {/* Stats skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[0, 1, 2, 3].map(i => (
-            <div key={i} className="h-24 bg-card border border-brand-border rounded-xl animate-pulse" />
-          ))}
-        </div>
-        
-        {/* Table skeleton */}
-        <div className="h-64 bg-card border border-brand-border rounded-xl animate-pulse" />
-      </div>
-    );
+    return <RecordPageSkeleton />;
   }
 
   if (error) {

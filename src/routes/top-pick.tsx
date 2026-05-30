@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
+import { TopPicksSkeleton } from "@/components/skeletons";
 
 export const Route = createFileRoute("/top-pick")({
   head: () => ({
@@ -67,7 +68,7 @@ function TopPickPage() {
   }, [authLoading, isAuthed]);
 
   if (authLoading) {
-    return <div className="p-4 animate-pulse bg-card rounded-xl">Loading...</div>;
+    return <TopPicksSkeleton />;
   }
 
   if (error || !picks.length) {

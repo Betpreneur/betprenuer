@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
+import { HomePageSkeleton } from "@/components/skeletons";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -100,7 +101,7 @@ function HomePage() {
   }, [data?.published]);
 
   if (authLoading) {
-    return <div className="p-4 animate-pulse bg-card rounded-xl">Loading...</div>;
+    return <HomePageSkeleton />;
   }
 
   if (error) {
@@ -108,7 +109,7 @@ function HomePage() {
   }
 
   if (!data) {
-    return <div className="p-4 animate-pulse bg-card rounded-xl">Loading...</div>;
+    return <HomePageSkeleton />;
   }
 
   const games = data.games || [];
