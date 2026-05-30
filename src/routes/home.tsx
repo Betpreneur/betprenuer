@@ -63,7 +63,7 @@ function GameCard({ game }: { game: GameInfo }) {
       {expanded && (
         <div className="px-4 pb-4 border-t border-border/30">
           <Link
-            to="/match/$id"
+            to="/games/$id"
             params={{ id: game.id }}
             className="block text-center text-sm text-info-blue hover:underline py-2"
           >
