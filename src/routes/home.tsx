@@ -58,9 +58,10 @@ function GameCard({ game }: { game: GameInfo }) {
     <Link 
       to="/match/$id" 
       params={{ id: game.match_id }}
-      className="group block"
+      className="group block w-full"
     >
       <div className="
+        w-full box-border
         bg-card/80 backdrop-blur-sm 
         border border-border/50 rounded-2xl 
         overflow-hidden transition-all duration-300
