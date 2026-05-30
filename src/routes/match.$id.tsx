@@ -305,77 +305,152 @@ function MatchPage() {
 
   return (
     <div className="space-y-5">
-      <Link to="/home" className="text-[13px] text-info-blue">← Back to today</Link>
+      <Link to="/home" className="inline-flex items-center gap-2 text-sm text-info-blue hover:underline">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to today
+      </Link>
 
-{/* Match header - Top Pick styling */}
-      <header className="bg-gradient-to-br from-card to-jet-surface-2 border-2 border-brand-green rounded-xl p-5 shadow-lg shadow-brand-green/10">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="!text-[20px] !leading-tight">{pick.match}</h1>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
-              {pick.league} · {pick.kickoff_wat || "–"}
-            </p>
+{/* Hero Match Header - Premium Glass Design */}
+      <header className="
+        relative overflow-hidden rounded-2xl
+        bg-gradient-to-br from-card via-card to-brand-green/10
+        border border-brand-green/30
+        p-6
+      ">
+        {/* Animated background shine */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -inset-full bg-gradient-to-tr from-transparent via-brand-green/5 to-transparent transform rotate-12 animate-shimmer" />
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              {/* League pill */}
+              <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-green/20 text-brand-green border border-brand-green/30 mb-2">
+                {pick.league}
+              </span>
+              <h1 className="text-xl md:text-2xl font-black leading-tight">{pick.match}</h1>
+              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {pick.kickoff_wat || "TBD"}
+              </p>
+            </div>
+            <TierBadge tier={pick.tier} />
           </div>
-          <TierBadge tier={pick.tier} />
-        </div>
-        {/* Market and Odds section */}
-        <div className="mt-4 inline-flex items-center gap-2 bg-brand-green/10 border border-brand-green/30 rounded-lg px-4 py-2">
-          <span className="text-[14px] font-medium text-brand-green">{pick.market_plain}</span>
-          <span className="text-border">@</span>
-          <span className="text-[16px] font-bold text-brand-green">{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
-        </div>
-        <div className="mt-3 text-[13px] text-muted-foreground">
-          Confidence: <span className="font-medium text-win-green">{pick.confidence.toFixed(1)}%</span>
-          {" · "}Odds: <span className="font-medium text-foreground">{Number(pick.odds).toFixed(2)}</span>
+
+          {/* Main Pick Card - Prominent */}
+          <div className="
+            bg-gradient-to-r from-brand-green/20 via-brand-green/10 to-transparent
+            rounded-xl p-4 border border-brand-green/30
+          ">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Official Pick</div>
+                <div className="text-xl font-bold text-foreground">{pick.market_plain}</div>
+                <div className="flex items-baseline gap-3 mt-2">
+                  <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "—"}</span>
+                  <span className="flex items-center gap-1.5 text-sm">
+                    <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span className="font-semibold text-brand-green">{pick.confidence.toFixed(1)}%</span>
+                    <span className="text-muted-foreground text-xs">confidence</span>
+                  </span>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-brand-green/20 flex items-center justify-center border-2 border-brand-green">
+                <svg className="w-6 h-6 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Market meaning and reasoning */}
-      {(pick as any).meaning && (
-        <div className="bg-card border-l-4 border-l-teal-accent rounded-r-lg p-4">
-          <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-1">
-            📝 What does this mean?
-          </div>
-          <p className="text-[15px] font-medium">{(pick as any).meaning}</p>
-        </div>
-      )}
-
-      {pick.one_line_reason && (
-        <div className="bg-card border-l-4 border-l-info-blue rounded-r-lg p-4">
-          <div className="text-[11px] uppercase tracking-wide text-info-blue font-semibold mb-1">
-            🧠 Why this pick?
-          </div>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">{pick.one_line_reason}</p>
-        </div>
-      )}
-
-      {/* Value & Stake */}
-      {pick.ev !== undefined && pick.ev !== null && pick.stake && (
-        <div className="bg-gradient-to-br from-teal-bg to-card border border-teal-accent/30 rounded-xl p-5">
-          <div className="text-[11px] uppercase tracking-wide text-teal-accent font-semibold mb-4 text-center">
-            💎 Value Indicator
-          </div>
-          <div className="flex items-center justify-around">
-            <div className="text-center">
-              <div className={`text-[24px] font-bold ${pick.ev >= 0 ? "text-teal-accent" : "text-danger-red"}`}>
-                {pick.ev >= 0 ? "+" : ""}{Number(pick.ev).toFixed(3)}
-              </div>
-              <div className="text-[11px] text-muted-foreground mt-1">Expected Value</div>
+      {/* Insight Cards - Modern Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* What does this mean? */}
+        {(pick as any).meaning && (
+          <div className="bg-gradient-to-br from-teal-500/10 to-teal-500/5 rounded-xl p-4 border border-teal-500/20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-500">What does this mean?</span>
             </div>
-            <div className="w-px h-12 bg-border" />
-            <div className="text-center">
-              <div className="text-[24px] font-bold text-win-green">
-                ₦{Number(pick.stake).toLocaleString()}
+            <p className="text-sm font-medium">{pick.meaning}</p>
+          </div>
+        )}
+
+        {/* Why this pick? */}
+        {pick.one_line_reason && (
+          <div className="bg-gradient-to-br from-info-blue/10 to-info-blue/5 rounded-xl p-4 border border-info-blue/20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-info-blue/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-info-blue">Why this pick?</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">{pick.one_line_reason}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Value & Stake - Glass Card */}
+      {pick.ev !== undefined && pick.ev !== null && pick.stake && (
+        <div className="
+          relative overflow-hidden rounded-xl
+          bg-gradient-to-br from-teal-500/15 via-card to-card
+          border border-teal-500/30 p-5
+        ">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center justify-center mb-4">
+              <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-500">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Value Indicator
+              </span>
+            </div>
+            <div className="flex items-center justify-around">
+              <div className="text-center">
+                <div className={`text-3xl font-black ${pick.ev >= 0 ? "text-teal-500" : "text-danger-red"}`}>
+                  {pick.ev >= 0 ? "+" : ""}{Number(pick.ev).toFixed(3)}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Expected Value</div>
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1">Recommended Stake</div>
+              <div className="w-px h-12 bg-border" />
+              <div className="text-center">
+                <div className="text-3xl font-black text-win-green">
+                  ₦{Number(pick.stake).toLocaleString()}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Recommended Stake</div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Recent form - full team stats */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Recent form</h2>
+      <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-green/20 to-brand-green/10 flex items-center justify-center">
+            <svg className="w-5 h-5 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a6 6 0 00-6-6H4a6 6 0 00-6 6v6a6 6 0 006 6h6a6 6 0 006-6v-6m3-3a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+          <h2 className="!text-base font-bold">Recent Form</h2>
+        </div>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
         ) : (

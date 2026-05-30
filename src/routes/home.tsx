@@ -188,45 +188,10 @@ function GameCard({ game }: { game: GameInfo }) {
                 </div>
               </div>
             </div>
-          ) : game.best_market ? (
-            <div className="bg-muted/20 rounded-xl p-3">
-              <div className="text-sm text-muted-foreground">
-                {game.best_market.selection} @ {Number(game.best_market.odds).toFixed(2)}
-              </div>
-            </div>
-          ) : !game.best_market ? (
-            // Show animated coming soon state instead of "Analyzing..."
-            <div className="
-              bg-gradient-to-r from-muted/20 to-transparent
-              rounded-xl p-4 border border-dashed border-border/40
-            ">
-              <div className="flex items-center justify-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-30"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-green"></span>
-                </span>
-                <span className="text-sm font-medium text-muted-foreground">
-                  Analysis loading...
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-muted/20 rounded-xl p-3">
-              <div className="text-sm text-muted-foreground">
-                {game.best_market.selection} @ {Number(game.best_market.odds).toFixed(2)}
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
-        <div className="
-          px-5 py-3 border-t border-border/30
-          flex items-center justify-between
-          text-xs text-muted-foreground
-          opacity-0 group-hover:opacity-100 transition-opacity duration-300
-        ">
-          <span>View full analysis</span>
-          <span className="text-brand-green">→</span>
-        </div>
+
+        {/* Hover reveal footer */}
       </div>
     </Link>
   );
