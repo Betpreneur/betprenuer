@@ -125,10 +125,10 @@ function GameCard({ game }: { game: GameInfo }) {
           </div>
 
           {/* Teams Matchup - Centered Layout */}
-          <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center justify-center gap-2 md:gap-4 mb-4">
             <div className="flex-1 text-center min-w-0">
               {game.home_logo && (
-                <img src={game.home_logo} alt="" className="w-12 h-12 mx-auto mb-2" />
+                <img src={game.home_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2" />
               )}
               <div className="text-sm font-bold truncate text-foreground group-hover:text-brand-green transition-colors">
                 {game.home_team}
@@ -146,7 +146,7 @@ function GameCard({ game }: { game: GameInfo }) {
             
             <div className="flex-1 text-center min-w-0">
               {game.away_logo && (
-                <img src={game.away_logo} alt="" className="w-12 h-12 mx-auto mb-2" />
+                <img src={game.away_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2" />
               )}
               <div className="text-sm font-bold truncate text-foreground group-hover:text-brand-green transition-colors">
                 {game.away_team}
@@ -157,8 +157,8 @@ function GameCard({ game }: { game: GameInfo }) {
           {/* Score display (when live/finished) */}
           {game.home_score != null && (
             <div className="text-center py-2 mb-3">
-              <span className="text-3xl font-black tracking-wider">
-                {game.home_score} <span className="text-muted-foreground/50 mx-2">:</span> {game.away_score}
+              <span className="text-2xl md:text-3xl font-black tracking-wider">
+                {game.home_score} <span className="text-muted-foreground/50 mx-1 md:mx-2">:</span> {game.away_score}
               </span>
             </div>
           )}
