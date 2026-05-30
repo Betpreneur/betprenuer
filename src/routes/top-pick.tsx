@@ -128,9 +128,6 @@ function TopPickPage() {
   const gems = allPicks.filter((p) => getTier(p).includes("gem"));
   const wildcards = allPicks.filter((p) => getTier(p).includes("wild"));
 
-  // Get the top pick (official gem or first pick)
-  const topPick = allPicks.find(p => getTier(p).includes("gem")) ?? allPicks[0];
-
   return (
     <div className="space-y-6 p-4">
       {/* Stats Bar */}
@@ -170,10 +167,6 @@ function TopPickPage() {
         <div className="text-[11px] text-muted-foreground/60 text-right -mt-2">
           Published {new Date(data.posted_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos" })} WAT
         </div>
-      )}
-
-      {topPick && (
-        <PickRow pick={topPick} />
       )}
 
       {/* Bankers Section */}
