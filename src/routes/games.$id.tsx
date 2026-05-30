@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/games")({
+export const Route = createFileRoute("/games/$id")({
   head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
   component: GameAnalysisPage,
 });

@@ -76,50 +76,59 @@ function MatchPage() {
   const [generating, setGenerating] = useState(false);
 
   const load = () => {
-    const numId = Number(id);
-    if (isNaN(numId) || numId <= 0) {
+    if (!id || !id.trim()) {
       setError(true);
       setAppLoading(false);
       return;
     }
 
     // Always call API directly, no cache
-    console.log("[MatchPage] Calling API:", numId);
+    console.log("[MatchPage] Calling API:", id);
     setError(false);
     setAppLoading(true);
     
-    api.getPickDetail(numId)
+    api.getGameDetail(id)
       .then((res) => {
-        if (!res?.pick || !res.pick.id) {
+        if (!res?.game) {
           setError(true);
           return;
         }
-        const p = res.pick;
-        const f = (res as any).fixture; // Nested fixture object in API response
-        console.log("[MatchPage] Got pick from API:", p.id);
-        console.log("[MatchPage] Has fixture obj:", f ? "YES" : "NO");
+        const g = res.game;
+        const p = g.picks?.[0]; // First pick if exists
+        console.log("[MatchPage] Got game from API:", g.id);
         
         setPick({
           ...p,
-          match: p.fixture,
-          kickoff_wat: p.kickoff || "",
-          market_plain: p.market || p.selection || "",
-          meaning: p.meaning || undefined,
-          one_line_reason: p.reasoning || "",
-          model_verdict: p.model_verdict || undefined,
-          form_home: p.home_recent_form,
-          form_away: p.away_recent_form,
-          goals_profile: p.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
-          risk_flags: Array.isArray(p.risk_flags) ? p.risk_flags : [],
-          risk_level: p.risk_level || "",
-          user_backed: p.backed_by_me || false,
-          // Access fixture data from nested fixture object
-          fixture_context: p.fixture_context || f?.fixture_context || null,
-          insights: p.insights || f?.insights || null,
-          team_news: p.team_news || f?.team_news || null,
-          corner_profile: p.corner_profile || f?.corner_profile || null,
+          id: Number(g.id),
+          match: g.match,
+          fixture: g.match,
+          kickoff: g.kickoff,
+          kickoff_wat: g.kickoff || "",
+          market_plain: p?.market || p?.selection || "",
+          meaning: p?.meaning || undefined,
+          one_line_reason: p?.reasoning || "",
+          model_verdict: p?.model_verdict || undefined,
+          home_team: g.home_team,
+          away_team: g.away_team,
+          home_logo: g.home_logo,
+          away_logo: g.away_logo,
+          home_score: g.home_score,
+          away_score: g.away_score,
+          status: g.status,
+          league: g.league,
+          form_home: g.home_form,
+          form_away: g.away_form,
+          goals_profile: p?.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
+          risk_flags: Array.isArray(p?.risk_flags) ? p.risk_flags : [],
+          risk_level: p?.risk_level || "",
+          user_backed: p?.backed_by_me || false,
+          insights: g.insights,
+          team_news: { home: g.home_news, away: g.away_news },
+          market: p?.market || "",
+          odds: p?.odds || "",
+          confidence: p?.confidence || 0,
+          tier: p?.tier || "",
         } as any);
-        console.log("[MatchPage] fixture_context set:", (p.fixture_context || f?.fixture_context) ? "YES" : "NO");
       })
       .catch(() => setError(true))
       .finally(() => setAppLoading(false));
@@ -318,8 +327,8 @@ function MatchPage() {
       )}
 
       {/* Recent form - full team stats */}
-      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-        <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Recent form</h2>
+      <section className="bg-card border border-brand-border rounded-lg p-5">
+        <h2 className="mb-3">Recent form</h2>
         {(!pick.form_home && !pick.form_away) ? (
           <div className="text-muted-foreground text-sm">No recent form data available</div>
         ) : (
@@ -372,8 +381,8 @@ function MatchPage() {
 
       {/* Match context - standings, rest days, h2h, flags, goal model */}
       {(pick as any).fixture_context && (
-        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Match context</h2>
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Match context</h2>
           <div className="space-y-4 text-[13px]">
             {/* Goal Model */}
             {(pick as any).fixture_context?.goal_model && (
@@ -489,8 +498,8 @@ function MatchPage() {
 
       {/* Team News */}
       {(pick as any).team_news && (
-        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Team News</h2>
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Team News</h2>
           <div className="space-y-3 text-[13px]">
             {!(pick as any).team_news.available && (
               <div className="text-muted-foreground text-sm italic">
@@ -521,8 +530,8 @@ function MatchPage() {
 
       {/* Corner Profile */}
       {(pick as any).corner_profile && (
-        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Corner Stats</h2>
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Corner Stats</h2>
           <div className="grid grid-cols-2 gap-4 text-[13px]">
             {(pick as any).corner_profile?.home && (
               <div className="bg-muted/30 rounded-lg p-3">
@@ -561,8 +570,8 @@ function MatchPage() {
 
       {/* Key Insights */}
       {(pick as any).insights && (
-        <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-          <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Key Insights</h2>
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Key Insights</h2>
           <div className="space-y-3 text-[13px]">
             {(pick as any).insights?.key_signals?.length > 0 && (
               <div className="space-y-1">
@@ -591,8 +600,8 @@ function MatchPage() {
       )}
 
       {/* Goals profile */}
-      <section className="bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border/50 rounded-xl p-5 shadow-sm">
-        <h2 className="mb-4 text-[14px] font-semibold text-muted-foreground tracking-wide">Why this pick</h2>
+      <section className="bg-card border border-brand-border rounded-lg p-5">
+        <h2 className="mb-3">Why this pick</h2>
         <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
