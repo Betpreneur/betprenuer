@@ -176,6 +176,33 @@ function GameCard({ game }: { game: GameInfo }) {
                 </div>
               </div>
             </div>
+          ) : game.best_market ? (
+            <div className="
+              bg-gradient-to-r from-muted/30 to-muted/10 
+              rounded-xl p-3 border border-border/30
+            ">
+              <div className="text-xs text-muted-foreground mb-2">
+                Official picks not available
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-foreground">
+                    {game.best_market.selection}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {Number(game.best_market.odds).toFixed(2)} odds · {game.best_market.label}
+                  </div>
+                </div>
+                <div className="
+                  px-3 py-1.5 rounded-lg
+                  bg-muted/50 text-muted-foreground
+                  text-sm font-bold
+                  border border-border
+                ">
+                  →
+                </div>
+              </div>
+            </div>
           ) : null}
         </div>
 
