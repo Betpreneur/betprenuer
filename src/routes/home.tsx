@@ -163,7 +163,8 @@ function GameCard({ game }: { game: GameInfo }) {
                     {game.pick.selection}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.pick.odds).toFixed(2)} odds · {game.pick.confidence?.toFixed(0)}% confidence
+                    {Number(game.pick.odds).toFixed(2)} odds
+                    {game.pick.confidence ? ` · ${game.pick.confidence.toFixed(0)}% confidence` : null}
                   </div>
                 </div>
                 <div className="
@@ -176,7 +177,7 @@ function GameCard({ game }: { game: GameInfo }) {
                 </div>
               </div>
             </div>
-          ) : game.best_market ? (
+          ) : game.top_market ? (
             <div className="
               bg-gradient-to-r from-muted/30 to-muted/10 
               rounded-xl p-3 border border-border/30
@@ -187,10 +188,10 @@ function GameCard({ game }: { game: GameInfo }) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-bold text-foreground">
-                    {game.best_market.selection}
+                    {game.top_market.selection}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.best_market.odds).toFixed(2)} odds · {game.best_market.label}
+                    {Number(game.top_market.odds).toFixed(2)} odds · {game.top_market.label}
                   </div>
                 </div>
                 <div className="
