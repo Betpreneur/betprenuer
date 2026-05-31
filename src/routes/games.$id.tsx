@@ -31,6 +31,9 @@ function GameAnalysisPage() {
   if (error || !data) return <div className="p-4">Failed load.</div>;
 
   const g = data.game;
+  const hasPick = g.picks && g.picks.length > 0;
+  const displayMarkets = hasPick ? g.picks : g.markets;
+  
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-xl font-bold">{g.match}</h1>
@@ -40,7 +43,15 @@ function GameAnalysisPage() {
         <div className="text-xl font-bold">{g.home_score??0} - {g.away_score??0}</div>
         <div className="center">{g.away_logo && <img src={g.away_logo} className="w-12 h-12"/>}<div>{g.away_team}</div></div>
       </div>
-      {g.picks?.map((p,i)=><div key={i} className="p-2 border my-1">{p.market} @ {p.odds}</div>)}
+      {!hasPick && <div className="text-xs text-muted-foreground mb-2">Available Markets</div>}
+      {displayMarkets?.map((p: any, i: number) => (
+        <div key={i} className="p-2 border my-1">
+          <div className="font-medium">{p.market}</div>
+          <div className="text-sm text-muted-foreground">
+            @{p.odds} {p.confidence ? `${p.confidence}% confidence` : null}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
