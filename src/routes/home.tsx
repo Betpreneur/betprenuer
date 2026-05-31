@@ -102,12 +102,21 @@ function GameCard({ game }: { game: GameInfo }) {
         <div className="p-5">
           {/* League Tag - Color Coded */}
           <div className="flex justify-between items-center mb-4">
-            <span className={`
-              text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md
-              bg-gradient-to-r ${leagueStyle.bg} ${leagueStyle.text} border ${leagueStyle.border}
-            `}>
-              {game.league}
-            </span>
+            <div className="flex items-center gap-2">
+              {(game.competition_logo || game.league_logo) && (
+                <img 
+                  src={game.competition_logo || game.league_logo} 
+                  alt="" 
+                  className="w-5 h-5 object-contain"
+                />
+              )}
+              <span className={`
+                text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md
+                bg-gradient-to-r ${leagueStyle.bg} ${leagueStyle.text} border ${leagueStyle.border}
+              `}>
+                {game.league}
+              </span>
+            </div>
             <span className="text-sm font-semibold text-foreground/60">
               {game.kickoff}
             </span>

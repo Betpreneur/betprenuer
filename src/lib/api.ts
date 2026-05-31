@@ -374,6 +374,14 @@ export interface AlgoGamesResponse {
   games: GameInfo[];
 }
 
+// Competition info from API
+export interface CompetitionInfo {
+  name: string;
+  logo: string | null;
+  country: string | null;
+  country_flag: string | null;
+}
+
 // Single game info from games list
 export interface GameInfo {
   id: string;
@@ -389,6 +397,11 @@ export interface GameInfo {
   away_score: number | null;
   official_pick: Pick | null;
   top_market: TopMarketInfo | null;
+  league_logo: string | null;
+  competition_logo: string | null;
+  competition: string | null;
+  country_flag: string | null;
+  competition_info: CompetitionInfo | null;
 }
 
 // Top market info from games endpoint
@@ -442,6 +455,11 @@ export interface GameFullContext {
   home_news: string | null;
   away_news: string | null;
   prediction: PredictionContext | null;
+  league_logo: string | null;
+  competition_logo: string | null;
+  competition: string | null;
+  country_flag: string | null;
+  competition_info: CompetitionInfo | null;
 }
 
 // Team form stats

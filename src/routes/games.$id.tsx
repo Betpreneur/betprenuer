@@ -36,8 +36,19 @@ function GameAnalysisPage() {
   
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-xl font-bold">{g.match}</h1>
-      <p className="text-sm text-muted-foreground">{g.league} · {g.kickoff}</p>
+      <div className="flex items-center gap-2">
+        {(g.competition_logo || g.league_logo) && (
+          <img 
+            src={g.competition_logo || g.league_logo} 
+            alt="" 
+            className="w-6 h-6 object-contain"
+          />
+        )}
+        <div>
+          <h1 className="text-xl font-bold">{g.match}</h1>
+          <p className="text-sm text-muted-foreground">{g.league} · {g.kickoff}</p>
+        </div>
+      </div>
       <div className="flex justify-center items-center gap-8 py-4">
         <div className="center">{g.home_logo && <img src={g.home_logo} className="w-12 h-12"/>}<div>{g.home_team}</div></div>
         <div className="text-xl font-bold">{g.home_score??0} - {g.away_score??0}</div>

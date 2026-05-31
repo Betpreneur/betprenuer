@@ -341,10 +341,19 @@ function MatchPage() {
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              {/* League pill */}
-              <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-green/20 text-brand-green border border-brand-green/30 mb-2">
-                {pick.league}
-              </span>
+              {/* League pill with competition logo */}
+              <div className="flex items-center gap-2 mb-2">
+                {(pick as any).competition_logo && (
+                  <img 
+                    src={(pick as any).competition_logo} 
+                    alt="" 
+                    className="w-5 h-5 object-contain"
+                  />
+                )}
+                <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-green/20 text-brand-green border border-brand-green/30">
+                  {pick.league}
+                </span>
+              </div>
               <h1 className="text-xl md:text-2xl font-black leading-tight">{pick.match}</h1>
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
