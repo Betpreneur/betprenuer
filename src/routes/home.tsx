@@ -165,10 +165,15 @@ function GameCard({ game }: { game: GameInfo }) {
                     <span className="text-xl font-black text-violet-400">@{Number(game.official_pick.odds).toFixed(2)}</span>
                     {game.official_pick.confidence ? (
                       <div className="flex items-center gap-1.5">
-                        <div className="w-12 h-1.5 bg-violet-500/20 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400" style={{width:`${Math.min(game.official_pick.confidence,100)}%`}} />
+                        <div className="w-12 h-1.5 bg-muted/30 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{
+                            width: `${Math.min(game.official_pick.confidence, 100)}%`,
+                            backgroundColor: game.official_pick.confidence >= 80 ? '#22c55e' : game.official_pick.confidence >= 70 ? '#3b82f6' : game.official_pick.confidence >= 60 ? '#eab308' : '#ef4444'
+                          }} />
                         </div>
-                        <span className="text-xs font-bold text-violet-400">{game.official_pick.confidence.toFixed(0)}%</span>
+                        <span className="text-xs font-bold" style={{
+                          color: game.official_pick.confidence >= 80 ? '#22c55e' : game.official_pick.confidence >= 70 ? '#3b82f6' : game.official_pick.confidence >= 60 ? '#eab308' : '#ef4444'
+                        }}>{game.official_pick.confidence.toFixed(0)}%</span>
                       </div>
                     ) : null}
                   </div>
@@ -183,29 +188,35 @@ function GameCard({ game }: { game: GameInfo }) {
             </div>
           ) : game.top_market ? (
             <div className="
-              relative overflow-hidden bg-gradient-to-r from-muted/30 to-transparent 
-              rounded-xl p-3 border border-border/50
+              relative overflow-hidden bg-gradient-to-r from-blue-500/10 to-cyan-500/5
+              rounded-xl p-3 border border-blue-500/30
             ">
               <div className="flex items-center justify-between">
                 <div>
+                  <div className="text-xs font-medium text-blue-400 mb-1">📊 Top Market</div>
                   <div className="text-lg font-bold text-foreground">{game.top_market.market}</div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xl font-black text-foreground/80">@{Number(game.top_market.odds).toFixed(2)}</span>
+                    <span className="text-xl font-black text-blue-400">@{Number(game.top_market.odds).toFixed(2)}</span>
                     {game.top_market.confidence ? (
                       <div className="flex items-center gap-1.5">
                         <div className="w-12 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-muted-foreground to-muted" style={{width:`${Math.min(game.top_market.confidence,100)}%`}} />
+                          <div className="h-full rounded-full" style={{
+                            width: `${Math.min(game.top_market.confidence, 100)}%`,
+                            backgroundColor: game.top_market.confidence >= 80 ? '#22c55e' : game.top_market.confidence >= 70 ? '#3b82f6' : game.top_market.confidence >= 60 ? '#eab308' : '#ef4444'
+                          }} />
                         </div>
-                        <span className="text-xs font-bold text-muted-foreground">{game.top_market.confidence}%</span>
+                        <span className="text-xs font-bold" style={{
+                          color: game.top_market.confidence >= 80 ? '#22c55e' : game.top_market.confidence >= 70 ? '#3b82f6' : game.top_market.confidence >= 60 ? '#eab308' : '#ef4444'
+                        }}>{game.top_market.confidence}%</span>
                       </div>
                     ) : null}
                   </div>
                 </div>
                 <div className="
                   px-3 py-1.5 rounded-full
-                  bg-muted/50 text-muted-foreground
+                  bg-blue-500/20 text-blue-400
                   text-sm font-bold
-                  border border-border
+                  border border-blue-500/30
                 ">→</div>
               </div>
             </div>
@@ -282,17 +293,17 @@ function HomePage() {
     <div className="space-y-4 p-4">
       {/* Enhanced Header with gaming vibe */}
       <header className="relative">
-        <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 via-transparent to-transparent rounded-2xl -z-10 blur-xl" />
+        <div className="absolute -inset-4 bg-gradient-to-r from-red-500/10 via-transparent to-transparent rounded-2xl -z-10 blur-xl" />
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-violet-400 bg-clip-text text-transparent flex items-center gap-2">
+            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-red-400 bg-clip-text text-transparent flex items-center gap-2">
               ⚽ Today's Games
             </h1>
             <p className="text-sm text-muted-foreground">{todayLagos()}</p>
           </div>
-          <div className="flex items-center gap-2 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/30">
-            <span className="🎯 animate-bounce">🎯</span>
-            <span className="text-xs font-bold text-violet-400">{games.length}⚡matches</span>
+          <div className="flex items-center gap-2 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/30">
+            <span className="animate-pulse">🎯</span>
+            <span className="text-xs font-bold text-red-400">{games.length}⚡matches</span>
           </div>
         </div>
       </header>
@@ -303,13 +314,12 @@ function HomePage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               filter === f
-                ? "bg-gradient-to-r from-violet-600 to-purple-500 text-white shadow-[0_4px_15px_rgba(139,92,246,0.4)] scale-105"
-                : "bg-card/80 border border-violet-500/30 text-violet-400 hover:border-violet-500/60 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] hover:scale-105"
+                ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_4px_15px_rgba(239,68,68,0.4)] scale-105"
+                : "bg-card/80 border border-red-500/30 text-red-400 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:scale-105"
             }`}
           >
-            <span>{filter === "All" ? "🔥" : "⚡"}</span>
             {f}
           </button>
         ))}
