@@ -120,24 +120,29 @@ function MatchPage() {
           setError(true);
           return;
         }
-        const g = res.game;
-        const p = g.official_pick; // Selected pick from official_pick field
-        console.log("[MatchPage] Got game from API:", g.id, " Picks:", g.official_picks?.length);
+        const g = res.game as any;
+        const p = g.official_pick; 
+        const tm = g.top_market; 
+        
+        console.log("[MatchPage] Got game from API:", g.id, " Picks:", g.official_picks?.length, " top_market:", !!tm);
         
         // Store full game details for additional display
         setGameDetails(g as GameDetails);
         
+        // Use top_market as fallback if no official pick
+        const effectivePick = p || tm;
+        
         setPick({
-          ...p,
-          id: p?.id || Number(g.match_id) || 0,
+          ...effectivePick,
+          id: effectivePick?.id || Number(g.match_id) || 0,
           match: g.fixture,
           fixture: g.fixture,
           kickoff: g.kickoff,
           kickoff_wat: g.kickoff || "",
-          market_plain: p?.market || p?.selection || "",
-          meaning: p?.meaning || undefined,
-          one_line_reason: p?.reasoning || "",
-          model_verdict: p?.model_verdict || undefined,
+          market_plain: effectivePick?.market || effectivePick?.selection || "",
+          meaning: effectivePick?.meaning || undefined,
+          one_line_reason: effectivePick?.reasoning || "",
+          model_verdict: effectivePick?.model_verdict || undefined,
           home_team: g.home_team,
           away_team: g.away_team,
           home_logo: g.home_logo,
@@ -148,18 +153,18 @@ function MatchPage() {
           league: g.league,
           form_home: g.home_recent_form,
           form_away: g.away_recent_form,
-          goals_profile: p?.selection_profile ? p.selection_profile.split("\n").filter(Boolean) : [],
-          risk_flags: Array.isArray(p?.risk_flags) ? p.risk_flags : [],
-          risk_level: p?.risk_level || "",
-          user_backed: p?.backed_by_me || false,
+          goals_profile: effectivePick?.selection_profile ? effectivePick.selection_profile.split("\n").filter(Boolean) : [],
+          risk_flags: Array.isArray(effectivePick?.risk_flags) ? effectivePick.risk_flags : [],
+          risk_level: effectivePick?.risk_level || "",
+          user_backed: effectivePick?.backed_by_me || false,
           insights: g.insights,
           team_news: { home: g.team_news?.home, away: g.team_news?.away },
-          market: p?.market || "",
-          odds: p?.odds || "",
-          confidence: p?.confidence || 0,
-          tier: p?.tier || "",
-          stake: p?.stake || "",
-          ev: p?.ev || 0,
+          market: effectivePick?.market || "",
+          odds: effectivePick?.odds || "",
+          confidence: effectivePick?.confidence || 0,
+          tier: effectivePick?.tier || effectivePick?.suggested_tier || "",
+          stake: effectivePick?.stake || "",
+          ev: effectivePick?.ev || 0,
           // Map all extra fields for display
           fixture_context: g.fixture_context,
           corner_profile: g.corner_profile,
@@ -168,6 +173,7 @@ function MatchPage() {
           markets_70_plus: g.markets_70_plus,
           markets_65_plus: g.markets_65_plus,
           official_pick_count: g.official_pick_count,
+          official_pick: g.official_pick,
           official_picks: g.official_picks,
           markets: g.markets,
           home_standing: g.fixture_context?.home_standing,
@@ -175,7 +181,7 @@ function MatchPage() {
           home_rest_days: g.fixture_context?.home_rest_days,
           away_rest_days: g.fixture_context?.away_rest_days,
           league_strength: g.fixture_context?.league_strength,
-        } as any);
+        });
       })
       .catch(() => setError(true))
       .finally(() => setAppLoading(false));
@@ -357,17 +363,21 @@ function MatchPage() {
           ">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Official Pick</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                  {(pick as any).official_pick_count > 0 ? "Official Pick" : "Top Market"}
+                </div>
                 <div className="text-xl font-bold text-foreground">{pick.market_plain}</div>
                 <div className="flex items-baseline gap-3 mt-2">
                   <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "—"}</span>
-                  <span className="flex items-center gap-1.5 text-sm">
-                    <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                    <span className="font-semibold text-brand-green">{pick.confidence.toFixed(1)}%</span>
-                    <span className="text-muted-foreground text-xs">confidence</span>
-                  </span>
+                  {pick.confidence > 0 && (
+                    <span className="flex items-center gap-1.5 text-sm">
+                      <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                      <span className="font-semibold text-brand-green">{pick.confidence.toFixed(0)}%</span>
+                      <span className="text-muted-foreground text-xs">confidence</span>
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="w-12 h-12 rounded-full bg-brand-green/20 flex items-center justify-center border-2 border-brand-green">
