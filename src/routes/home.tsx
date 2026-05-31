@@ -49,9 +49,9 @@ function GameCard({ game }: { game: GameInfo }) {
   const isLive = game.status === "live" || game.home_score != null;
   
   const tierColors: Record<string, string> = {
-    banker: "bg-win-green/20 text-win-green border-win-green/30",
-    gem: "bg-teal-500/20 text-teal-500 border-teal-500/30",
-    wild_card: "bg-amber-500/20 text-amber-500 border-amber-500/30",
+    banker: "bg-win-green/20 text-win-green border-win-green/30 shadow-[0_0_12px_rgba(34,197,94,0.4)]",
+    gem: "bg-teal-500/20 text-teal-500 border-teal-500/30 shadow-[0_0_12px_rgba(20,184,166,0.4)]",
+    wild_card: "bg-amber-500/20 text-amber-500 border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.4)]",
   };
 
   return (
@@ -60,14 +60,16 @@ function GameCard({ game }: { game: GameInfo }) {
       params={{ id: game.match_id }}
       className="group block w-full"
     >
-      <div className="
+      <div className={`
         w-full box-border
-        bg-card/80 backdrop-blur-sm 
+        bg-gradient-to-br from-card via-card to-card/80
         border border-border/50 rounded-2xl 
         overflow-hidden transition-all duration-300
-        hover:border-brand-green/40 hover:shadow-lg hover:shadow-brand-green/5
-        hover:translate-y-[-2px]
-      ">
+        hover:border-brand-green/60 hover:shadow-[0_8px_30px_rgba(34,197,94,0.15)] hover:translate-y-[-2px]
+        ${isLive ? 'ring-2 ring-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.15)]' : ''}
+      `}>
+        {/* Shimmer gradient on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
         {/* Pulsing live indicator */}
         {isLive && (
           <div className="relative">
@@ -150,55 +152,62 @@ function GameCard({ game }: { game: GameInfo }) {
             </div>
           )}
 
-          {/* Pick Preview Card - Embedded */}
+          {/* Pick Preview Card - Embedded with confidence bar */}
           {game.official_pick?.selection ? (
             <div className="
-              bg-gradient-to-r from-muted/30 to-muted/10 
-              rounded-xl p-3 border border-border/30
+              relative overflow-hidden bg-gradient-to-r from-brand-green/20 via-muted/20 to-transparent 
+              rounded-xl p-3 border border-brand-green/30
             ">
-              <div className="flex items-center justify-between">
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-green/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <div className="flex items-center justify-between relative">
                 <div>
-                  <div className="text-lg font-bold text-foreground">
-                    {game.official_pick.selection}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.official_pick.odds).toFixed(2)} odds
-                    {game.official_pick.confidence ? ` · ${game.official_pick.confidence.toFixed(0)}% confidence` : null}
+                  <div className="text-lg font-bold text-foreground">{game.official_pick.selection}</div>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xl font-black text-brand-green">@{Number(game.official_pick.odds).toFixed(2)}</span>
+                    {game.official_pick.confidence ? (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-12 h-1.5 bg-muted/30 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-brand-green to-win-green" style={{width:`${Math.min(game.official_pick.confidence,100)}%`}} />
+                        </div>
+                        <span className="text-xs font-bold text-brand-green">{game.official_pick.confidence.toFixed(0)}%</span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="
-                  px-3 py-1.5 rounded-lg
+                  px-3 py-1.5 rounded-full
                   bg-brand-green/20 text-brand-green 
                   text-sm font-bold
                   border border-brand-green/30
-                ">
-                  →
-                </div>
+                ">→</div>
               </div>
             </div>
           ) : game.top_market ? (
             <div className="
-              bg-gradient-to-r from-muted/30 to-muted/10 
-              rounded-xl p-3 border border-border/30
+              relative overflow-hidden bg-gradient-to-r from-muted/30 to-transparent 
+              rounded-xl p-3 border border-border/50
             ">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-lg font-bold text-foreground">
-                    {game.top_market.market}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.top_market.odds).toFixed(2)} odds{game.top_market.confidence ? ` · ${game.top_market.confidence}% confidence` : null}
-                    {game.top_market.meaning ? ` · ${game.top_market.meaning}` : null}
+                  <div className="text-lg font-bold text-foreground">{game.top_market.market}</div>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xl font-black text-foreground/80">@{Number(game.top_market.odds).toFixed(2)}</span>
+                    {game.top_market.confidence ? (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-12 h-1.5 bg-muted/30 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-muted-foreground to-muted" style={{width:`${Math.min(game.top_market.confidence,100)}%`}} />
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground">{game.top_market.confidence}%</span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <div className="
-                  px-3 py-1.5 rounded-lg
+                  px-3 py-1.5 rounded-full
                   bg-muted/50 text-muted-foreground
                   text-sm font-bold
                   border border-border
-                ">
-                  →
-                </div>
+                ">→</div>
               </div>
             </div>
           ) : null}
@@ -272,20 +281,33 @@ function HomePage() {
 
   return (
     <div className="space-y-4 p-4">
-      <header>
-        <h1 className="text-xl font-bold">Today's Games</h1>
-        <p className="text-sm text-muted-foreground">{todayLagos()}</p>
+      {/* Enhanced Header with gaming vibe */}
+      <header className="relative">
+        <div className="absolute -inset-4 bg-gradient-to-r from-brand-green/5 via-transparent to-transparent rounded-2xl -z-10" />
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-brand-green bg-clip-text text-transparent">
+              Today's Games
+            </h1>
+            <p className="text-sm text-muted-foreground">{todayLagos()}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-win-green animate-pulse" />
+            <span className="text-xs font-medium text-win-green">{games.length} matches</span>
+          </div>
+        </div>
       </header>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      {/* Styled Filters */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {filters.map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               filter === f
-                ? "bg-brand-green text-white"
-                : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50"
+                ? "bg-gradient-to-r from-brand-green to-emerald-400 text-white shadow-[0_4px_15px_rgba(34,197,94,0.4)]"
+                : "bg-card/80 border border-border/50 text-muted-foreground hover:border-brand-green/50 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]"
             }`}
           >
             {f}
@@ -293,7 +315,7 @@ function HomePage() {
         ))}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {filteredGames.map(game => (
           <GameCard key={game.id} game={game} />
         ))}
