@@ -124,7 +124,6 @@ function GameCard({ game }: { game: GameInfo }) {
             </div>
             
             <div className="text-center shrink-0">
-              <div className="text-xs text-muted-foreground mb-1">vs</div>
               <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center">
                 <span className="text-sm font-bold text-muted-foreground">
                   {game.home_score != null ? "-" : "VS"}
