@@ -182,9 +182,6 @@ function GameCard({ game }: { game: GameInfo }) {
               bg-gradient-to-r from-muted/30 to-muted/10 
               rounded-xl p-3 border border-border/30
             ">
-              <div className="text-xs text-muted-foreground mb-2">
-                Official picks not available
-              </div>
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-bold text-foreground">
