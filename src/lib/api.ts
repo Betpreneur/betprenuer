@@ -387,15 +387,28 @@ export interface GameInfo {
   status: string | null;
   home_score: number | null;
   away_score: number | null;
-  pick: Pick | null;
-  top_market: MarketInfo | null;
+  official_pick: Pick | null;
+  top_market: TopMarketInfo | null;
 }
 
-// Market info within a game
-export interface MarketInfo {
-  selection: string;
+// Top market info from games endpoint
+export interface TopMarketInfo {
+  ev: number | null;
   odds: number;
-  market_type: string;
+  market: string;
+  proven: boolean;
+  meaning: string;
+  confidence: number;
+  risk_flags: string[];
+}
+
+// Market info within game detail
+export interface MarketInfo {
+  ev: number | null;
+  odds: number;
+  market: string;
+  proven: boolean;
+  meaning: string;
   label: string;
 }
 

@@ -152,7 +152,7 @@ function GameCard({ game }: { game: GameInfo }) {
           )}
 
           {/* Pick Preview Card - Embedded */}
-          {game.pick?.selection ? (
+          {game.official_pick?.selection ? (
             <div className="
               bg-gradient-to-r from-muted/30 to-muted/10 
               rounded-xl p-3 border border-border/30
@@ -160,11 +160,11 @@ function GameCard({ game }: { game: GameInfo }) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-bold text-foreground">
-                    {game.pick.selection}
+                    {game.official_pick.selection}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.pick.odds).toFixed(2)} odds
-                    {game.pick.confidence ? ` · ${game.pick.confidence.toFixed(0)}% confidence` : null}
+                    {Number(game.official_pick.odds).toFixed(2)} odds
+                    {game.official_pick.confidence ? ` · ${game.official_pick.confidence.toFixed(0)}% confidence` : null}
                   </div>
                 </div>
                 <div className="
@@ -188,10 +188,11 @@ function GameCard({ game }: { game: GameInfo }) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-bold text-foreground">
-                    {game.top_market.selection}
+                    {game.top_market.market}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {Number(game.top_market.odds).toFixed(2)} odds · {game.top_market.label}
+                    {Number(game.top_market.odds).toFixed(2)} odds{game.top_market.confidence ? ` · ${game.top_market.confidence}% confidence` : null}
+                    {game.top_market.meaning ? ` · ${game.top_market.meaning}` : null}
                   </div>
                 </div>
                 <div className="
