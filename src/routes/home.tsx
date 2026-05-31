@@ -152,7 +152,7 @@ function GameCard({ game }: { game: GameInfo }) {
           )}
 
           {/* Pick Preview Card - Embedded */}
-          {game.pick ? (
+          {game.pick?.selection ? (
             <div className="
               bg-gradient-to-r from-muted/30 to-muted/10 
               rounded-xl p-3 border border-border/30
