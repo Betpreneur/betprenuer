@@ -77,24 +77,23 @@ function GameCard({ game }: { game: GameInfo }) {
               px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
               bg-gradient-to-r from-red-500/20 to-red-500/5 text-red-400 border-b border-red-500/30
             ">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-400"></span>
-              </span>
-              LIVE
+              <span className="animate-pulse">🔴</span>
+              🔥 LIVE
             </div>
           </div>
         )}
         
         {/* Tier indicator */}
-        {!isLive && game.pick?.tier && (
+        {!isLive && game.official_pick?.tier && (
           <div className={`
             px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
-            ${tierColors[game.pick.tier] || "bg-muted/50"}
+            ${tierColors[game.official_pick.tier] || "bg-muted/50"}
             border-b border-transparent
           `}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-            {game.pick.tier?.replace("_", " ")}
+            <span className="animate-pulse">
+              {game.official_pick.tier === 'banker' ? '⭐' : game.official_pick.tier === 'gem' ? '💎' : '🎲'}
+            </span>
+            {game.official_pick.tier?.replace("_", " ")}
           </div>
         )}
         
@@ -126,8 +125,8 @@ function GameCard({ game }: { game: GameInfo }) {
             </div>
             
             <div className="text-center shrink-0">
-              <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center">
-                <span className="text-sm font-bold text-muted-foreground">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center border border-violet-500/30">
+                <span className="text-sm font-bold text-violet-400">
                   {game.home_score != null ? "-" : "VS"}
                 </span>
               </div>
@@ -155,30 +154,30 @@ function GameCard({ game }: { game: GameInfo }) {
           {/* Pick Preview Card - Embedded with confidence bar */}
           {game.official_pick?.selection ? (
             <div className="
-              relative overflow-hidden bg-gradient-to-r from-brand-green/20 via-muted/20 to-transparent 
-              rounded-xl p-3 border border-brand-green/30
+              relative overflow-hidden bg-gradient-to-r from-violet-500/10 via-purple-500/5 to-transparent 
+              rounded-xl p-3 border border-violet-500/30
             ">
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-green/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <div className="flex items-center justify-between relative">
                 <div>
                   <div className="text-lg font-bold text-foreground">{game.official_pick.selection}</div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xl font-black text-brand-green">@{Number(game.official_pick.odds).toFixed(2)}</span>
+                    <span className="text-xl font-black text-violet-400">@{Number(game.official_pick.odds).toFixed(2)}</span>
                     {game.official_pick.confidence ? (
                       <div className="flex items-center gap-1.5">
-                        <div className="w-12 h-1.5 bg-muted/30 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-brand-green to-win-green" style={{width:`${Math.min(game.official_pick.confidence,100)}%`}} />
+                        <div className="w-12 h-1.5 bg-violet-500/20 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-400" style={{width:`${Math.min(game.official_pick.confidence,100)}%`}} />
                         </div>
-                        <span className="text-xs font-bold text-brand-green">{game.official_pick.confidence.toFixed(0)}%</span>
+                        <span className="text-xs font-bold text-violet-400">{game.official_pick.confidence.toFixed(0)}%</span>
                       </div>
                     ) : null}
                   </div>
                 </div>
                 <div className="
                   px-3 py-1.5 rounded-full
-                  bg-brand-green/20 text-brand-green 
+                  bg-violet-500/20 text-violet-400 
                   text-sm font-bold
-                  border border-brand-green/30
+                  border border-violet-500/30
                 ">→</div>
               </div>
             </div>
@@ -283,17 +282,17 @@ function HomePage() {
     <div className="space-y-4 p-4">
       {/* Enhanced Header with gaming vibe */}
       <header className="relative">
-        <div className="absolute -inset-4 bg-gradient-to-r from-brand-green/5 via-transparent to-transparent rounded-2xl -z-10" />
+        <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/10 via-transparent to-transparent rounded-2xl -z-10 blur-xl" />
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-brand-green bg-clip-text text-transparent">
-              Today's Games
+            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-violet-400 bg-clip-text text-transparent flex items-center gap-2">
+              ⚽ Today's Games
             </h1>
             <p className="text-sm text-muted-foreground">{todayLagos()}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-win-green animate-pulse" />
-            <span className="text-xs font-medium text-win-green">{games.length} matches</span>
+          <div className="flex items-center gap-2 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/30">
+            <span className="🎯 animate-bounce">🎯</span>
+            <span className="text-xs font-bold text-violet-400">{games.length}⚡matches</span>
           </div>
         </div>
       </header>
@@ -304,12 +303,13 @@ function HomePage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
               filter === f
-                ? "bg-gradient-to-r from-brand-green to-emerald-400 text-white shadow-[0_4px_15px_rgba(34,197,94,0.4)]"
-                : "bg-card/80 border border-border/50 text-muted-foreground hover:border-brand-green/50 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]"
+                ? "bg-gradient-to-r from-violet-600 to-purple-500 text-white shadow-[0_4px_15px_rgba(139,92,246,0.4)] scale-105"
+                : "bg-card/80 border border-violet-500/30 text-violet-400 hover:border-violet-500/60 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] hover:scale-105"
             }`}
           >
+            <span>{filter === "All" ? "🔥" : "⚡"}</span>
             {f}
           </button>
         ))}
