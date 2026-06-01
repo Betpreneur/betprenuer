@@ -30,8 +30,30 @@ export function AppShell({ children }: { children: ReactNode }) {
     setBackedPopupOpen(false);
   }, [path]);
 
-  const handleConfirm = () => {
-    // Navigate to my-picks which will load from localStorage
+  const handleConfirm = async () => {
+    // Send picks to backend API to save, then clear localStorage
+    const picksToSave = backedPicksList;
+    
+    try {
+      // Call backend for each pick
+      await Promise.all(
+        picksToSave.map(pick => 
+          fetch(`https://backend.betpreneur.ng/api/algo/games/${pick.id}/backed/`, {
+            method: "POST",
+            headers: { 
+              Authorization: `Bearer ${localStorage.getItem("terminal.token")}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ stake: 0 })
+          }).catch(console.error)
+        )
+      );
+    } catch (e) {
+      console.error("Failed to save picks to backend:", e);
+    }
+    
+    // Clear localStorage after sending to backend
+    clearAllBackedPicks();
     setBackedPopupOpen(false);
     router.navigate({ to: "/my-picks" });
   };
@@ -70,8 +92,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Floating badge - round white number only */}
-          {isAuthed && backedPickCount > 0 && !backedPopupOpen && (
+          {/* Floating badge - only show on protected pages */}
+          {isAuthed && backedPickCount > 0 && !backedPopupOpen && path !== "/" && (
             <button 
               onClick={() => setBackedPopupOpen(true)}
               className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
@@ -81,8 +103,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
           )}
 
-          {/* Backed picks popup */}
-          {isAuthed && backedPickCount > 0 && backedPopupOpen && (
+          {/* Backed picks popup - only show on protected pages */}
+          {isAuthed && backedPickCount > 0 && backedPopupOpen && path !== "/" && (
             <>
               {/* Backdrop */}
               <div 
