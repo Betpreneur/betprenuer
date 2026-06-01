@@ -20,14 +20,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [backedPopupOpen, setBackedPopupOpen] = useState(false);
   const backedPickCount = useBackedCount();
-  const backedPicksList = useBackedPicks();
   const router = useRouter();
 
   // Close popup on route change
   useEffect(() => {
-    setBackedPopupOpen(false);
+    // Reset state on route change if needed
   }, [path]);
 
   const handleRemovePick = (id: number) => {
@@ -59,8 +57,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-{/* Floating badge - navigates directly to My Picks */}
-          {isAuthed && backedPickCount > 0 && !backedPopupOpen && path !== "/" && (
+          {/* Floating badge - navigates directly to My Picks */}
+          {isAuthed && backedPickCount > 0 && path !== "/" && (
             <Link 
               to="/my-picks"
               className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
@@ -68,42 +66,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               {backedPickCount}
             </Link>
-          )}
-            <>
-              {/* Backdrop */}
-              <div 
-                className="fixed inset-0 z-40 bg-black/50" 
-                onClick={() => setBackedPopupOpen(false)}
-              />
-              {/* Popup - higher on mobile to avoid bottom menu */}
-              <div className="fixed bottom-20 md:bottom-6 right-6 z-50 w-80 max-h-96 bg-card border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
-                <div className="p-4 border-b border-brand-border">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold">Backed Picks ({backedPickCount})</h3>
-                    <button onClick={() => setBackedPopupOpen(false)} className="text-muted-foreground hover:text-foreground">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                {/* Picks list */}
-                <div className="max-h-48 overflow-y-auto p-2">
-                  {backedPicksList.map((pick) => (
-                    <div key={pick.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 mb-1">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] font-medium truncate">{pick.match}</div>
-                        <div className="text-[10px] text-muted-foreground truncate">{pick.market} @ {Number(pick.odds).toFixed(2)}</div>
-                      </div>
-                      <button 
-                        onClick={() => handleRemovePick(pick.id)}
-                        className="ml-2 w-6 h-6 rounded-full bg-danger-red/20 text-danger-red flex items-center justify-center hover:bg-danger-red hover:text-white transition-colors text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
           )}
 
           {/* Mobile menu button - hamburger */}
@@ -162,14 +124,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
           <ul className="grid grid-cols-5">
             {navItems.map((n) => {
-              const active = path === n.to || (n.to === "/home" && path.startsWith("/match"));
               const Icon = n.icon;
+              const isActive = path === n.to || (n.to === "/home" && path === "/");
               return (
                 <li key={n.to}>
-                  <Link to={n.to} className={`h-[56px] flex flex-col items-center justify-center gap-0.5 text-[11px] relative ${active ? "text-danger-red font-semibold" : "text-muted-foreground"}`}>
-                    {active && <span className="absolute top-1.5 w-1.5 h-1.5 rounded-full bg-danger-red" />}
+                  <Link
+                    to={n.to}
+                    className={`flex flex-col items-center gap-1 py-3 px-2 text-[10px] ${
+                      isActive ? "text-brand-green" : "text-muted-foreground"
+                    }`}
+                  >
                     <Icon className="h-5 w-5" />
-                    {n.label}
+                    <span>{n.label}</span>
                   </Link>
                 </li>
               );
