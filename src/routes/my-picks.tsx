@@ -156,7 +156,7 @@ function MyPicksPage() {
     setShareMsg(null);
     try {
       const sharePicks: SharePick[] = picks.map((p) => ({
-        fixture: p.fixture,
+        fixture: p.fixture || (p as any).match || "Unknown match",
         market: p.market,
         odds: p.odds,
         confidence: typeof p.confidence === "number" ? p.confidence : undefined,
