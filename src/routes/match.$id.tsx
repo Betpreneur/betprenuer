@@ -231,12 +231,14 @@ function MatchPage() {
     if (!pick || pick.user_backed || backing) return;
     setBacking(true);
     try {
+      // Send to backend immediately
       await api.markBacked(pick.id, 0);
-      addBackedCount(pick.id); // Update global cart count
-      // Also save to localStorage for the popup
+      // Also update local count for display
+      addBackedCount(pick.id);
+      // Save to localStorage for the popup count
       addBackedPick({
         id: Number(pick.id),
-        match_id: String(id), // Use route param as match_id
+        match_id: String(id),
         match: pick.match,
         home_team: pick.home_team,
         away_team: pick.away_team,

@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
-import { useBackedCount, useBackedPicks, removeBackedPick, clearAllBackedPicks } from "@/hooks/useBackedPicks";
-import { api } from "@/lib/api";
+import { useBackedCount, useBackedPicks, removeBackedPick } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -30,30 +29,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setBackedPopupOpen(false);
   }, [path]);
-
-  const handleConfirm = async () => {
-    // Send picks to backend API to save, then clear localStorage
-    const picksToSave = backedPicksList;
-    
-    try {
-      // Call backend for each pick using match_id
-      for (const pick of picksToSave) {
-        await api.markBacked(pick.match_id || pick.id);
-      }
-    } catch (e) {
-      console.error("Failed to save picks to backend:", e);
-    }
-    
-    // Clear localStorage after sending to backend
-    clearAllBackedPicks();
-    setBackedPopupOpen(false);
-    router.navigate({ to: "/my-picks" });
-  };
-
-  const handleClearAll = () => {
-    clearAllBackedPicks();
-    setBackedPopupOpen(false);
-  };
 
   const handleRemovePick = (id: number) => {
     removeBackedPick(id);
@@ -84,19 +59,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Floating badge - only show on protected pages */}
+{/* Floating badge - navigates directly to My Picks */}
           {isAuthed && backedPickCount > 0 && !backedPopupOpen && path !== "/" && (
-            <button 
-              onClick={() => setBackedPopupOpen(true)}
+            <Link 
+              to="/my-picks"
               className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
               aria-label="View backed picks"
             >
               {backedPickCount}
-            </button>
+            </Link>
           )}
-
-          {/* Backed picks popup - only show on protected pages */}
-          {isAuthed && backedPickCount > 0 && backedPopupOpen && path !== "/" && (
             <>
               {/* Backdrop */}
               <div 
@@ -129,21 +101,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                       </button>
                     </div>
                   ))}
-                </div>
-                {/* Actions */}
-                <div className="p-3 border-t border-brand-border flex gap-2">
-                  <button 
-                    onClick={handleClearAll}
-                    className="flex-1 py-2 text-[12px] font-medium rounded-lg border border-border text-muted-foreground hover:bg-muted transition-colors"
-                  >
-                    Clear All
-                  </button>
-                  <button 
-                    onClick={handleConfirm}
-                    className="flex-1 py-2 text-[12px] font-medium rounded-lg bg-win-green text-primary hover:opacity-90 transition-colors"
-                  >
-                    Confirm
-                  </button>
                 </div>
               </div>
             </>
