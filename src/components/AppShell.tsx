@@ -4,6 +4,7 @@ import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
 import { useBackedCount, useBackedPicks, removeBackedPick, clearAllBackedPicks } from "@/hooks/useBackedPicks";
+import { api } from "@/lib/api";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -35,19 +36,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     const picksToSave = backedPicksList;
     
     try {
-      // Call backend for each pick
-      await Promise.all(
-        picksToSave.map(pick => 
-          fetch(`https://backend.betpreneur.ng/api/algo/games/${pick.id}/backed/`, {
-            method: "POST",
-            headers: { 
-              Authorization: `Bearer ${localStorage.getItem("terminal.token")}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ stake: 0 })
-          }).catch(console.error)
-        )
-      );
+      // Call backend for each pick using api
+      for (const pick of picksToSave) {
+        await api.markBacked(pick.id);
+      }
     } catch (e) {
       console.error("Failed to save picks to backend:", e);
     }
