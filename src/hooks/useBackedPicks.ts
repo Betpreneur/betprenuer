@@ -10,6 +10,8 @@ const PICKS_KEY = "terminal.backed.picks";
 export interface BackedPick {
   id: number;
   match: string;
+  home_team: string;
+  away_team: string;
   market: string;
   odds: number;
   league: string;

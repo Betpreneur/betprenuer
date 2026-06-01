@@ -237,6 +237,8 @@ function MatchPage() {
       addBackedPick({
         id: Number(pick.id),
         match: pick.match,
+        home_team: pick.home_team,
+        away_team: pick.away_team,
         market: pick.market_plain,
         odds: Number(pick.odds),
         league: pick.league,

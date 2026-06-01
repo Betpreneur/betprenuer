@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
 import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
-import { removeBackedCount, useBackedPicks, clearAllBackedPicks } from "@/hooks/useBackedPicks";
+import { removeBackedCount, useBackedPicks, clearAllBackedPicks, removeBackedPick } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -55,8 +55,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 function PickItem({ pick, clickable = true, onRemove }: { pick: Pick; clickable?: boolean; onRemove?: (id: number) => void }) {
   const content = (
     <div className={`bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border rounded-xl p-3 ${clickable ? "hover:border-brand-green/50 transition-colors" : "opacity-60 cursor-not-allowed"} relative`}>
-      {/* Remove button - positioned top right */}
-      {onRemove && pick.status === "pending" && (
+      {/* Remove button - show for pending or localStorage picks (no status) */}
+      {onRemove && (!pick.status || pick.status === "pending") && (
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onRemove(pick.id); }}
           className="absolute top-2 right-2 w-5 h-5 rounded-full bg-danger-red/20 text-danger-red flex items-center justify-center hover:bg-danger-red hover:text-white transition-colors"
@@ -120,15 +120,17 @@ function MyPicksPage() {
     try {
       // Call backend to remove
       await api.unmarkBacked(id);
-      // Update local count
-      removeBackedCount(id);
-      // Remove from local list
-      setPicks((prev) => prev.filter((p) => p.id !== id));
-      // Update stats
-      setStats((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
     } catch (e) {
-      console.error("Failed to remove pick:", e);
+      // Ignore backend errors - continue with local removal
     }
+    // Also remove from localStorage
+    removeBackedPick(id);
+    // Update local count
+    removeBackedCount(id);
+    // Remove from local list
+    setPicks((prev) => prev.filter((p) => p.id !== id));
+    // Update stats
+    setStats((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
   }
 
   async function openShare() {

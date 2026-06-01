@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {isAuthed && backedPickCount > 0 && !backedPopupOpen && (
             <button 
               onClick={() => setBackedPopupOpen(true)}
-              className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
+              className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
               aria-label="View backed picks"
             >
               {backedPickCount}
@@ -84,8 +84,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className="fixed inset-0 z-40 bg-black/50" 
                 onClick={() => setBackedPopupOpen(false)}
               />
-              {/* Popup */}
-              <div className="fixed bottom-6 right-6 z-50 w-80 max-h-96 bg-card border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
+              {/* Popup - higher on mobile to avoid bottom menu */}
+              <div className="fixed bottom-20 md:bottom-6 right-6 z-50 w-80 max-h-96 bg-card border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
                 <div className="p-4 border-b border-brand-border">
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold">Backed Picks ({backedPickCount})</h3>
