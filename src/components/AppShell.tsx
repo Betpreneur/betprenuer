@@ -25,6 +25,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const backedPicksList = useBackedPicks();
   const router = useRouter();
 
+  // Close popup on route change
+  useEffect(() => {
+    setBackedPopupOpen(false);
+  }, [path]);
+
   const handleConfirm = () => {
     // Navigate to my-picks which will load from localStorage
     setBackedPopupOpen(false);
