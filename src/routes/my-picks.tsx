@@ -253,9 +253,69 @@ function MyPicksPage() {
         </div>
       )}
 
+      {picks.length > 0 && (
+        <button
+          onClick={openShare}
+          disabled={generating}
+          className="w-full min-h-[52px] rounded-xl font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44Z"/></svg>
+          {generating ? "Preparing…" : "Share my picks"}
+        </button>
+      )}
+      {shareMsg && (
+        <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
+      )}
+
       <Link to="/home" className="block text-center text-info-blue text-[14px]">
         ← Back to Dashboard
       </Link>
+
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          onClick={closePreview}
+        >
+          <div
+            className="bg-card border border-brand-border rounded-2xl max-w-md w-full max-h-full overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-3 border-b border-brand-border">
+              <h2 className="text-[16px] font-semibold leading-none">Share preview</h2>
+              <button
+                onClick={closePreview}
+                className="text-muted-foreground hover:text-foreground text-[20px] leading-none px-2"
+                aria-label="Close preview"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <img src={preview.url} alt="My picks share card" className="w-full h-auto rounded-lg block" />
+              <p className="text-[12px] text-muted-foreground text-center mt-3">
+                Includes a caption and link so friends can join Betpreneur.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 pb-4">
+              <button
+                onClick={shareFromPreview}
+                className="min-h-[52px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44Z"/></svg>
+                Share on WhatsApp
+              </button>
+              <button
+                onClick={downloadFromPreview}
+                className="min-h-[52px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
+              >
+                Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
