@@ -48,16 +48,16 @@ function PickCard({ pick, teams }: { pick: Pick; teams?: any }) {
             </span>
             
             {/* Team Logos & Fixture */}
-            <div className="flex items-center gap-3 mt-3">
-              {homeLogo ? (
-                <img src={homeLogo} alt="" className="w-8 h-8 object-contain" />
-              ) : null}
-              <div className="font-bold text-lg leading-tight text-foreground group-hover:text-brand-green transition-colors flex-1">
+            <div className="flex items-center justify-center gap-2 mt-3 min-h-[32px]">
+              {homeLogo && (
+                <img src={homeLogo} alt="" className="w-7 h-7 object-contain" />
+              )}
+              <div className="font-bold text-base leading-tight text-foreground group-hover:text-brand-green transition-colors text-center px-1">
                 {pick.fixture}
               </div>
-              {awayLogo ? (
-                <img src={awayLogo} alt="" className="w-8 h-8 object-contain" />
-              ) : null}
+              {awayLogo && (
+                <img src={awayLogo} alt="" className="w-7 h-7 object-contain" />
+              )}
             </div>
             
             {/* Market & Odds */}

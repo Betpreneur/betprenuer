@@ -355,19 +355,27 @@ function MatchPage() {
                 </span>
               </div>
               {/* Team Logos */}
-              <div className="flex items-center justify-center gap-4 mb-2">
-                <div className="text-center">
-                  {pick.home_logo && (
-                    <img src={pick.home_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1" />
+              <div className="flex items-center justify-center gap-3 md:gap-6 mb-3">
+                <div className="flex-1 text-center">
+                  {pick.home_logo ? (
+                    <img src={pick.home_logo} alt="" className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-1" />
+                  ) : (
+                    <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-1 bg-muted rounded-full" />
                   )}
-                  <div className="text-sm font-bold">{pick.home_team}</div>
+                  <div className="text-sm font-bold truncate">{pick.home_team}</div>
                 </div>
-                <div className="text-lg font-black text-muted-foreground">vs</div>
-                <div className="text-center">
-                  {pick.away_logo && (
-                    <img src={pick.away_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1" />
+                <div className="shrink-0 flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center border border-violet-500/30">
+                    <span className="text-xs font-bold text-violet-400">VS</span>
+                  </div>
+                </div>
+                <div className="flex-1 text-center">
+                  {pick.away_logo ? (
+                    <img src={pick.away_logo} alt="" className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-1" />
+                  ) : (
+                    <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-1 bg-muted rounded-full" />
                   )}
-                  <div className="text-sm font-bold">{pick.away_team}</div>
+                  <div className="text-sm font-bold truncate">{pick.away_team}</div>
                 </div>
               </div>
               <h1 className="text-xl md:text-2xl font-black leading-tight sr-only">{pick.match}</h1>
