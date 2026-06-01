@@ -96,8 +96,75 @@ function MyPicksPage() {
   const [stats, setStats] = useState<Stats>({ total: 0, wins: 0, losses: 0, pending: 0 });
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [generating, setGenerating] = useState(false);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
 
   const dateOptions = getDateOptions();
+
+  const dateLabel = dateOptions.find((d) => d.value === selectedDate)?.label ?? "Today";
+
+  async function openShare() {
+    if (generating || picks.length === 0) return;
+    setGenerating(true);
+    setShareMsg(null);
+    try {
+      const sharePicks: SharePick[] = picks.map((p) => ({
+        fixture: p.fixture,
+        market: p.market,
+        odds: p.odds,
+        confidence: typeof p.confidence === "number" ? p.confidence : undefined,
+        league: p.league,
+        status: p.status,
+      }));
+      const blob = await renderPicksShareCard(sharePicks, dateLabel);
+      if (!blob) throw new Error("No image generated");
+      const url = URL.createObjectURL(blob);
+      setPreview({ url, blob, fileName: `betpreneur-my-picks-${selectedDate}.png` });
+    } catch (e) {
+      console.error("Share card error:", e);
+      setShareMsg("Could not generate image. Please try again.");
+      setTimeout(() => setShareMsg(null), 4000);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  function downloadFromPreview() {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setShareMsg("Image downloaded ✓");
+    setTimeout(() => setShareMsg(null), 2500);
+  }
+
+  async function shareFromPreview() {
+    if (!preview) return;
+    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
+    const caption = buildShareCaption(picks.length);
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    try {
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({ files: [file], text: caption, title: "My Betpreneur picks" });
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    downloadFromPreview();
+    window.open(`https://wa.me/?text=${encodeURIComponent(caption)}`, "_blank", "noopener,noreferrer");
+    setShareMsg("Image saved ✓ Attach it in WhatsApp");
+    setTimeout(() => setShareMsg(null), 3500);
+  }
 
   const loadPicks = (date: string) => {
     setLoading(true);
