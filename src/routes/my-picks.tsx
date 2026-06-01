@@ -198,7 +198,7 @@ function MyPicksPage() {
     setError(null);
 
     // Load ALL backed picks without date filter
-    fetch(`https://backend.betpreneur.ng/api/algo/picks/backed/`, {
+    fetch(`https://backend.betpreneur.ng/api/algo/games/backed/`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
     })
       .then(res => res.json())
