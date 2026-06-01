@@ -2,10 +2,7 @@ import { createFileRoute, Link, Navigate, useRouter } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 import { api, type PickDetail, type GameDetailResponse } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { tierLabel } from "@/lib/stake";
-import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
-import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 // Extended type for full game details
 interface GameDetails {
