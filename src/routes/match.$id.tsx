@@ -91,13 +91,6 @@ function MatchPage() {
   const [error, setError] = useState(false);
   const [backing, setBacking] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
-  const [shareMsg, setShareMsg] = useState<string | null>(null);
-  const [preview, setPreview] = useState<{
-    url: string;
-    blob: Blob;
-    fileName: string;
-  } | null>(null);
-  const [generating, setGenerating] = useState(false);
 
   const load = () => {
     if (!id || !id.trim()) {
