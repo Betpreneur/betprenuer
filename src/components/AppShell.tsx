@@ -2,7 +2,8 @@ import { Link, useRouter, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target, ShoppingCart } from "lucide-react";
+import { useBackedCount } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -44,6 +45,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               </>
             )}
           </nav>
+
+          {/* Backed picks cart indicator */}
+          {isAuthed && (
+            <Link to="/my-picks" className="relative flex items-center text-white/80 hover:text-white" aria-label="My backed picks">
+              <ShoppingCart className="h-5 w-5" />
+              {useBackedCount() > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center bg-win-green text-[10px] font-bold text-primary rounded-full px-1">
+                  {useBackedCount()}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* Mobile menu button - hamburger */}
           <button className="md:hidden p-2 text-white" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">

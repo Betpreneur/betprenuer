@@ -25,6 +25,8 @@ export const ENDPOINTS = {
   algoPicks: "/algo/picks/",
   algoPick: (id: string) => `/algo/picks/${id}/`,
   algoBackPick: (id: string) => `/algo/picks/${id}/back/`,
+  algoUnbackPick: (id: string) => `/algo/picks/${id}/unback/`,
+  algoBackedPicks: "/algo/picks/backed/",
   algoTopPick: "/algo/top-pick/",
   algoTodayPicks: "/algo/picks/",
   // Games (new - for Home page)
@@ -316,8 +318,6 @@ export interface FixturePickGroup {
   fixture: string;
   home_team: string;
   away_team: string;
-  home_logo?: string | null;
-  away_logo?: string | null;
   league: string;
   kickoff: string;
   match_id: string;
@@ -327,11 +327,6 @@ export interface FixturePickGroup {
   corner_profile?: Record<string, unknown>;
   markets: Market[];
   picks: Pick[];
-  // Teams object with logos
-  teams?: {
-    home?: { name?: string; logo?: string | null };
-    away?: { name?: string; logo?: string | null };
-  };
 }
 
 // Market from the algo/picks/ endpoint
@@ -696,6 +691,17 @@ export const api = {
   async markBacked(id: number): Promise<{ success: true }> {
     await request(ENDPOINTS.algoBackPick(String(id)), { method: "POST" });
     return { success: true };
+  },
+
+  /** DELETE /algo/picks/:id/unback/ — Remove backed pick */
+  async unmarkBacked(id: number): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoUnbackPick(String(id)), { method: "DELETE" });
+    return { success: true };
+  },
+
+  /** GET /algo/picks/backed/ — Get all user-backed picks */
+  async getBackedPicks(): Promise<Pick[]> {
+    return request<Pick[]>(ENDPOINTS.algoBackedPicks);
   },
 
   getMyPicks(): Promise<{ picks: Pick[]; stats: { total: number; wins: number; losses: number; pending: number } }> {
