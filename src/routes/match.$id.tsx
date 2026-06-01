@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
-import { addBackedCount } from "@/hooks/useBackedPicks";
+import { addBackedCount, addBackedPick } from "@/hooks/useBackedPicks";
 import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 // Extended type for full game details
@@ -233,6 +233,15 @@ function MatchPage() {
     try {
       await api.markBacked(pick.id, 0);
       addBackedCount(pick.id); // Update global cart count
+      // Also save to localStorage for the popup
+      addBackedPick({
+        id: Number(pick.id),
+        match: pick.match,
+        market: pick.market_plain,
+        odds: Number(pick.odds),
+        league: pick.league,
+        confidence: pick.confidence,
+      });
       setPick({ ...pick, user_backed: true });
     } finally {
       setBacking(false);

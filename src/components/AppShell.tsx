@@ -3,7 +3,7 @@ import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
-import { useBackedCount } from "@/hooks/useBackedPicks";
+import { useBackedCount, useBackedPicks, removeBackedPick, clearAllBackedPicks } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -20,12 +20,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [backedPopupOpen, setBackedPopupOpen] = useState(false);
   const backedPickCount = useBackedCount();
+  const backedPicksList = useBackedPicks();
+  const router = useRouter();
+
+  const handleConfirm = () => {
+    // Navigate to my-picks which will load from localStorage
+    setBackedPopupOpen(false);
+    router.navigate({ to: "/my-picks" });
+  };
+
+  const handleClearAll = () => {
+    clearAllBackedPicks();
+    setBackedPopupOpen(false);
+  };
+
+  const handleRemovePick = (id: number) => {
+    removeBackedPick(id);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="sticky top-0 z-20 bg-primary border-b border-primary">
-        <div className="mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-12 xl:px-16 max-w-[1400px]">
+        <div className="mx-auto h-20 flex items-center justify-between px-4 md:px-8 lg:px-16 xl:px-16 max-w-[1400px]">
           <Link to="/" aria-label="Betpreneur home" className="flex items-center">
             <img src={logoHorizontal} alt="Betpreneur" className="h-10 w-auto" />
           </Link>
@@ -47,15 +65,69 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Floating badge - shows count when picks are backed */}
-          {isAuthed && backedPickCount > 0 && (
-            <Link 
-              to="/my-picks" 
-              className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
+          {/* Floating badge - round white number only */}
+          {isAuthed && backedPickCount > 0 && !backedPopupOpen && (
+            <button 
+              onClick={() => setBackedPopupOpen(true)}
+              className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
               aria-label="View backed picks"
             >
-              <span>{backedPickCount} Picks Backed</span>
-            </Link>
+              {backedPickCount}
+            </button>
+          )}
+
+          {/* Backed picks popup */}
+          {isAuthed && backedPickCount > 0 && backedPopupOpen && (
+            <>
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 z-40 bg-black/50" 
+                onClick={() => setBackedPopupOpen(false)}
+              />
+              {/* Popup */}
+              <div className="fixed bottom-6 right-6 z-50 w-80 max-h-96 bg-card border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
+                <div className="p-4 border-b border-brand-border">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold">Backed Picks ({backedPickCount})</h3>
+                    <button onClick={() => setBackedPopupOpen(false)} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                {/* Picks list */}
+                <div className="max-h-48 overflow-y-auto p-2">
+                  {backedPicksList.map((pick) => (
+                    <div key={pick.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-medium truncate">{pick.match}</div>
+                        <div className="text-[10px] text-muted-foreground truncate">{pick.market} @ {Number(pick.odds).toFixed(2)}</div>
+                      </div>
+                      <button 
+                        onClick={() => handleRemovePick(pick.id)}
+                        className="ml-2 w-6 h-6 rounded-full bg-danger-red/20 text-danger-red flex items-center justify-center hover:bg-danger-red hover:text-white transition-colors text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {/* Actions */}
+                <div className="p-3 border-t border-brand-border flex gap-2">
+                  <button 
+                    onClick={handleClearAll}
+                    className="flex-1 py-2 text-[12px] font-medium rounded-lg border border-border text-muted-foreground hover:bg-muted transition-colors"
+                  >
+                    Clear All
+                  </button>
+                  <button 
+                    onClick={handleConfirm}
+                    className="flex-1 py-2 text-[12px] font-medium rounded-lg bg-win-green text-primary hover:opacity-90 transition-colors"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Mobile menu button - hamburger */}

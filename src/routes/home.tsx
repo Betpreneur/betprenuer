@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
 import { StakeGuide } from "@/components/StakeGuide";
+import { useBackedPicks } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -47,6 +48,8 @@ function GameCard({ game }: { game: GameInfo }) {
   const [expanded, setExpanded] = useState(false);
   const leagueStyle = getLeagueStyle(game.league);
   const isLive = game.status === "live" || game.home_score != null;
+  const backedPicks = useBackedPicks();
+  const isBacked = backedPicks.some(p => p.id === Number(game.match_id));
   
   const tierColors: Record<string, string> = {
     banker: "bg-win-green/20 text-win-green border-win-green/30 shadow-[0_0_12px_rgba(34,197,94,0.4)]",
@@ -83,8 +86,15 @@ function GameCard({ game }: { game: GameInfo }) {
           </div>
         )}
         
+        {/* Backed indicator - show when game is already backed */}
+        {isBacked && !isLive && (
+          <div className="px-4 py-1.5 text-xs font-semibold tracking-wide uppercase bg-win-green/20 text-win-green border-b border-win-green/30">
+            ✓ Backed
+          </div>
+        )}
+        
         {/* Tier indicator */}
-        {!isLive && game.official_pick?.tier && (
+        {!isLive && !isBacked && game.official_pick?.tier && (
           <div className={`
             px-4 py-1.5 text-xs font-semibold tracking-wide uppercase flex items-center gap-2
             ${tierColors[game.official_pick.tier] || "bg-muted/50"}
