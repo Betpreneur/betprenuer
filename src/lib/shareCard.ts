@@ -150,10 +150,11 @@ async function renderImpl(picks: SharePick[], dateLabel: string): Promise<Blob |
     ctx.font = "800 40px Montserrat, sans-serif";
     ctx.fillText(truncate(ctx, p.market || "Pick", textMax), tx, y + 28);
 
-    // Fixture
+    // Fixture - handle both API (fixture) and localStorage (match) formats
     ctx.fillStyle = MUTED;
     ctx.font = "600 26px Montserrat, sans-serif";
-    const sub = p.league ? `${p.fixture}  ·  ${p.league}` : p.fixture;
+    const fixtureText = p.fixture || (p as any).match || "Unknown match";
+    const sub = p.league ? `${fixtureText}  ·  ${p.league}` : fixtureText;
     ctx.fillText(truncate(ctx, sub, textMax), tx, y + 82);
 
     // Odds + confidence (right)
