@@ -236,6 +236,7 @@ function MatchPage() {
       // Also save to localStorage for the popup
       addBackedPick({
         id: Number(pick.id),
+        match_id: String(id), // Use route param as match_id
         match: pick.match,
         home_team: pick.home_team,
         away_team: pick.away_team,

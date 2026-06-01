@@ -36,9 +36,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     const picksToSave = backedPicksList;
     
     try {
-      // Call backend for each pick using api
+      // Call backend for each pick using match_id
       for (const pick of picksToSave) {
-        await api.markBacked(pick.id);
+        await api.markBacked(pick.match_id || pick.id);
       }
     } catch (e) {
       console.error("Failed to save picks to backend:", e);
