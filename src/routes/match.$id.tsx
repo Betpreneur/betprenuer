@@ -220,91 +220,12 @@ function MatchPage() {
     if (!pick || pick.user_backed || backing) return;
     setBacking(true);
     try {
-      await api.markBacked(pick.id, 0);
+      await api.markBacked(pick.id);
       setPick({ ...pick, user_backed: true });
+      router.navigate({ to: "/my-picks" });
     } finally {
       setBacking(false);
     }
-  }
-
-  function shareText(): string {
-    if (!pick) return "";
-    // Use current hostname for the link
-    const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
-    const protocol = typeof window !== "undefined" ? window.location.protocol : "https:";
-    const signupUrl = `${protocol}//${domain}`;
-    return [
-      `🎯 Betpreneur pick`,
-      ``,
-      `${pick.match}`,
-      `${pick.market_plain} @ ${Number(pick.odds).toFixed(2)}`,
-      `Confidence: ${pick.confidence.toFixed(1)}% · ${tierLabel(pick.tier)}`,  
-      ``,
-      `"${pick.one_line_reason}"`,
-      ``,
-      `Get daily picks → ${signupUrl}`,
-    ].join("\n");
-  }
-
-  async function openPreview() {
-    if (!pick || generating) return;
-    setGenerating(true);
-    setShareMsg(null);
-    try {
-      const blob = await renderShareCard(pick);
-      if (!blob) throw new Error("No image generated");
-      const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
-      const url = URL.createObjectURL(blob);
-      const safeName = pick.match.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      setPreview({ url, blob, fileName: `betpreneur-${safeName}.png` });
-    } catch (e) {
-      console.error("Share card error:", e);
-      setShareMsg("Could not generate card. Please try again.");
-      setTimeout(() => setShareMsg(null), 4000);
-    } finally {
-      setGenerating(false);
-    }
-  }
-
-  function closePreview() {
-    if (preview) URL.revokeObjectURL(preview.url);
-    setPreview(null);
-  }
-
-  function downloadFromPreview() {
-    if (!preview) return;
-    const a = document.createElement("a");
-    a.href = preview.url;
-    a.download = preview.fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setShareMsg("Card downloaded ✓");
-    setTimeout(() => setShareMsg(null), 2500);
-  }
-
-  async function shareFromPreview() {
-    if (!preview) return;
-    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
-    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-    try {
-      if (nav.canShare && nav.canShare({ files: [file] })) {
-        await nav.share({
-          files: [file],
-          text: shareText(),
-          title: "Betpreneur pick",
-        });
-        return;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    // Fallback: save the PNG, then open WhatsApp web with the message
-    downloadFromPreview();
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
-    window.open(waUrl, "_blank", "noopener,noreferrer");
-    setShareMsg("Card saved ✓ Attach it in WhatsApp");
-    setTimeout(() => setShareMsg(null), 3500);
   }
 
   return (
