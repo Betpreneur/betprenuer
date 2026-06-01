@@ -4,6 +4,7 @@ import { type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
+import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -95,8 +96,75 @@ function MyPicksPage() {
   const [stats, setStats] = useState<Stats>({ total: 0, wins: 0, losses: 0, pending: 0 });
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [generating, setGenerating] = useState(false);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
 
   const dateOptions = getDateOptions();
+
+  const dateLabel = dateOptions.find((d) => d.value === selectedDate)?.label ?? "Today";
+
+  async function openShare() {
+    if (generating || picks.length === 0) return;
+    setGenerating(true);
+    setShareMsg(null);
+    try {
+      const sharePicks: SharePick[] = picks.map((p) => ({
+        fixture: p.fixture,
+        market: p.market,
+        odds: p.odds,
+        confidence: typeof p.confidence === "number" ? p.confidence : undefined,
+        league: p.league,
+        status: p.status,
+      }));
+      const blob = await renderPicksShareCard(sharePicks, dateLabel);
+      if (!blob) throw new Error("No image generated");
+      const url = URL.createObjectURL(blob);
+      setPreview({ url, blob, fileName: `betpreneur-my-picks-${selectedDate}.png` });
+    } catch (e) {
+      console.error("Share card error:", e);
+      setShareMsg("Could not generate image. Please try again.");
+      setTimeout(() => setShareMsg(null), 4000);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function closePreview() {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  }
+
+  function downloadFromPreview() {
+    if (!preview) return;
+    const a = document.createElement("a");
+    a.href = preview.url;
+    a.download = preview.fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setShareMsg("Image downloaded ✓");
+    setTimeout(() => setShareMsg(null), 2500);
+  }
+
+  async function shareFromPreview() {
+    if (!preview) return;
+    const file = new File([preview.blob], preview.fileName, { type: "image/png" });
+    const caption = buildShareCaption(picks.length);
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    try {
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        await nav.share({ files: [file], text: caption, title: "My Betpreneur picks" });
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    downloadFromPreview();
+    window.open(`https://wa.me/?text=${encodeURIComponent(caption)}`, "_blank", "noopener,noreferrer");
+    setShareMsg("Image saved ✓ Attach it in WhatsApp");
+    setTimeout(() => setShareMsg(null), 3500);
+  }
 
   const loadPicks = (date: string) => {
     setLoading(true);
@@ -185,9 +253,69 @@ function MyPicksPage() {
         </div>
       )}
 
+      {picks.length > 0 && (
+        <button
+          onClick={openShare}
+          disabled={generating}
+          className="w-full min-h-[52px] rounded-xl font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44Z"/></svg>
+          {generating ? "Preparing…" : "Share my picks"}
+        </button>
+      )}
+      {shareMsg && (
+        <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
+      )}
+
       <Link to="/home" className="block text-center text-info-blue text-[14px]">
         ← Back to Dashboard
       </Link>
+
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          onClick={closePreview}
+        >
+          <div
+            className="bg-card border border-brand-border rounded-2xl max-w-md w-full max-h-full overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-3 border-b border-brand-border">
+              <h2 className="text-[16px] font-semibold leading-none">Share preview</h2>
+              <button
+                onClick={closePreview}
+                className="text-muted-foreground hover:text-foreground text-[20px] leading-none px-2"
+                aria-label="Close preview"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <img src={preview.url} alt="My picks share card" className="w-full h-auto rounded-lg block" />
+              <p className="text-[12px] text-muted-foreground text-center mt-3">
+                Includes a caption and link so friends can join Betpreneur.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 pb-4">
+              <button
+                onClick={shareFromPreview}
+                className="min-h-[52px] rounded-md font-semibold bg-[#25D366] text-background hover:opacity-90 inline-flex items-center justify-center gap-2"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.05 0C5.49 0 .15 5.34.15 11.91a11.86 11.86 0 0 0 1.6 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.44-8.44Z"/></svg>
+                Share on WhatsApp
+              </button>
+              <button
+                onClick={downloadFromPreview}
+                className="min-h-[52px] rounded-md font-medium border border-primary text-primary bg-card hover:bg-primary/10"
+              >
+                Download PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
