@@ -354,7 +354,23 @@ function MatchPage() {
                   {pick.league}
                 </span>
               </div>
-              <h1 className="text-xl md:text-2xl font-black leading-tight">{pick.match}</h1>
+              {/* Team Logos */}
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <div className="text-center">
+                  {pick.home_logo && (
+                    <img src={pick.home_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1" />
+                  )}
+                  <div className="text-sm font-bold">{pick.home_team}</div>
+                </div>
+                <div className="text-lg font-black text-muted-foreground">vs</div>
+                <div className="text-center">
+                  {pick.away_logo && (
+                    <img src={pick.away_logo} alt="" className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1" />
+                  )}
+                  <div className="text-sm font-bold">{pick.away_team}</div>
+                </div>
+              </div>
+              <h1 className="text-xl md:text-2xl font-black leading-tight sr-only">{pick.match}</h1>
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

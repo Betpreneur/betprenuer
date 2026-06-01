@@ -273,6 +273,8 @@ export interface Pick {
   fixture: string;
   home_team: string;
   away_team: string;
+  home_logo?: string | null;
+  away_logo?: string | null;
   league: string;
   kickoff: string;
   match_id: string;
