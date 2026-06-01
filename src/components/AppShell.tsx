@@ -20,6 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const backedPickCount = useBackedCount();
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -50,9 +51,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           {isAuthed && (
             <Link to="/my-picks" className="relative flex items-center text-white/80 hover:text-white" aria-label="My backed picks">
               <ShoppingCart className="h-5 w-5" />
-              {useBackedCount() > 0 && (
+              {backedPickCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center bg-win-green text-[10px] font-bold text-primary rounded-full px-1">
-                  {useBackedCount()}
+                  {backedPickCount}
                 </span>
               )}
             </Link>
