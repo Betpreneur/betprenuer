@@ -707,7 +707,7 @@ export const api = {
   },
 
   getMyPicks(): Promise<{ picks: Pick[]; stats: { total: number; wins: number; losses: number; pending: number } }> {
-    return fetch("/algo/picks/?backed=true").then(r => r.json()).then((res: any) => {
+    return fetch(ENDPOINTS.algoBackedGames()).then(r => r.json()).then((res: any) => {
       const picks = Array.isArray(res) ? res : (res.results || res.data || res.picks || []);
       return {
         picks,
