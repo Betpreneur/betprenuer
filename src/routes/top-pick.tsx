@@ -43,9 +43,17 @@ function PickCard({ pick }: { pick: Pick }) {
               {pick.tier?.replace("_", " ")}
             </span>
             
-            {/* Fixture */}
-            <div className="font-bold mt-3 text-lg leading-tight text-foreground group-hover:text-brand-green transition-colors">
-              {pick.fixture}
+            {/* Team Logos & Fixture */}
+            <div className="flex items-center gap-3 mt-3">
+              {pick.home_logo && (
+                <img src={pick.home_logo} alt="" className="w-8 h-8 object-contain" />
+              )}
+              <div className="font-bold text-lg leading-tight text-foreground group-hover:text-brand-green transition-colors flex-1">
+                {pick.fixture}
+              </div>
+              {pick.away_logo && (
+                <img src={pick.away_logo} alt="" className="w-8 h-8 object-contain" />
+              )}
             </div>
             
             {/* Market & Odds */}
