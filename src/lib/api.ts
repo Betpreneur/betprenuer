@@ -34,6 +34,8 @@ export const ENDPOINTS = {
   algoBackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
   algoUnbackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
   algoBackedGames: (date?: string) => `/algo/games/backed/${date ? `?date=${date}` : ""}`,
+  // All games for the matchday
+  algoGames: "/algo/games/",
   // Public
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
