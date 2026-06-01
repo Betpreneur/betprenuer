@@ -316,6 +316,8 @@ export interface FixturePickGroup {
   fixture: string;
   home_team: string;
   away_team: string;
+  home_logo?: string | null;
+  away_logo?: string | null;
   league: string;
   kickoff: string;
   match_id: string;
@@ -325,6 +327,11 @@ export interface FixturePickGroup {
   corner_profile?: Record<string, unknown>;
   markets: Market[];
   picks: Pick[];
+  // Teams object with logos
+  teams?: {
+    home?: { name?: string; logo?: string | null };
+    away?: { name?: string; logo?: string | null };
+  };
 }
 
 // Market from the algo/picks/ endpoint

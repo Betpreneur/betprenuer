@@ -24,9 +24,13 @@ function getTierColor(tier: string): string {
   }
 }
 
-function PickCard({ pick }: { pick: Pick }) {
+function PickCard({ pick, teams }: { pick: Pick; teams?: any }) {
   // Use match_id if available, otherwise fall back to id
   const matchId = pick.match_id || String(pick.id);
+  // Get logos from pick or from teams object
+  const homeLogo = pick.home_logo || teams?.home?.logo;
+  const awayLogo = pick.away_logo || teams?.away?.logo;
+  
   return (
     <Link to="/match/$id" params={{ id: matchId }} className="block group">
       <div className="
@@ -45,15 +49,15 @@ function PickCard({ pick }: { pick: Pick }) {
             
             {/* Team Logos & Fixture */}
             <div className="flex items-center gap-3 mt-3">
-              {pick.home_logo && (
-                <img src={pick.home_logo} alt="" className="w-8 h-8 object-contain" />
-              )}
+              {homeLogo ? (
+                <img src={homeLogo} alt="" className="w-8 h-8 object-contain" />
+              ) : null}
               <div className="font-bold text-lg leading-tight text-foreground group-hover:text-brand-green transition-colors flex-1">
                 {pick.fixture}
               </div>
-              {pick.away_logo && (
-                <img src={pick.away_logo} alt="" className="w-8 h-8 object-contain" />
-              )}
+              {awayLogo ? (
+                <img src={awayLogo} alt="" className="w-8 h-8 object-contain" />
+              ) : null}
             </div>
             
             {/* Market & Odds */}
@@ -108,7 +112,10 @@ function TopPickPage() {
     if (authLoading || !isAuthed) return;
     api.getTodayPicks()
       .then(res => {
-        const all = res.fixtures?.flatMap((f: any) => f.picks ?? []) ?? [];
+        // Flatten picks and attach teams data from fixture
+        const all = res.fixtures?.flatMap((f: any) => 
+          (f.picks ?? []).map((p: any) => ({ ...p, _teams: f.teams }))
+        ) ?? [];
         setPicks(all);
       })
       .catch(() => setError(true));
@@ -159,7 +166,7 @@ function TopPickPage() {
             </span>
             Bankers ({bankers.length})
           </h2>
-          <div className="grid gap-3">{bankers.map(p => <PickCard key={p.id} pick={p} />)}</div>
+          <div className="grid gap-3">{bankers.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
 
@@ -173,7 +180,7 @@ function TopPickPage() {
             </span>
             Value Gems ({gems.length})
           </h2>
-          <div className="grid gap-3">{gems.map(p => <PickCard key={p.id} pick={p} />)}</div>
+          <div className="grid gap-3">{gems.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
 
@@ -187,7 +194,7 @@ function TopPickPage() {
             </span>
             Wildcards ({wildcards.length})
           </h2>
-          <div className="grid gap-3">{wildcards.map(p => <PickCard key={p.id} pick={p} />)}</div>
+          <div className="grid gap-3">{wildcards.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
     </div>
