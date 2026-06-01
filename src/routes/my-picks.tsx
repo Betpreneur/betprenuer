@@ -4,6 +4,7 @@ import { type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
+import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
