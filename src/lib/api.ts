@@ -29,9 +29,11 @@ export const ENDPOINTS = {
   algoBackedPicks: "/algo/picks/backed/",
   algoTopPick: "/algo/top-pick/",
   algoTodayPicks: "/algo/picks/",
-  // Games (new - for Home page)
-  algoGames: "/algo/games/",
+  // Games backed endpoints
   algoGame: (matchId: string) => `/algo/games/${matchId}/`,
+  algoBackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
+  algoUnbackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
+  algoBackedGames: (date?: string) => `/algo/games/backed/${date ? `?date=${date}` : ""}`,
   // Public
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
@@ -687,21 +689,21 @@ export const api = {
     return request<PickDetailResponse>(ENDPOINTS.algoPick(String(id)));
   },
 
-  /** POST /algo/picks/:id/back/ — Mark that user backed this pick */
-  async markBacked(id: number): Promise<{ success: true }> {
-    await request(ENDPOINTS.algoBackPick(String(id)), { method: "POST" });
+  /** POST /api/algo/games/<match_id>/backed/ — Mark that user backed this game */
+  async markBacked(matchId: number | string): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoBackGame(String(matchId)), { method: "POST" });
     return { success: true };
   },
 
-  /** DELETE /algo/picks/:id/unback/ — Remove backed pick */
-  async unmarkBacked(id: number): Promise<{ success: true }> {
-    await request(ENDPOINTS.algoUnbackPick(String(id)), { method: "DELETE" });
+  /** DELETE /api/algo/games/<match_id>/backed/ — Remove backed game */
+  async unmarkBacked(matchId: number | string): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoUnbackGame(String(matchId)), { method: "DELETE" });
     return { success: true };
   },
 
-  /** GET /algo/picks/backed/ — Get all user-backed picks */
-  async getBackedPicks(): Promise<Pick[]> {
-    return request<Pick[]>(ENDPOINTS.algoBackedPicks);
+  /** GET /api/algo/games/backed/?date= — Get all user-backed games */
+  async getBackedPicks(date?: string): Promise<Pick[]> {
+    return request<Pick[]>(ENDPOINTS.algoBackedGames(date));
   },
 
   getMyPicks(): Promise<{ picks: Pick[]; stats: { total: number; wins: number; losses: number; pending: number } }> {

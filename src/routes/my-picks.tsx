@@ -193,11 +193,12 @@ function MyPicksPage() {
     setTimeout(() => setShareMsg(null), 3500);
   }
 
-  const loadPicks = (date: string) => {
+  const loadPicks = (_date: string) => {
     setLoading(true);
     setError(null);
 
-    fetch(`https://backend.betpreneur.ng/api/algo/picks/backed?date=${date}`, {
+    // Load ALL backed picks without date filter
+    fetch(`https://backend.betpreneur.ng/api/algo/picks/backed/`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
     })
       .then(res => res.json())

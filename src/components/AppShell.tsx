@@ -2,7 +2,7 @@ import { Link, useRouter, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target, ShoppingCart } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
 import { useBackedCount } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
@@ -47,14 +47,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Backed picks cart - PROMINENT */}
+          {/* Floating badge - shows count when picks are backed */}
           {isAuthed && backedPickCount > 0 && (
             <Link 
               to="/my-picks" 
               className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-win-green text-primary font-bold rounded-full shadow-lg hover:scale-105 transition-transform"
               aria-label="View backed picks"
             >
-              <ShoppingCart className="h-5 w-5" />
               <span>{backedPickCount} Picks Backed</span>
             </Link>
           )}
