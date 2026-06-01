@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
 import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
-import { removeBackedCount } from "@/hooks/useBackedPicks";
+import { removeBackedCount, useBackedPicks, clearAllBackedPicks } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -197,7 +197,28 @@ function MyPicksPage() {
     setLoading(true);
     setError(null);
 
-    // Load ALL backed picks without date filter
+    // First, try to load from localStorage (user's backed picks)
+    const storedPicks = (() => {
+      if (typeof window === "undefined") return [];
+      try {
+        return JSON.parse(localStorage.getItem("terminal.backed.picks") || "[]");
+      } catch { return []; }
+    })();
+    
+    if (storedPicks.length > 0) {
+      // Use localStorage picks
+      setPicks(storedPicks);
+      setStats({
+        total: storedPicks.length,
+        wins: 0,
+        losses: 0,
+        pending: storedPicks.length,
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Fallback: try API
     fetch(`https://backend.betpreneur.ng/api/algo/games/backed/`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
     })
