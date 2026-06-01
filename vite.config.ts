@@ -38,7 +38,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Disable SW caching during dev to prevent stale bundles
+        maximumFileSizeToCacheInBytes: 0,
       },
     })
   ],
