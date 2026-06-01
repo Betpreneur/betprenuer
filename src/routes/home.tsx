@@ -315,7 +315,7 @@ function HomePage() {
         <div className="absolute -inset-4 bg-gradient-to-r from-red-500/10 via-transparent to-transparent rounded-2xl -z-10 blur-xl" />
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-foreground to-red-400 bg-clip-text text-transparent flex items-center gap-2">
+            <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
               ⚽ Today's Games
             </h1>
             <p className="text-sm text-muted-foreground">{todayLagos()}</p>
@@ -327,22 +327,27 @@ function HomePage() {
         </div>
       </header>
 
-      {/* Styled Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {filters.map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              filter === f
-                ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-[0_4px_15px_rgba(239,68,68,0.4)] scale-105"
-                : "bg-card/80 border border-red-500/30 text-red-400 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:scale-105"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+{/* Filter buttons with league logos */}
+		<div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+			{filters.map(f => {
+				const leagueGame = games.find(g => g.league === f);
+				const logo = leagueGame?.competition_logo || leagueGame?.league_logo;
+				return (
+					<button
+						key={f}
+						onClick={() => setFilter(f)}
+						className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+							active
+								? "bg-red-600 text-white shadow-[0_4px_15px_rgba(239,68,68,0.4)] scale-105"
+								: "bg-card/80 border border-red-500/30 text-red-400 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:scale-105"
+						}`}
+					>
+						{logo && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+						{f}
+					</button>
+				);
+			})}
+		</div>
 
       <div className="grid gap-4">
         {filteredGames.map(game => (
