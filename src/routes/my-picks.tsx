@@ -69,7 +69,7 @@ function PickItem({ pick, clickable = true, onRemove }: { pick: Pick; clickable?
         <span className="text-[10px] text-muted-foreground">{pick.league}</span>
         {getStatusBadge(pick.status)}
       </div>
-      <h3 className="text-[13px] font-medium truncate">{pick.fixture}</h3>
+      <h3 className="text-[13px] font-medium truncate">{(pick as any).match || pick.fixture}</h3>
       <div className="flex items-center justify-between mt-2 text-[11px]">
         <span className="text-muted-foreground">{pick.market} @ {Number(pick.odds).toFixed(2)}</span>
         <span className={`font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>
