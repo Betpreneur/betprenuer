@@ -337,7 +337,7 @@ function HomePage() {
 						key={f}
 						onClick={() => setFilter(f)}
 						className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-							active
+							filter === f
 								? "bg-red-600 text-white shadow-[0_4px_15px_rgba(239,68,68,0.4)] scale-105"
 								: "bg-card/80 border border-red-500/30 text-red-400 hover:border-red-500/60 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:scale-105"
 						}`}
