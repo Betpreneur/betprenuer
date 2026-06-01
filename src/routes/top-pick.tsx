@@ -107,9 +107,11 @@ function TopPickPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [picks, setPicks] = useState<Pick[]>([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading || !isAuthed) return;
+    setLoading(true);
     api.getTodayPicks()
       .then(res => {
         // Flatten picks and attach teams data from fixture
@@ -118,15 +120,16 @@ function TopPickPage() {
         ) ?? [];
         setPicks(all);
       })
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, [authLoading, isAuthed]);
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return <TopPicksSkeleton />;
   }
 
   if (error || !picks.length) {
-    return <div className="p-4">No picks available today.</div>;
+    return null;
   }
 
   const bankers = picks.filter(p => p.tier === "banker");
