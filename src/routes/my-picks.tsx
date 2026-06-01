@@ -69,7 +69,7 @@ function PickItem({ pick, clickable = true, onRemove }: { pick: Pick; clickable?
         <span className="text-[10px] text-muted-foreground">{pick.league}</span>
         {getStatusBadge(pick.status)}
       </div>
-      <h3 className="text-[13px] font-medium truncate">{(pick as any).match || pick.fixture}</h3>
+      <h3 className="text-[13px] font-medium truncate">{pick.fixture || (pick as any).match || "Unknown match"}</h3>
       <div className="flex items-center justify-between mt-2 text-[11px]">
         <span className="text-muted-foreground">{pick.market} @ {Number(pick.odds).toFixed(2)}</span>
         <span className={`font-bold ${pick.status === "win" ? "text-win-green" : pick.status === "loss" ? "text-danger-red" : "text-amber-text"}`}>
@@ -131,6 +131,23 @@ function MyPicksPage() {
     setPicks((prev) => prev.filter((p) => p.id !== id));
     // Update stats
     setStats((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+  }
+
+  // Clear all picks for today
+  async function handleClearAll() {
+    if (!confirm("Clear all your picks for today?")) return;
+    try {
+      // Try to clear all on backend
+      await Promise.allSettled(picks.map(p => api.unmarkBacked(p.id).catch(() => {})));
+    } catch (e) {
+      // Ignore backend errors - continue with local clear
+    }
+    // Clear localStorage
+    clearAllBackedPicks();
+    // Clear local list
+    setPicks([]);
+    // Reset stats
+    setStats({ total: 0, wins: 0, losses: 0, pending: 0 });
   }
 
   async function openShare() {
@@ -264,7 +281,7 @@ function MyPicksPage() {
       </header>
 
       {/* Date Toggles */}
-      <div className="flex gap-1">
+      <div className="flex gap-1 items-center">
         {dateOptions.map(d => (
           <button
             key={d.value}
@@ -278,6 +295,15 @@ function MyPicksPage() {
             {d.label}
           </button>
         ))}
+        {selectedDate === dateOptions[0].value && picks.length > 0 && (
+          <button
+            onClick={handleClearAll}
+            className="py-2 px-3 text-[11px] font-medium rounded-lg bg-danger-red/10 text-danger-red border border-danger-red/30 hover:bg-danger-red hover:text-white transition-colors"
+            title="Clear all picks for today"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Stats */}
