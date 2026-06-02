@@ -1051,9 +1051,9 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
     return Math.max(1, lines);
   };
   const innerW = W - PAD * 2;
-  const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
+  const mReason = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
   const titleLines = countLines(pick.match, "900 88px Montserrat, sans-serif", innerW);
-  const reasonLines = reasonText ? countLines(`"${reasonText}"`, "italic 28px Georgia, serif", innerW) : 0;
+  const reasonLines = mReason ? countLines(`"${mReason}"`, "italic 28px Georgia, serif", innerW) : 0;
   const verdictLines = pick.model_verdict ? countLines(pick.model_verdict, "italic 24px Georgia, serif", innerW - 48) : 0;
 
   // Sum the flowing blocks (mirrors the draw order below)
