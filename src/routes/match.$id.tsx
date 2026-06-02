@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api, type PickDetail, type GameDetailResponse } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
-import { formatKickoff } from "@/lib/time";
+import { formatKickoff, todayLagosISO } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
 import { addBackedCount, addBackedPick } from "@/hooks/useBackedPicks";
 import logoFull from "@/assets/betpreneur-logo-horizontal.png";
@@ -230,9 +230,10 @@ function MatchPage() {
   async function handleBacked() {
     if (!pick || pick.user_backed || backing) return;
     setBacking(true);
+    const backedDate = todayLagosISO();
     try {
       // Send to backend immediately
-      await api.markBacked(pick.id, 0);
+      await api.markBacked(pick.id, backedDate);
       // Also update local count for display
       addBackedCount(pick.id);
       // Save to localStorage for the popup count
@@ -246,6 +247,7 @@ function MatchPage() {
         odds: Number(pick.odds),
         league: pick.league,
         confidence: pick.confidence,
+        date: backedDate,
       });
       setPick({ ...pick, user_backed: true });
     } finally {
