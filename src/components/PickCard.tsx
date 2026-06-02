@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import type { PickSummary } from "@/lib/api";
+import type { Pick } from "@/lib/api";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff } from "@/lib/time";
 
@@ -9,8 +9,8 @@ const tierStyles = {
   wildcard: { pill: "bg-subtle-bg text-body-text", bar: "bg-body-text", text: "text-body-text" },
 } as const;
 
-export function PickCard({ pick, top = false }: { pick: PickSummary; top?: boolean }) {
-  const s = tierStyles[pick.tier];
+export function PickCard({ pick, top = false }: { pick: Pick; top?: boolean }) {
+  const s = tierStyles[pick.tier as keyof typeof tierStyles] ?? tierStyles.wildcard;
   return (
     <Link
       to="/match/$id"
