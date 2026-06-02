@@ -1029,7 +1029,44 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 
 async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
-  const H = 1350; // 4:5 ratio for more vertical space
+  const PAD = 72;
+
+  // ---- Measure pass: compute dynamic height from content volume ----
+  const measure = document.createElement("canvas").getContext("2d")!;
+  const countLines = (text: string, font: string, maxWidth: number) => {
+    measure.font = font;
+    const words = text.split(" ");
+    let line = "";
+    let lines = 0;
+    for (const word of words) {
+      const test = line ? line + " " + word : word;
+      if (measure.measureText(test).width > maxWidth && line) {
+        lines++;
+        line = word;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines++;
+    return Math.max(1, lines);
+  };
+  const innerW = W - PAD * 2;
+  const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
+  const titleLines = countLines(pick.match, "900 88px Montserrat, sans-serif", innerW);
+  const reasonLines = reasonText ? countLines(`"${reasonText}"`, "italic 28px Georgia, serif", innerW) : 0;
+  const verdictLines = pick.model_verdict ? countLines(pick.model_verdict, "italic 24px Georgia, serif", innerW - 48) : 0;
+
+  // Sum the flowing blocks (mirrors the draw order below)
+  let H = 280; // header + hero label offset
+  H += 44; // league/kickoff line
+  H += titleLines * 96 + 18; // title
+  H += 8 + 48; // accent bar + gap
+  H += 220 + 80; // pick card + gap
+  if (reasonLines) H += reasonLines * 40 + 40;
+  if (verdictLines) H += 90 + 20;
+  H += 120 + PAD + 40; // footer block
+  H = Math.max(H, 980);
+
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -1043,7 +1080,6 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const WHITE = "#ffffff";
   const MUTED = "rgba(255,255,255,0.62)";
   const FAINT = "rgba(255,255,255,0.10)";
-  const PAD = 72;
   ctx.textBaseline = "top";
 
   // Background: deep diagonal gradient (top-left red glow → near-black)
@@ -1211,7 +1247,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   }
 
   // ---- Footer ----
-  let footerY = y + 120;
+  const footerY = y + 60;
   const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
   ctx.fillStyle = MUTED;
   ctx.font = "700 20px Montserrat, sans-serif";
@@ -1220,7 +1256,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.font = "800 22px Montserrat, sans-serif";
   const url = domain;
   const uw = ctx.measureText(url).width;
-  ctx.fillText(url, W - PAD - uw, H - PAD - 25);
+  ctx.fillText(url, W - PAD - uw, footerY - 2);
 
   // suppress unused warnings
   void INK;
