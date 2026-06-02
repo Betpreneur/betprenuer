@@ -719,8 +719,11 @@ export const api = {
   },
 
   /** POST /api/algo/games/<match_id>/backed/ — Mark that user backed this game */
-  async markBacked(matchId: number | string): Promise<{ success: true }> {
-    await request(ENDPOINTS.algoBackGame(String(matchId)), { method: "POST" });
+  async markBacked(matchId: number | string, date?: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoBackGame(String(matchId)), {
+      method: "POST",
+      body: JSON.stringify({ date: date ?? null }),
+    });
     return { success: true };
   },
 
