@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
 import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
-import { removeBackedCount, useBackedPicks, clearAllBackedPicks, removeBackedPick } from "@/hooks/useBackedPicks";
+import { removeBackedCount, clearAllBackedPicks, removeBackedPick, getPicksForDate } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -216,17 +216,12 @@ function MyPicksPage() {
     setLoading(true);
     setError(null);
 
-    // First, try to load from localStorage (user's backed picks)
-    const storedPicks = (() => {
-      if (typeof window === "undefined") return [];
-      try {
-        return JSON.parse(localStorage.getItem("terminal.backed.picks") || "[]");
-      } catch { return []; }
-    })();
-    
+    // Load only picks backed on the selected date (scoped per day)
+    const storedPicks = getPicksForDate(_date);
+
     if (storedPicks.length > 0) {
       // Use localStorage picks
-      setPicks(storedPicks);
+      setPicks(storedPicks as unknown as Pick[]);
       setStats({
         total: storedPicks.length,
         wins: 0,
@@ -237,8 +232,8 @@ function MyPicksPage() {
       return;
     }
 
-    // Fallback: try API
-    fetch(`https://backend.betpreneur.ng/api/algo/games/backed/`, {
+    // Fallback: try API for that specific date
+    fetch(`https://backend.betpreneur.ng/api/algo/games/backed/?date=${_date}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
     })
       .then(res => res.json())

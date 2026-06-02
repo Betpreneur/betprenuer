@@ -31,7 +31,7 @@ function Page() {
         <strong style={{fontSize:24}}>{g.home_score??0}-{g.away_score??0}</strong>
         <div>{g.away_logo&&<img src={g.away_logo}width={48}/>}<div>{g.away_team}</div></div>
       </div>
-      {g.picks?.map((p,i)=><div key={i}>{p.market} @ {p.odds}</div>)}
+      {g.picks?.map((p: { market: string; odds: number }, i: number)=><div key={i}>{p.market} @ {p.odds}</div>)}
     </div>
   );
 }

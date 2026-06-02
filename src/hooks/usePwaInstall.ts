@@ -23,6 +23,8 @@ export function usePwaInstall() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  const [dismissed, setDismissed] = useState(false);
+
   const promptInstall = useCallback(async () => {
     if (!deferredPrompt) {
       console.log("PWA: no deferred prompt");
@@ -35,5 +37,12 @@ export function usePwaInstall() {
     setDeferredPrompt(null);
   }, [deferredPrompt]);
 
-  return { promptInstall, deferredPrompt };
+  const dismissPrompt = useCallback(() => setDismissed(true), []);
+
+  return {
+    promptInstall,
+    deferredPrompt,
+    isInstallable: !!deferredPrompt && !dismissed,
+    dismissPrompt,
+  };
 }

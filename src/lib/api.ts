@@ -307,8 +307,35 @@ export interface Pick {
   created_at: string;
   backed_count: number;
   backed_by_me: boolean;
+  // Extended/derived fields used by detail + list views
+  match: string;
+  market_plain: string;
+  selection?: string;
+  one_line_reason: string;
+  kickoff_wat: string;
+  user_backed?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form_home?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form_away?: any;
+  goals_profile?: string[];
+  risk_level?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  insights?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  team_news?: any;
+  home_score?: number | null;
+  away_score?: number | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  home_standing?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  away_standing?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _teams?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  date?: any;
 }
-export type PickStatusEnum = "pending" | "win" | "loss" | "void";
+export type PickStatusEnum = "pending" | "win" | "loss" | "void" | "settled";
 // Legacy alias removed
 // export interface TierEnum extends Tier {}
 
@@ -692,8 +719,11 @@ export const api = {
   },
 
   /** POST /api/algo/games/<match_id>/backed/ — Mark that user backed this game */
-  async markBacked(matchId: number | string): Promise<{ success: true }> {
-    await request(ENDPOINTS.algoBackGame(String(matchId)), { method: "POST" });
+  async markBacked(matchId: number | string, date?: string): Promise<{ success: true }> {
+    await request(ENDPOINTS.algoBackGame(String(matchId)), {
+      method: "POST",
+      body: JSON.stringify({ date: date ?? null }),
+    });
     return { success: true };
   },
 

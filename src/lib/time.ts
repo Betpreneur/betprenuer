@@ -37,6 +37,11 @@ export function todayLagos(): string {
   return dayjs().tz(TZ).format("dddd D MMMM");
 }
 
+/** Machine-sortable Lagos date (YYYY-MM-DD) — used to scope backed picks per day. */
+export function todayLagosISO(): string {
+  return dayjs().tz(TZ).format("YYYY-MM-DD");
+}
+
 export function shortDate(iso: string): string {
   return dayjs(iso).tz(TZ).format("DD MMM");
 }
