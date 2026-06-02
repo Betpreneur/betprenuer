@@ -221,7 +221,7 @@ function MyPicksPage() {
 
     if (storedPicks.length > 0) {
       // Use localStorage picks
-      setPicks(storedPicks);
+      setPicks(storedPicks as unknown as Pick[]);
       setStats({
         total: storedPicks.length,
         wins: 0,
