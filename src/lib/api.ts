@@ -307,24 +307,33 @@ export interface Pick {
   created_at: string;
   backed_count: number;
   backed_by_me: boolean;
-  // Extended/derived fields used by detail + list views (optional)
+  // Extended/derived fields used by detail + list views
   match?: string;
   market_plain?: string;
   selection?: string;
   one_line_reason?: string;
   kickoff_wat?: string;
   user_backed?: boolean;
-  form_home?: string;
-  form_away?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form_home?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form_away?: any;
   goals_profile?: string[];
   risk_level?: string;
-  insights?: unknown;
-  team_news?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  insights?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  team_news?: any;
   home_score?: number | null;
   away_score?: number | null;
-  home_standing?: unknown;
-  away_standing?: unknown;
-  _teams?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  home_standing?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  away_standing?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _teams?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  date?: any;
 }
 export type PickStatusEnum = "pending" | "win" | "loss" | "void" | "settled";
 // Legacy alias removed
