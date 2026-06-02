@@ -1030,10 +1030,16 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
   const PAD = 56;
-  const HEADER_H = 300;
-  const ROW_H = 180;
+  const HEADER_H = 280;
+  const CARD_H = 240;
+  const INSIGHT_H = 110;
   const FOOTER_H = 200;
-  const H = HEADER_H + ROW_H + FOOTER_H + PAD;
+  const HAS_MEANING = pick.meaning && pick.meaning.length > 0;
+  const HAS_REASON = pick.one_line_reason && pick.one_line_reason.length > 0;
+  let H = HEADER_H + CARD_H + PAD + 16;
+  if (HAS_MEANING) H += INSIGHT_H + 16;
+  if (HAS_REASON) H += INSIGHT_H + 16;
+  H += FOOTER_H + PAD;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -1042,13 +1048,21 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   if (!ctx) return null;
   ctx.textBaseline = "top";
 
-  // Red accent palette (matching single pick theme)
+  // Color palette
   const RED = "#E8192C";
-  const RED_DEEP = "#7a0a14";
+  const TEAL = "#14b8a6";
+  const BLUE = "#3b82f6";
+  const PURPLE = "#8B5CF6";
   const WHITE = "#ffffff";
   const MUTED = "rgba(255,255,255,0.55)";
 
-  // Background - dark with red glow
+  // Tier-based accent color
+  const tiers = pick.tier || pick.tier;
+  const accentColor = tiers === "wildcard" ? PURPLE : tiers === "gem" ? TEAL : RED;
+  const tierRgb = tiers === "wildcard" ? "139,92,246" : tiers === "gem" ? "20,184,166" : "232,25,44";
+  const accentBg = tiers === "wildcard" ? "rgba(139,92,246,0.12)" : tiers === "gem" ? "rgba(20,184,166,0.12)" : "rgba(232,25,44,0.12)";
+
+  // Background with tier glow
   const bg = ctx.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, "#0b0507");
   bg.addColorStop(0.5, "#0a0809");
@@ -1056,14 +1070,14 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Red radial glow
   const glow = ctx.createRadialGradient(W / 2, 120, 40, W / 2, 120, 700);
-  glow.addColorStop(0, "rgba(232,25,44,0.35)");
-  glow.addColorStop(1, "rgba(232,25,44,0)");
+  glow.addColorStop(0, `rgba(${tierRgb},0.35)`);
+  glow.addColorStop(1, `rgba(${tierRgb},0)`);
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, 600);
 
   // ---- Header ----
+  let y = 0;
   try {
     const logo = await loadImage(logoFull);
     const lh = 80;
@@ -1082,95 +1096,124 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   ctx.font = "900 64px Montserrat, sans-serif";
   ctx.fillText("TODAY'S TOP PICK", W / 2, 168);
 
-  ctx.fillStyle = RED;
+  ctx.fillStyle = accentColor;
   ctx.font = "700 28px Montserrat, sans-serif";
-  const tier = tierLabel(pick.tier).toUpperCase();
-  ctx.fillText(tier, W / 2, 244);
+  const tierLabelText = tierLabel(pick.tier as any).toUpperCase();
+  ctx.fillText(tierLabelText, W / 2, 230);
   ctx.textAlign = "left";
 
-  // ---- Pick Detail Row ----
-  let y = HEADER_H;
+  // ---- Main Pick Card ----
+  y = HEADER_H;
 
-  // Card background
-  const rowX = PAD;
-  roundRect(ctx, rowX, y, W - PAD * 2, ROW_H, 28);
-  ctx.fillStyle = "rgba(232,25,44,0.08)";
+  const cx = PAD;
+  roundRect(ctx, cx, y, W - PAD * 2, CARD_H, 28);
+  ctx.fillStyle = accentBg;
   ctx.fill();
-  ctx.strokeStyle = "rgba(232,25,44,0.35)";
+  ctx.strokeStyle = `rgba(${tierRgb},0.4)`;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Vertical accent bar
-  const barW = 8;
-  roundRect(ctx, rowX + 28, y + 24, barW, ROW_H - 48, 4);
-  ctx.fillStyle = RED;
+  // Left accent bar
+  roundRect(ctx, cx + 28, y + 24, 8, CARD_H - 48, 4);
+  ctx.fillStyle = accentColor;
   ctx.fill();
 
-  const tx = rowX + 56;
+  const tx = cx + 56;
+  const rx = cx + W - PAD * 2;
 
-  // Fixture / Match
+  // Match / Fixture
   ctx.fillStyle = WHITE;
   ctx.font = "800 42px Montserrat, sans-serif";
-  ctx.fillText(truncate(ctx, pick.match, W - PAD * 2 - 360), tx, y + 28);
+  ctx.fillText(truncate(ctx, pick.match, W - PAD * 2 - 400), tx, y + 28);
 
-  // League + Kickoff
+  // League + Time
   ctx.fillStyle = MUTED;
   ctx.font = "600 26px Montserrat, sans-serif";
-  const sub = `${pick.league}  ·  ${formatKickoff(pick.kickoff_wat)}`;
-  ctx.fillText(truncate(ctx, sub, W - PAD * 2 - 360), tx, y + 82);
+  ctx.fillText(`${pick.league}  ·  ${formatKickoff(pick.kickoff_wat)}`, tx, y + 80);
 
-  // Market / Selection
-  const mx = rowX + W / 2;
-  ctx.fillStyle = WHITE;
-  ctx.font = "700 28px Montserrat, sans-serif";
-  ctx.fillText("SELECTION:", mx, y + 40);
-  ctx.font = "800 32px Montserrat, sans-serif";
-  ctx.fillText(truncate(ctx, pick.market_plain || pick.market, 380), mx, y + 80);
-
-  // Odds (right side)
-  const rx = rowX + W - PAD * 2;
-  const oddVal = Number(pick.odds).toFixed(2);
+  // Selection right side
   ctx.textAlign = "right";
-  ctx.fillStyle = RED;
-  ctx.font = "900 58px Montserrat, sans-serif";
-  ctx.fillText(oddVal, rx, y + 44);
+  ctx.fillStyle = WHITE;
+  ctx.font = "700 26px Montserrat, sans-serif";
+  ctx.fillText("SELECTION:", rx, y + 36);
+  ctx.font = "800 30px Montserrat, sans-serif";
+  ctx.fillText(truncate(ctx, pick.market_plain || pick.market, 380), rx, y + 76);
+
+  // Odds
+  const oddsVal = Number(pick.odds).toFixed(2);
+  ctx.fillStyle = accentColor;
+  ctx.font = "900 56px Montserrat, sans-serif";
+  ctx.fillText(oddsVal, rx, y + 140);
   ctx.fillStyle = MUTED;
   ctx.font = "700 24px Montserrat, sans-serif";
-  ctx.fillText("ODDS", rx, y + 94);
-
-  // Confidence bar + percentage
-  y += ROW_H - 8;
-  ctx.fillStyle = "rgba(255,255,255,0.12)";
-  roundRect(ctx, tx, y, 480, 8, 4);
-  ctx.fill();
-  const conf = Math.max(0, Math.min(100, pick.confidence));
-  ctx.fillStyle = RED;
-  roundRect(ctx, tx, y, (480 * conf) / 100, 8, 4);
-  ctx.fill();
-  const confTxt = `${conf.toFixed(0)}% CONFIDENCE`;
-  ctx.fillStyle = WHITE;
-  ctx.font = "800 20px Montserrat, sans-serif";
-  ctx.fillText(confTxt, tx + 500, y + 6);
+  ctx.fillText("ODDS", rx, y + 182);
   ctx.textAlign = "left";
 
-  // ---- Footer CTA ----
-  y += 24;
-  const domain = typeof window !== "undefined" ? window.location.hostname : "betpreneur.ng";
-  let fy = y + 24;
-  roundRect(ctx, PAD, fy, W - PAD * 2, FOOTER_H - 60, 24);
-  ctx.fillStyle = "rgba(232,25,44,0.12)";
+  // ConfidenceBar
+  y += CARD_H + 16;
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  roundRect(ctx, tx, y, 480, 10, 5);
   ctx.fill();
-  ctx.strokeStyle = "rgba(232,25,44,0.4)";
-  ctx.lineWidth = 1.5;
+  const conf = Math.max(0, Math.min(100, pick.confidence));
+  roundRect(ctx, tx, y, (480 * conf) / 100, 10, 5);
+  ctx.fillStyle = accentColor;
+  ctx.fill();
+  ctx.fillStyle = WHITE;
+  ctx.font = "800 20px Montserrat, sans-serif";
+  ctx.fillText(`${conf.toFixed(0)}% CONFIDENCE`, tx + 500, y + 8);
+
+  // ---- WHAT DOES THIS MEAN (Teal) ----
+  if (HAS_MEANING) {
+    y += INSIGHT_H - 10;
+    roundRect(ctx, PAD, y, W - PAD * 2, INSIGHT_H - 16, 20);
+    ctx.fillStyle = "rgba(20,184,166,0.1)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(20,184,166,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = TEAL;
+    ctx.font = "700 18px Montserrat, sans-serif";
+    ctx.fillText("WHAT DOES THIS MEAN?", tx, y + 26);
+    ctx.fillStyle = MUTED;
+    ctx.font = "700 20px Montserrat, sans-serif";
+    wrapText(ctx, pick.meaning, tx, y + 54, W - PAD * 2 - 48, 26);
+  }
+
+  // ---- WHY THIS PICK (Blue) ----
+  if (HAS_REASON) {
+    y += INSIGHT_H - 10;
+    roundRect(ctx, PAD, y, W - PAD * 2, INSIGHT_H - 16, 20);
+    ctx.fillStyle = "rgba(59,130,246,0.1)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(59,130,246,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = BLUE;
+    ctx.font = "700 18px Montserrat, sans-serif";
+    ctx.fillText("WHY THIS PICK?", tx, y + 26);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.font = "italic 22px Georgia, serif";
+    ctx.fillText(`"${pick.one_line_reason}"`, tx, y + 54);
+  }
+
+  // ---- Footer (Centered, Tier-themed) ----
+  y += FOOTER_H - 56;
+  roundRect(ctx, PAD, y + 24, W - PAD * 2, FOOTER_H - 60, 24);
+  ctx.fillStyle = accentBg;
+  ctx.fill();
+  ctx.strokeStyle = `rgba(${tierRgb},0.4)`;
   ctx.stroke();
 
   ctx.textAlign = "center";
   ctx.fillStyle = WHITE;
   ctx.font = "800 38px Montserrat, sans-serif";
-  ctx.fillText("Get daily edge picks — join free", W / 2, fy + 34);
-  ctx.fillStyle = RED;
+  ctx.fillText("Get daily edge picks — join free", W / 2, y + 58);
+  ctx.fillStyle = accentColor;
   ctx.font = "900 44px Montserrat, sans-serif";
-  ctx.fillText(domain, W / 2, fy + 86);
+  const domain = typeof window !== "undefined" ? window.location.hostname : "betpreneur.ng";
+  ctx.fillText(domain, W / 2, y + 110);
   ctx.textAlign = "left";
 
   return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
