@@ -991,7 +991,7 @@ function MatchPage() {
                 className="w-full h-auto rounded-lg block"
               />
               <p className="text-[12px] text-muted-foreground text-center mt-3">
-                Sent at 1080×1080 with a signup link to Betpreneur.
+                Sent at 1080px wide with a signup link to Betpreneur.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 pb-4">
@@ -1029,237 +1029,149 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 
 async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
-  const PAD = 72;
-
-  // ---- Measure pass: compute dynamic height from content volume ----
-  const measure = document.createElement("canvas").getContext("2d")!;
-  const countLines = (text: string, font: string, maxWidth: number) => {
-    measure.font = font;
-    const words = text.split(" ");
-    let line = "";
-    let lines = 0;
-    for (const word of words) {
-      const test = line ? line + " " + word : word;
-      if (measure.measureText(test).width > maxWidth && line) {
-        lines++;
-        line = word;
-      } else {
-        line = test;
-      }
-    }
-    if (line) lines++;
-    return Math.max(1, lines);
-  };
-  const innerW = W - PAD * 2;
-  const mReason = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
-  const titleLines = countLines(pick.match, "900 88px Montserrat, sans-serif", innerW);
-  const reasonLines = mReason ? countLines(`"${mReason}"`, "italic 28px Georgia, serif", innerW) : 0;
-  const verdictLines = pick.model_verdict ? countLines(pick.model_verdict, "italic 24px Georgia, serif", innerW - 48) : 0;
-
-  // Sum the flowing blocks (mirrors the draw order below)
-  let H = 280; // header + hero label offset
-  H += 44; // league/kickoff line
-  H += titleLines * 96 + 18; // title
-  H += 8 + 48; // accent bar + gap
-  H += 220 + 80; // pick card + gap
-  if (reasonLines) H += reasonLines * 40 + 40;
-  if (verdictLines) H += 90 + 20;
-  H += 120 + PAD + 40; // footer block
-  H = Math.max(H, 980);
+  const PAD = 56;
+  const HEADER_H = 300;
+  const ROW_H = 180;
+  const FOOTER_H = 200;
+  const H = HEADER_H + ROW_H + FOOTER_H + PAD;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-
-  // Spotify-style palette: rich dark base, single vivid accent
-  const RED = "#E8192C";
-  const RED_DEEP = "#7a0a14";
-  const INK = "#0a0a0a";
-  const WHITE = "#ffffff";
-  const MUTED = "rgba(255,255,255,0.62)";
-  const FAINT = "rgba(255,255,255,0.10)";
   ctx.textBaseline = "top";
 
-  // Background: deep diagonal gradient (top-left red glow → near-black)
+  // Red accent palette (matching single pick theme)
+  const RED = "#E8192C";
+  const RED_DEEP = "#7a0a14";
+  const WHITE = "#ffffff";
+  const MUTED = "rgba(255,255,255,0.55)";
+
+  // Background - dark with red glow
   const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, "#1a0307");
-  bg.addColorStop(0.55, "#0d0d0f");
+  bg.addColorStop(0, "#0b0507");
+  bg.addColorStop(0.5, "#0a0809");
   bg.addColorStop(1, "#000000");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Soft red radial glow top-left for depth
-  const glow = ctx.createRadialGradient(180, 160, 40, 180, 160, 760);
-  glow.addColorStop(0, "rgba(232,25,44,0.55)");
+  // Red radial glow
+  const glow = ctx.createRadialGradient(W / 2, 120, 40, W / 2, 120, 700);
+  glow.addColorStop(0, "rgba(232,25,44,0.35)");
   glow.addColorStop(1, "rgba(232,25,44,0)");
   ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, W, 600);
 
-  // Subtle noise grid lines (very faint) for texture
-  ctx.strokeStyle = "rgba(255,255,255,0.025)";
-  ctx.lineWidth = 1;
-  for (let i = 0; i < W; i += 40) {
-    ctx.beginPath();
-    ctx.moveTo(i, 0);
-    ctx.lineTo(i, H);
-    ctx.stroke();
-  }
-
-  // ---- Header: full logo + tier pill ----
+  // ---- Header ----
   try {
     const logo = await loadImage(logoFull);
-    const lh = 84;
+    const lh = 80;
     const lw = (logo.width / logo.height) * lh;
-    ctx.drawImage(logo, PAD, PAD, lw, lh);
+    ctx.drawImage(logo, (W - lw) / 2, 56, lw, lh);
   } catch {
     ctx.fillStyle = WHITE;
-    ctx.font = "900 48px Montserrat, sans-serif";
-    ctx.fillText("BETPRENEUR", PAD, PAD + 18);
+    ctx.font = "900 56px Montserrat, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("BETPRENEUR", W / 2, 70);
+    ctx.textAlign = "left";
   }
 
+  ctx.textAlign = "center";
+  ctx.fillStyle = WHITE;
+  ctx.font = "900 64px Montserrat, sans-serif";
+  ctx.fillText("TODAY'S TOP PICK", W / 2, 168);
+
+  ctx.fillStyle = RED;
+  ctx.font = "700 28px Montserrat, sans-serif";
   const tier = tierLabel(pick.tier).toUpperCase();
-  ctx.font = "800 22px Montserrat, sans-serif";
-  const tw = ctx.measureText(tier).width;
-  const pillW = tw + 40;
-  const pillH = 48;
-  const pillX = W - PAD - pillW;
-  const pillY = PAD + (84 - pillH) / 2;
-  roundRect(ctx, pillX, pillY, pillW, pillH, 24);
-  ctx.fillStyle = RED;
+  ctx.fillText(tier, W / 2, 244);
+  ctx.textAlign = "left";
+
+  // ---- Pick Detail Row ----
+  let y = HEADER_H;
+
+  // Card background
+  const rowX = PAD;
+  roundRect(ctx, rowX, y, W - PAD * 2, ROW_H, 28);
+  ctx.fillStyle = "rgba(232,25,44,0.08)";
   ctx.fill();
-  ctx.fillStyle = WHITE;
-  ctx.fillText(tier, pillX + 20, pillY + 14);
-
-  // ---- Hero block: huge match title (Spotify "Now Playing" energy) ----
-  let y = 280;
-
-  ctx.fillStyle = MUTED;
-  ctx.font = "700 22px Montserrat, sans-serif";
-  ctx.fillText(`${pick.league.toUpperCase()}  ·  ${formatKickoff(pick.kickoff_wat).toUpperCase()}`, PAD, y);
-  y += 44;
-
-  ctx.fillStyle = WHITE;
-  ctx.font = "900 88px Montserrat, sans-serif";
-  y = wrapText(ctx, pick.match, PAD, y, W - PAD * 2, 96);
-  y += 18;
-
-  // Red accent bar
-  ctx.fillStyle = RED;
-  roundRect(ctx, PAD, y, 96, 8, 4);
-  ctx.fill();
-  y += 48;
-
-  // ---- Glass pick card ----
-  const cardX = PAD;
-  const cardY = y;
-  const cardW = W - PAD * 2;
-  const cardH = 220;
-  roundRect(ctx, cardX, cardY, cardW, cardH, 28);
-  ctx.fillStyle = "rgba(255,255,255,0.06)";
-  ctx.fill();
+  ctx.strokeStyle = "rgba(232,25,44,0.35)";
   ctx.lineWidth = 1.5;
-  ctx.strokeStyle = "rgba(255,255,255,0.10)";
   ctx.stroke();
 
-  // Pick label
-  ctx.fillStyle = MUTED;
-  ctx.font = "700 18px Montserrat, sans-serif";
-  ctx.fillText("THE PICK", cardX + 36, cardY + 32);
+  // Vertical accent bar
+  const barW = 8;
+  roundRect(ctx, rowX + 28, y + 24, barW, ROW_H - 48, 4);
+  ctx.fillStyle = RED;
+  ctx.fill();
 
+  const tx = rowX + 56;
+
+  // Fixture / Match
   ctx.fillStyle = WHITE;
   ctx.font = "800 42px Montserrat, sans-serif";
-  wrapText(ctx, pick.market_plain, cardX + 36, cardY + 64, cardW - 280, 50);
+  ctx.fillText(truncate(ctx, pick.match, W - PAD * 2 - 360), tx, y + 28);
 
-  // Odds — right side, large
+  // League + Kickoff
   ctx.fillStyle = MUTED;
-  ctx.font = "700 18px Montserrat, sans-serif";
-  const oLab = "ODDS";
-  const oLabW = ctx.measureText(oLab).width;
-  ctx.fillText(oLab, cardX + cardW - 36 - oLabW, cardY + 32);
+  ctx.font = "600 26px Montserrat, sans-serif";
+  const sub = `${pick.league}  ·  ${formatKickoff(pick.kickoff_wat)}`;
+  ctx.fillText(truncate(ctx, sub, W - PAD * 2 - 360), tx, y + 82);
 
+  // Market / Selection
+  const mx = rowX + W / 2;
+  ctx.fillStyle = WHITE;
+  ctx.font = "700 28px Montserrat, sans-serif";
+  ctx.fillText("SELECTION:", mx, y + 40);
+  ctx.font = "800 32px Montserrat, sans-serif";
+  ctx.fillText(truncate(ctx, pick.market_plain || pick.market, 380), mx, y + 80);
+
+  // Odds (right side)
+  const rx = rowX + W - PAD * 2;
+  const oddVal = Number(pick.odds).toFixed(2);
+  ctx.textAlign = "right";
   ctx.fillStyle = RED;
-  ctx.font = "900 76px Montserrat, sans-serif";
-  const oVal = Number(pick.odds).toFixed(2);
-  const oValW = ctx.measureText(oVal).width;
-  ctx.fillText(oVal, cardX + cardW - 36 - oValW, cardY + 60);
-
-  // Divider inside card
-  ctx.fillStyle = FAINT;
-  ctx.fillRect(cardX + 36, cardY + 160, cardW - 72, 1);
-
-  // Confidence row inside card
+  ctx.font = "900 58px Montserrat, sans-serif";
+  ctx.fillText(oddVal, rx, y + 44);
   ctx.fillStyle = MUTED;
-  ctx.font = "700 16px Montserrat, sans-serif";
-  ctx.fillText("CONFIDENCE", cardX + 36, cardY + 178);
+  ctx.font = "700 24px Montserrat, sans-serif";
+  ctx.fillText("ODDS", rx, y + 94);
 
+  // Confidence bar + percentage
+  y += ROW_H - 8;
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  roundRect(ctx, tx, y, 480, 8, 4);
+  ctx.fill();
   const conf = Math.max(0, Math.min(100, pick.confidence));
+  ctx.fillStyle = RED;
+  roundRect(ctx, tx, y, (480 * conf) / 100, 8, 4);
+  ctx.fill();
+  const confTxt = `${conf.toFixed(0)}% CONFIDENCE`;
   ctx.fillStyle = WHITE;
   ctx.font = "800 20px Montserrat, sans-serif";
-  const cTxt = `${conf.toFixed(1)}%`;
-  const cTxtW = ctx.measureText(cTxt).width;
-  ctx.fillText(cTxt, cardX + cardW - 36 - cTxtW, cardY + 176);
+  ctx.fillText(confTxt, tx + 500, y + 6);
+  ctx.textAlign = "left";
 
-  // Mini bar
-  const barX = cardX + 200;
-  const barY = cardY + 188;
-  const barW = cardW - 200 - 36 - cTxtW - 24;
-  roundRect(ctx, barX, barY, barW, 6, 3);
-  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  // ---- Footer CTA ----
+  y += 24;
+  const domain = typeof window !== "undefined" ? window.location.hostname : "betpreneur.ng";
+  let fy = y + 24;
+  roundRect(ctx, PAD, fy, W - PAD * 2, FOOTER_H - 60, 24);
+  ctx.fillStyle = "rgba(232,25,44,0.12)";
   ctx.fill();
-  const fillGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
-  fillGrad.addColorStop(0, RED_DEEP);
-  fillGrad.addColorStop(1, RED);
-  roundRect(ctx, barX, barY, (barW * conf) / 100, 6, 3);
-  ctx.fillStyle = fillGrad;
-  ctx.fill();
+  ctx.strokeStyle = "rgba(232,25,44,0.4)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
-  y = cardY + cardH + 80;
-
-  // ---- Reason quote ----
-  const reasonText = pick.one_line_reason || pick.reasoning || pick.model_verdict || "";
-  if (reasonText) {
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
-    y = wrapText(ctx, `"${reasonText}"`, PAD, y, W - PAD * 2, 40);
-    // Dynamic gap after reason text
-    y += 40;
-  }
-
-  // ---- Model Verdict ----
-  if (pick.model_verdict) {
-    // Dynamic positioning - draw right after reason text with gap already applied
-    ctx.fillStyle = "rgba(79, 209, 205, 0.15)";
-    roundRect(ctx, PAD, y - 10, W - PAD * 2, 90, 16);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(79, 209, 205, 0.3)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    
-    ctx.fillStyle = "#4FD1CD";
-    ctx.font = "700 20px Montserrat, sans-serif";
-    ctx.fillText("🎯 MODEL VERDICT", PAD + 24, y + 14);
-    
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = "italic 24px Georgia, 'Times New Roman', serif";
-    wrapText(ctx, pick.model_verdict, PAD + 24, y + 48, W - PAD * 2 - 48, 36);
-  }
-
-  // ---- Footer ----
-  const footerY = y + 60;
-  const domain = typeof window !== "undefined" ? window.location.hostname : "www.betpreneur.ng";
-  ctx.fillStyle = MUTED;
-  ctx.font = "700 20px Montserrat, sans-serif";
-  ctx.fillText("JOIN FREE — DAILY EDGE PICKS", PAD, footerY);
+  ctx.textAlign = "center";
   ctx.fillStyle = WHITE;
-  ctx.font = "800 22px Montserrat, sans-serif";
-  const url = domain;
-  const uw = ctx.measureText(url).width;
-  ctx.fillText(url, W - PAD - uw, footerY - 2);
-
-  // suppress unused warnings
-  void INK;
+  ctx.font = "800 38px Montserrat, sans-serif";
+  ctx.fillText("Get daily edge picks — join free", W / 2, fy + 34);
+  ctx.fillStyle = RED;
+  ctx.font = "900 44px Montserrat, sans-serif";
+  ctx.fillText(domain, W / 2, fy + 86);
+  ctx.textAlign = "left";
 
   return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
 }
@@ -1286,6 +1198,15 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+}
+
+function truncate(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth) {
+    t = t.slice(0, -1);
+  }
+  return t + "…";
 }
 
 function wrapText(
