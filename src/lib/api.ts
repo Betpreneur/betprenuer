@@ -308,11 +308,11 @@ export interface Pick {
   backed_count: number;
   backed_by_me: boolean;
   // Extended/derived fields used by detail + list views
-  match?: string;
-  market_plain?: string;
+  match: string;
+  market_plain: string;
   selection?: string;
-  one_line_reason?: string;
-  kickoff_wat?: string;
+  one_line_reason: string;
+  kickoff_wat: string;
   user_backed?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form_home?: any;
