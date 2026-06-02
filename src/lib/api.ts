@@ -307,8 +307,26 @@ export interface Pick {
   created_at: string;
   backed_count: number;
   backed_by_me: boolean;
+  // Extended/derived fields used by detail + list views (optional)
+  match?: string;
+  market_plain?: string;
+  selection?: string;
+  one_line_reason?: string;
+  kickoff_wat?: string;
+  user_backed?: boolean;
+  form_home?: string;
+  form_away?: string;
+  goals_profile?: string[];
+  risk_level?: string;
+  insights?: unknown;
+  team_news?: unknown;
+  home_score?: number | null;
+  away_score?: number | null;
+  home_standing?: unknown;
+  away_standing?: unknown;
+  _teams?: unknown;
 }
-export type PickStatusEnum = "pending" | "win" | "loss" | "void";
+export type PickStatusEnum = "pending" | "win" | "loss" | "void" | "settled";
 // Legacy alias removed
 // export interface TierEnum extends Tier {}
 
