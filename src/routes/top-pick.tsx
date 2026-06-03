@@ -32,68 +32,50 @@ function PickCard({ pick, teams }: { pick: Pick; teams?: any }) {
   const awayLogo = pick.away_logo || teams?.away?.logo;
   
   return (
-    <Link to="/match/$id" params={{ id: matchId }} className="block group">
+    <Link to="/match/$id" params={{ id: matchId }} className="block group h-full">
       <div className="
+        h-full flex flex-col
         bg-card/80 backdrop-blur-sm
-        border border-border/50 rounded-2xl p-5 
+        border border-border/50 rounded-2xl p-4 sm:p-5
         hover:border-brand-green/40 hover:shadow-lg hover:shadow-brand-green/5
         hover:translate-y-[-2px] transition-all duration-300
       ">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            {/* Tier Badge */}
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${getTierColor(pick.tier)}`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-current" />
-              {pick.tier?.replace("_", " ")}
-            </span>
-            
-            {/* Team Logos & Fixture */}
-            <div className="flex items-center justify-center gap-2 mt-3 min-h-[32px]">
-              {homeLogo && (
-                <img src={homeLogo} alt="" className="w-7 h-7 object-contain" />
-              )}
-              <div className="font-bold text-base leading-tight text-foreground group-hover:text-brand-green transition-colors text-center px-1">
-                {pick.fixture}
-              </div>
-              {awayLogo && (
-                <img src={awayLogo} alt="" className="w-7 h-7 object-contain" />
-              )}
-            </div>
-            
-            {/* Market & Odds */}
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm text-muted-foreground">{pick.market}</span>
-              <span className="text-muted-foreground/40">@</span>
-              <span className="text-base font-bold text-brand-green">
-                {pick.odds ? Number(pick.odds).toFixed(2) : "—"}
-              </span>
-            </div>
-          </div>
-          
-          {/* Confidence Badge */}
-          <div className="
-            w-16 h-16 rounded-2xl 
-            bg-gradient-to-br from-brand-green/20 to-brand-green/5
-            border border-brand-green/30
-            flex flex-col items-center justify-center
-          ">
-            <div className="text-xl font-black text-brand-green">
+        {/* Top row: tier badge + confidence */}
+        <div className="flex items-center justify-between gap-2">
+          <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${getTierColor(pick.tier)}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+            {pick.tier?.replace("_", " ")}
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-lg font-black text-brand-green leading-none">
               {pick.confidence?.toFixed(0)}%
-            </div>
-            <div className="text-[9px] text-muted-foreground uppercase tracking-wider">
-              conf
-            </div>
+            </span>
+            <span className="text-[9px] text-muted-foreground uppercase tracking-wider">conf</span>
           </div>
         </div>
-        
-        {/* Hover Arrow */}
-        <div className="
-          mt-3 pt-3 border-t border-border/30
-          flex items-center justify-end
-          text-xs text-muted-foreground
-          opacity-0 group-hover:opacity-100 transition-opacity
-        ">
-          <span>View Analysis</span>
+
+        {/* Fixture row: logos + team name, left aligned & consistent */}
+        <div className="flex items-center gap-2.5 mt-3">
+          <div className="flex items-center -space-x-1 shrink-0">
+            {homeLogo && <img src={homeLogo} alt="" className="w-7 h-7 object-contain" />}
+            {awayLogo && <img src={awayLogo} alt="" className="w-7 h-7 object-contain" />}
+          </div>
+          <div className="font-bold text-[15px] leading-snug text-foreground group-hover:text-brand-green transition-colors min-w-0">
+            {pick.fixture}
+          </div>
+        </div>
+
+        {/* Market & Odds */}
+        <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/30">
+          <span className="text-sm text-muted-foreground truncate">{pick.market}</span>
+          <span className="text-base font-bold text-brand-green shrink-0">
+            @{pick.odds ? Number(pick.odds).toFixed(2) : "—"}
+          </span>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-auto pt-3 flex items-center justify-end text-xs text-muted-foreground">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity">View Analysis</span>
           <svg className="w-4 h-4 ml-1 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
