@@ -212,46 +212,42 @@ function MyPicksPage() {
     setTimeout(() => setShareMsg(null), 3500);
   }
 
-  const loadPicks = (_date: string) => {
+  const applyPicks = (arr: any[]) => {
+    setPicks(arr as Pick[]);
+    setStats({
+      total: arr.length,
+      wins: arr.filter((p: any) => p.status === "win").length,
+      losses: arr.filter((p: any) => p.status === "loss").length,
+      pending: arr.filter((p: any) => !p.status || p.status === "pending").length,
+    });
+  };
+
+  const loadPicks = async (_date: string) => {
     setLoading(true);
     setError(null);
 
-    // Load only picks backed on the selected date (scoped per day)
-    const storedPicks = getPicksForDate(_date);
-
-    if (storedPicks.length > 0) {
-      // Use localStorage picks
-      setPicks(storedPicks as unknown as Pick[]);
-      setStats({
-        total: storedPicks.length,
-        wins: 0,
-        losses: 0,
-        pending: storedPicks.length,
-      });
-      setLoading(false);
-      return;
-    }
-
-    // Fallback: try API for that specific date
-    fetch(`https://backend.betpreneur.ng/api/algo/games/backed/?date=${_date}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("terminal.token")}` }
-    })
-      .then(res => res.json())
-      .then((res: any) => {
-        const arr = Array.isArray(res) ? res : (res.results || res.data || res.picks || []);
-        setPicks(arr);
-        setStats({
-          total: arr.length,
-          wins: arr.filter((p: any) => p.status === "win").length,
-          losses: arr.filter((p: any) => p.status === "loss").length,
-          pending: arr.filter((p: any) => p.status === "pending").length,
-        });
-      })
-      .catch((err) => {
-        console.error("Failed to load picks:", err);
+    // Primary source: backend, so picks sync across all devices.
+    try {
+      const res = await api.getBackedPicks(_date);
+      const arr = Array.isArray(res) ? res : ((res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
+      if (Array.isArray(arr) && arr.length > 0) {
+        applyPicks(arr);
+        setLoading(false);
+        return;
+      }
+      // Backend returned nothing — fall back to anything stored locally for that day.
+      applyPicks(getPicksForDate(_date) as unknown as Pick[]);
+    } catch (err) {
+      console.error("Failed to load picks from backend, using local fallback:", err);
+      const stored = getPicksForDate(_date);
+      if (stored.length > 0) {
+        applyPicks(stored as unknown as Pick[]);
+      } else {
         setError("Could not load your picks.");
-      })
-      .finally(() => setLoading(false));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
