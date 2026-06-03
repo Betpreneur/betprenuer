@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
-import { useBackedCount, useBackedPicks, removeBackedPick } from "@/hooks/useBackedPicks";
+import { useBackedCount, useBackedPicks, removeBackedPick, clearBackedCount } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -23,9 +23,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const backedPickCount = useBackedCount();
   const router = useRouter();
 
-  // Close popup on route change
+  // Once the user opens My Picks, the picks are already synced to the backend,
+  // so the floating badge has served its purpose — clear it.
   useEffect(() => {
-    // Reset state on route change if needed
+    if (path === "/my-picks") {
+      clearBackedCount();
+    }
   }, [path]);
 
   const handleRemovePick = (id: number) => {
