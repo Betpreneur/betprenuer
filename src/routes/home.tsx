@@ -58,7 +58,8 @@ function GameCard({ game }: { game: GameInfo }) {
         {/* Status strip */}
         <div className="flex items-center justify-between px-4 pt-3">
           <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-brand-green/10 text-brand-green border border-brand-green/25">
-            {(game.competition_logo || game.league_logo) && (
+            {game.country_flag && <img src={game.country_flag} alt="" className="w-3.5 h-3.5 rounded-full object-contain" />}
+            {(game.competition_logo || game.league_logo) && !game.country_flag && (
               <img src={game.competition_logo || game.league_logo || undefined} alt="" className="w-3.5 h-3.5 object-contain" />
             )}
             <span className="truncate max-w-[120px]">{game.league}</span>
@@ -206,6 +207,7 @@ function HomePage() {
         {filters.map((f) => {
           const lg = games.find((g) => g.league === f);
           const logo = lg?.competition_logo || lg?.league_logo;
+          const flag = lg?.country_flag;
           const active = filter === f;
           return (
             <button
@@ -217,7 +219,8 @@ function HomePage() {
                   : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50 hover:text-foreground"
               }`}
             >
-              {logo && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+              {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+              {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
               {f}
             </button>
           );

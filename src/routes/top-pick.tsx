@@ -65,6 +65,14 @@ function PickCard({ pick, teams }: { pick: Pick; teams?: any }) {
           </div>
         </div>
 
+        {/* Competition info with country flag */}
+        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-muted-foreground">
+          {(pick as any).country_flag && (
+            <img src={(pick as any).country_flag} alt="" className="w-3 h-3 rounded-full object-contain" />
+          )}
+          {(pick as any).league}
+        </div>
+
         {/* Market & Odds */}
         <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-border/30">
           <span className="text-sm text-muted-foreground truncate">{pick.market}</span>

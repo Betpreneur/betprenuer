@@ -152,6 +152,8 @@ function MatchPage() {
           away_score: g.away_score,
           status: g.status,
           league: g.league,
+          competition_logo: g.competition_logo,
+          country_flag: g.country_flag,
           form_home: g.home_recent_form,
           form_away: g.away_recent_form,
           goals_profile: effectivePick?.selection_profile ? effectivePick.selection_profile.split("\n").filter(Boolean) : [],
@@ -359,9 +361,16 @@ function MatchPage() {
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              {/* League pill with competition logo */}
+              {/* League pill with competition logo and country flag */}
               <div className="flex items-center gap-2 mb-2">
-                {(pick as any).competition_logo && (
+                {(pick as any).country_flag && (
+                  <img 
+                    src={(pick as any).country_flag} 
+                    alt="" 
+                    className="w-5 h-5 rounded-full object-contain"
+                  />
+                )}
+                {(pick as any).competition_logo && !(pick as any).country_flag && (
                   <img 
                     src={(pick as any).competition_logo} 
                     alt="" 
