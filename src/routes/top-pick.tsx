@@ -119,7 +119,7 @@ function TopPickPage() {
   const wildcards = picks.filter(p => p.tier?.includes("wild"));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Modern Header */}
       <header className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card via-card to-brand-green/10 border border-brand-green/30 p-5">
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/10 rounded-full blur-3xl" />
@@ -151,7 +151,7 @@ function TopPickPage() {
             </span>
             Bankers ({bankers.length})
           </h2>
-          <div className="grid gap-3">{bankers.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{bankers.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
 
@@ -165,7 +165,7 @@ function TopPickPage() {
             </span>
             Value Gems ({gems.length})
           </h2>
-          <div className="grid gap-3">{gems.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{gems.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
 
@@ -179,7 +179,7 @@ function TopPickPage() {
             </span>
             Wildcards ({wildcards.length})
           </h2>
-          <div className="grid gap-3">{wildcards.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{wildcards.map(p => <PickCard key={p.id} pick={p} teams={p._teams} />)}</div>
         </section>
       )}
     </div>
