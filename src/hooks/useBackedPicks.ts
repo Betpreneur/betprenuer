@@ -7,6 +7,7 @@ import { todayLagosISO } from "@/lib/time";
 
 const STORAGE_KEY = "terminal.backed.count";
 const PICKS_KEY = "terminal.backed.picks";
+const COUNT_DATE_KEY = "terminal.backed.count.date";
 
 export interface BackedPick {
   id: number;
@@ -24,8 +25,10 @@ export interface BackedPick {
 
 function getStoredCount(): number {
   if (typeof window === "undefined") return 0;
-  // Count only today's picks so the badge resets on a new day.
-  return getPicksForDate(todayLagosISO()).length;
+  // Badge tracks newly-backed-but-unviewed picks for today only.
+  // It resets on a new day and is cleared once the user opens My Picks.
+  if (localStorage.getItem(COUNT_DATE_KEY) !== todayLagosISO()) return 0;
+  return Number(localStorage.getItem(STORAGE_KEY) || 0);
 }
 
 export function getStoredPicks(): BackedPick[] {
@@ -46,7 +49,8 @@ export function getPicksForDate(date: string): BackedPick[] {
 
 function setStoredCount(count: number) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, String(count));
+  localStorage.setItem(STORAGE_KEY, String(Math.max(0, count)));
+  localStorage.setItem(COUNT_DATE_KEY, todayLagosISO());
 }
 
 function setStoredPicks(picks: BackedPick[]) {
@@ -103,7 +107,7 @@ export function addBackedPick(pick: BackedPick) {
   if (existing.some(p => p.id === pick.id)) return;
   const updated = [...existing, pick];
   setStoredPicks(updated);
-  setStoredCount(updated.length);
+  setStoredCount(getStoredCount() + 1);
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }
@@ -112,7 +116,7 @@ export function removeBackedPick(id: number) {
   const existing = getStoredPicks();
   const updated = existing.filter(p => p.id !== id);
   setStoredPicks(updated);
-  setStoredCount(updated.length);
+  setStoredCount(getStoredCount() - 1);
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }
@@ -125,7 +129,7 @@ export function clearAllBackedPicks() {
 }
 
 export function addBackedCount(_id: number | string) {
-  setStoredCount(getStoredCount() + 1);
+  // Count increments are handled by addBackedPick to avoid double counting.
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }
