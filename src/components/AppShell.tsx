@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { todayLagos } from "@/lib/time";
 import { useAuth } from "@/lib/auth";
 import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
-import { useBackedCount, useBackedPicks, removeBackedPick, clearBackedCount } from "@/hooks/useBackedPicks";
+import { useBackedCount, clearBackedCount } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -21,8 +21,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const backedPickCount = useBackedCount();
-  const router = useRouter();
-
   // Once the user opens My Picks, the picks are already synced to the backend,
   // so the floating badge has served its purpose — clear it.
   useEffect(() => {
@@ -30,10 +28,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       clearBackedCount();
     }
   }, [path]);
-
-  const handleRemovePick = (id: number) => {
-    removeBackedPick(id);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
