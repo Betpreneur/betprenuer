@@ -220,7 +220,10 @@ function MyPicksPage() {
     // Primary source: backend, so picks sync across all devices.
     try {
       const res = await api.getBackedPicks(_date);
-      const arr = Array.isArray(res) ? res : ((res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
+      // API returns { date, count, games[] } where each game has official_pick nested
+      const raw = Array.isArray(res) ? res : ((res as any)?.games || (res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
+      // Extract official_pick from each game, or use game itself if no official_pick
+      const arr = raw.map((g: any) => g.official_pick || g);
       applyPicks(Array.isArray(arr) ? arr : []);
     } catch (err) {
       console.error("Failed to load picks from backend:", err);
