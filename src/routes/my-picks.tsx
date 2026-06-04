@@ -104,7 +104,7 @@ function MyPicksPage() {
   const [picks, setPicks] = useState<Pick[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, wins: 0, losses: 0, pending: 0 });
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(lagosDateISOOffset(0));
   const [generating, setGenerating] = useState(false);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ url: string; blob: Blob; fileName: string } | null>(null);
