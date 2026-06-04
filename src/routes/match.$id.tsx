@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff, todayLagosISO } from "@/lib/time";
 import { StakeGuide } from "@/components/StakeGuide";
-import { addBackedCount, addBackedPick } from "@/hooks/useBackedPicks";
+import { addBackedCount } from "@/hooks/useBackedPicks";
 import logoFull from "@/assets/betpreneur-logo-horizontal.png";
 
 // Extended type for full game details
@@ -234,24 +234,13 @@ function MatchPage() {
     setBacking(true);
     const backedDate = todayLagosISO();
     try {
-      // Send to backend immediately
-      await api.markBacked(pick.id, backedDate);
-      // Also update local count for display
+      await api.markBacked(id, backedDate);
       addBackedCount(pick.id);
-      // Save to localStorage for the popup count
-      addBackedPick({
-        id: Number(pick.id),
-        match_id: String(id),
-        match: pick.match,
-        home_team: pick.home_team,
-        away_team: pick.away_team,
-        market: pick.market_plain,
-        odds: Number(pick.odds),
-        league: pick.league,
-        confidence: pick.confidence,
-        date: backedDate,
-      });
       setPick({ ...pick, user_backed: true });
+    } catch (e) {
+      console.error("Failed to save backed pick:", e);
+      setShareMsg("Could not save this pick. Please try again.");
+      setTimeout(() => setShareMsg(null), 3500);
     } finally {
       setBacking(false);
     }
