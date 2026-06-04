@@ -4,6 +4,9 @@ import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
+import * as Select from "@radix-ui/react-select";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -200,29 +203,70 @@ function HomePage() {
         </div>
       </header>
 
-      {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-        {filters.map((f) => {
-          const lg = games.find((g) => g.league === f);
-          const logo = lg?.competition_logo || lg?.league_logo;
-          const flag = lg?.country_flag;
-          const active = filter === f;
-          return (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition-all ${
-                active
-                  ? "bg-brand-green text-primary-foreground shadow-[0_4px_14px_-4px_rgba(34,197,94,0.6)]"
-                  : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50 hover:text-foreground"
-              }`}
-            >
-              {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-              {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-              {f}
-            </button>
-          );
-        })}
+      {/* Filter row with dropdown */}
+      <div className="flex items-center gap-3">
+        {/* Quick dropdown filter */}
+        <Select.Root value={filter} onValueChange={setFilter}>
+          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[110px]">
+            <Select.Value placeholder="Filter" />
+            <Select.Icon asChild>
+              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50">
+              <Select.Viewport className="p-1">
+                {filters.map((f) => (
+                  <Select.Item key={f} value={f} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                    <Select.ItemText className="flex items-center gap-2">
+                      {(() => {
+                        const lg = games.find((g) => g.league === f);
+                        const logo = lg?.competition_logo || lg?.league_logo;
+                        const flag = lg?.country_flag;
+                        return (
+                          <>
+                            {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                            {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                            {f}
+                          </>
+                        );
+                      })()}
+                    </Select.ItemText>
+                    <Select.ItemIndicator className="ml-auto">
+                      <Check className="w-3.5 h-3.5 text-brand-green" />
+                    </Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
+
+        {/* Filter chips scroll */}
+        <div className="flex-1 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {filters.map((f) => {
+            const lg = games.find((g) => g.league === f);
+            const logo = lg?.competition_logo || lg?.league_logo;
+            const flag = lg?.country_flag;
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition-all",
+                  active
+                    ? "bg-brand-green text-primary-foreground shadow-[0_4px_14px_-4px_rgba(34,197,94,0.6)]"
+                    : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50 hover:text-foreground"
+                )}
+              >
+                {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                {f}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Games grid */}
