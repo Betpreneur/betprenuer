@@ -146,6 +146,15 @@ function MyPicksPage() {
     setGenerating(true);
     setShareMsg(null);
     try {
+      // DEBUG: Log first pick's keys to understand field structure
+      if (picks.length > 0) {
+        console.log("DEBUG pick fields:", Object.keys(picks[0]));
+        console.log("DEBUG first pick:", picks[0]);
+        console.log("DEBUG market value:", picks[0].market, "type:", typeof picks[0].market);
+        console.log("DEBUG odds value:", picks[0].odds, "type:", typeof picks[0].odds);
+        console.log("DEBUG pick field:", picks[0].pick, "type:", typeof picks[0].pick);
+        console.log("DEBUG market_plain:", picks[0].market_plain, "type:", typeof picks[0].market_plain);
+      }
       const sharePicks: SharePick[] = picks.map((p) => ({
         fixture: p.fixture || (p as any).match || "Unknown match",
         market: p.market,
@@ -220,10 +229,26 @@ function MyPicksPage() {
     // Primary source: backend, so picks sync across all devices.
     try {
       const res = await api.getBackedPicks(_date);
-      // API returns { date, count, games[] } where each game has official_pick nested
+      // API returns { date, count, games[] } where each game has official_pick or top_market
       const raw = Array.isArray(res) ? res : ((res as any)?.games || (res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
-      // Extract official_pick from each game, or use game itself if no official_pick
-      const arr = raw.map((g: any) => g.official_pick || g);
+      // Extract official_pick, or fall back to top_market with additional game info
+      const arr = raw.map((g: any) => {
+        if (g.official_pick) return g.official_pick;
+        if (g.top_market) {
+          // Use top_market as fallback, merge with game-level fields for display
+          return {
+            ...g.top_market,
+            fixture: g.fixture,
+            league: g.league,
+            kickoff: g.kickoff,
+            match_id: g.match_id,
+            home_team: g.home_team,
+            away_team: g.away_team,
+            status: "pending",
+          };
+        }
+        return null;
+      }).filter(Boolean);
       applyPicks(Array.isArray(arr) ? arr : []);
     } catch (err) {
       console.error("Failed to load picks from backend:", err);
