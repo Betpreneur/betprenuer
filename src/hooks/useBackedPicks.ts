@@ -1,13 +1,13 @@
 /**
- * Global backed picks storage using localStorage + React state.
- * Provides reactive count and list of backed picks across components.
+ * Global backed-pick badge state.
+ * Actual picks are saved and loaded from the backend API so they sync across devices.
  */
 import { useState, useEffect } from "react";
 import { todayLagosISO } from "@/lib/time";
 
 const STORAGE_KEY = "terminal.backed.count";
-const PICKS_KEY = "terminal.backed.picks";
 const COUNT_DATE_KEY = "terminal.backed.count.date";
+const LEGACY_PICKS_KEY = "terminal.backed.picks";
 
 export interface BackedPick {
   id: number;
@@ -25,6 +25,7 @@ export interface BackedPick {
 
 function getStoredCount(): number {
   if (typeof window === "undefined") return 0;
+  localStorage.removeItem(LEGACY_PICKS_KEY);
   // Badge tracks newly-backed-but-unviewed picks for today only.
   // It resets on a new day and is cleared once the user opens My Picks.
   if (localStorage.getItem(COUNT_DATE_KEY) !== todayLagosISO()) return 0;
@@ -32,30 +33,18 @@ function getStoredCount(): number {
 }
 
 export function getStoredPicks(): BackedPick[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const stored = localStorage.getItem(PICKS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+  return [];
 }
 
-/** Picks backed on a specific Lagos date (YYYY-MM-DD). Legacy picks with no date count as today. */
 export function getPicksForDate(date: string): BackedPick[] {
-  const today = todayLagosISO();
-  return getStoredPicks().filter((p) => (p.date || today) === date);
+  void date;
+  return [];
 }
 
 function setStoredCount(count: number) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, String(Math.max(0, count)));
   localStorage.setItem(COUNT_DATE_KEY, todayLagosISO());
-}
-
-function setStoredPicks(picks: BackedPick[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(PICKS_KEY, JSON.stringify(picks));
 }
 
 // Global broadcast channel for cross-tab/cross-component messaging
@@ -103,33 +92,22 @@ export function useBackedPicks() {
 }
 
 export function addBackedPick(pick: BackedPick) {
-  const existing = getStoredPicks();
-  if (existing.some(p => p.id === pick.id)) return;
-  const updated = [...existing, pick];
-  setStoredPicks(updated);
-  setStoredCount(getStoredCount() + 1);
-  getBC()?.postMessage("update");
-  window.dispatchEvent(new Event("bp-backed-update"));
+  void pick;
+  addBackedCount("");
 }
 
 export function removeBackedPick(id: number) {
-  const existing = getStoredPicks();
-  const updated = existing.filter(p => p.id !== id);
-  setStoredPicks(updated);
-  setStoredCount(getStoredCount() - 1);
+  void id;
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }
 
 export function clearAllBackedPicks() {
-  setStoredPicks([]);
-  setStoredCount(0);
-  getBC()?.postMessage("update");
-  window.dispatchEvent(new Event("bp-backed-update"));
+  clearBackedCount();
 }
 
 export function addBackedCount(_id: number | string) {
-  // Count increments are handled by addBackedPick to avoid double counting.
+  setStoredCount(getStoredCount() + 1);
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }
@@ -144,6 +122,7 @@ export function removeBackedCount(_id: number | string) {
 
 export function clearBackedCount() {
   setStoredCount(0);
+  if (typeof window !== "undefined") localStorage.removeItem(LEGACY_PICKS_KEY);
   getBC()?.postMessage("update");
   window.dispatchEvent(new Event("bp-backed-update"));
 }

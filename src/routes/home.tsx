@@ -4,7 +4,6 @@ import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
-import { useBackedPicks } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -38,8 +37,7 @@ function confColor(c: number) {
 
 function GameCard({ game }: { game: GameInfo }) {
   const isLive = game.status === "live" || game.home_score != null;
-  const backedPicks = useBackedPicks();
-  const isBacked = backedPicks.some((p) => p.id === Number(game.match_id));
+  const isBacked = Boolean((game as any).backed_by_me || game.official_pick?.backed_by_me);
   const tier = tierMeta(game.official_pick?.tier);
 
   const sel = game.official_pick?.selection || game.official_pick?.market;
