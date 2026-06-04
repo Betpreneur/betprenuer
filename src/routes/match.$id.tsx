@@ -67,17 +67,38 @@ function FormChips({ form }: { form?: string }) {
 }
 
 function TierBadge({ tier }: { tier: string }) {
+  const tierKey = getPickTierKey(tier);
+  if (!tierKey) {
+    return (
+      <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-info-blue/20 text-info-blue border border-info-blue/30">
+        Top Market
+      </span>
+    );
+  }
   const colors: Record<string, string> = {
     banker: "bg-brand-green text-primary-foreground",
-    value_gem: "bg-teal-600 text-white",
     gem: "bg-teal-600 text-white",
-    wild_card: "bg-purple-600 text-white",
+    wildcard: "bg-purple-600 text-white",
   };
   return (
-    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tier] || "bg-gray-600 text-white"}`}>
-      {tier?.replace("_", " ") || ""}
+    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${colors[tierKey]}`}>
+      {tierLabel(tierKey)}
     </span>
   );
+}
+
+function getPickTierKey(tier?: string | null): "banker" | "gem" | "wildcard" | null {
+  if (!tier) return null;
+  const normalized = String(tier).toLowerCase().replace(/\s+/g, "_");
+  if (normalized === "banker") return "banker";
+  if (normalized === "gem" || normalized === "value_gem") return "gem";
+  if (normalized === "wildcard" || normalized === "wild_card") return "wildcard";
+  return null;
+}
+
+function pickCardLabel(pick: PickDetail): string {
+  const tierKey = getPickTierKey((pick as any).tier);
+  return tierKey ? tierLabel(tierKey) : "Top Market";
 }
 
 function MatchPage() {
@@ -257,7 +278,7 @@ function MatchPage() {
       ``,
       `${pick.match}`,
       `${pick.market_plain} @ ${Number(pick.odds).toFixed(2)}`,
-      `Confidence: ${pick.confidence.toFixed(1)}% · ${tierLabel(pick.tier)}`,  
+      `Confidence: ${pick.confidence.toFixed(1)}% · ${pickCardLabel(pick)}`,  
       ``,
       `"${pick.one_line_reason}"`,
       ``,
