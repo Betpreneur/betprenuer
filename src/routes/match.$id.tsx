@@ -1331,6 +1331,33 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
+function drawStatBox(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  label: string,
+  value: string,
+  accent: string,
+) {
+  roundRect(ctx, x, y, w, h, 22);
+  ctx.fillStyle = "rgba(255,255,255,0.055)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,255,255,0.62)";
+  ctx.font = "900 18px Montserrat, sans-serif";
+  ctx.fillText(label, x + w / 2, y + 22);
+  ctx.fillStyle = accent;
+  ctx.font = "900 46px Montserrat, sans-serif";
+  ctx.fillText(value, x + w / 2, y + 56);
+  ctx.textAlign = "left";
+}
+
 function truncate(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
   if (ctx.measureText(text).width <= maxWidth) return text;
   let t = text;
