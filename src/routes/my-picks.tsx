@@ -2,10 +2,10 @@ import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { todayLagos } from "@/lib/time";
+import { lagosDateISOOffset, todayLagos } from "@/lib/time";
 import { MyPicksSkeleton } from "@/components/skeletons";
 import { renderPicksShareCard, buildShareCaption, type SharePick } from "@/lib/shareCard";
-import { removeBackedCount, clearAllBackedPicks, removeBackedPick, getPicksForDate } from "@/hooks/useBackedPicks";
+import { clearBackedCount } from "@/hooks/useBackedPicks";
 
 export const Route = createFileRoute("/my-picks")({
   head: () => ({
@@ -21,9 +21,7 @@ export const Route = createFileRoute("/my-picks")({
 function getDateOptions() {
   const dates: { value: string; label: string }[] = [];
   for (let i = 0; i < 3; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const iso = d.toISOString().split("T")[0];
+    const iso = lagosDateISOOffset(i);
     const label = i === 0 ? "Today" : i === 1 ? "Yesterday" : `${i} days ago`;
     dates.push({ value: iso, label });
   }
@@ -114,39 +112,32 @@ function MyPicksPage() {
   const dateOptions = getDateOptions();
 
   const dateLabel = dateOptions.find((d) => d.value === selectedDate)?.label ?? "Today";
+  const isTodaySelected = selectedDate === dateOptions[0].value;
 
-  // Remove pick handler - calls backend and updates local state
   async function handleRemovePick(id: number) {
+    if (!isTodaySelected) return;
+    const target = picks.find((p) => p.id === id);
     try {
-      // Call backend to remove
-      await api.unmarkBacked(id);
+      await api.unmarkBacked(target?.match_id || id);
     } catch (e) {
-      // Ignore backend errors - continue with local removal
+      console.error("Failed to remove pick:", e);
+      setError("Could not remove this pick. Please try again.");
+      return;
     }
-    // Also remove from localStorage
-    removeBackedPick(id);
-    // Update local count
-    removeBackedCount(id);
-    // Remove from local list
     setPicks((prev) => prev.filter((p) => p.id !== id));
-    // Update stats
     setStats((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
   }
 
-  // Clear all picks for today
   async function handleClearAll() {
+    if (!isTodaySelected) return;
     if (!confirm("Clear all your picks for today?")) return;
-    try {
-      // Try to clear all on backend
-      await Promise.allSettled(picks.map(p => api.unmarkBacked(p.id).catch(() => {})));
-    } catch (e) {
-      // Ignore backend errors - continue with local clear
+    const results = await Promise.allSettled(picks.map(p => api.unmarkBacked(p.match_id || p.id)));
+    if (results.some((r) => r.status === "rejected")) {
+      setError("Some picks could not be cleared. Please try again.");
+      return;
     }
-    // Clear localStorage
-    clearAllBackedPicks();
-    // Clear local list
+    clearBackedCount();
     setPicks([]);
-    // Reset stats
     setStats({ total: 0, wins: 0, losses: 0, pending: 0 });
   }
 
@@ -230,21 +221,11 @@ function MyPicksPage() {
     try {
       const res = await api.getBackedPicks(_date);
       const arr = Array.isArray(res) ? res : ((res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
-      if (Array.isArray(arr) && arr.length > 0) {
-        applyPicks(arr);
-        setLoading(false);
-        return;
-      }
-      // Backend returned nothing — fall back to anything stored locally for that day.
-      applyPicks(getPicksForDate(_date) as unknown as Pick[]);
+      applyPicks(Array.isArray(arr) ? arr : []);
     } catch (err) {
-      console.error("Failed to load picks from backend, using local fallback:", err);
-      const stored = getPicksForDate(_date);
-      if (stored.length > 0) {
-        applyPicks(stored as unknown as Pick[]);
-      } else {
-        setError("Could not load your picks.");
-      }
+      console.error("Failed to load picks from backend:", err);
+      applyPicks([]);
+      setError("Could not load your picks.");
     } finally {
       setLoading(false);
     }
@@ -286,7 +267,7 @@ function MyPicksPage() {
             {d.label}
           </button>
         ))}
-        {selectedDate === dateOptions[0].value && picks.length > 0 && (
+        {isTodaySelected && picks.length > 0 && (
           <button
             onClick={handleClearAll}
             className="py-2 px-3 text-[11px] font-medium rounded-lg bg-danger-red/10 text-danger-red border border-danger-red/30 hover:bg-danger-red hover:text-white transition-colors"
@@ -317,7 +298,7 @@ function MyPicksPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {picks.map(pick => (<PickItem key={pick.id} pick={pick} clickable={selectedDate === dateOptions[0].value} onRemove={handleRemovePick} />))}
+          {picks.map(pick => (<PickItem key={pick.id} pick={pick} clickable={isTodaySelected} onRemove={isTodaySelected ? handleRemovePick : undefined} />))}
         </div>
       )}
 
