@@ -42,6 +42,11 @@ export function todayLagosISO(): string {
   return dayjs().tz(TZ).format("YYYY-MM-DD");
 }
 
+/** Lagos date (YYYY-MM-DD) offset by a number of days. */
+export function lagosDateISOOffset(daysAgo: number): string {
+  return dayjs().tz(TZ).subtract(daysAgo, "day").format("YYYY-MM-DD");
+}
+
 export function shortDate(iso: string): string {
   return dayjs(iso).tz(TZ).format("DD MMM");
 }
