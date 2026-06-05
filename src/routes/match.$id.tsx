@@ -1048,76 +1048,86 @@ async function renderShareCard(pick: PickDetail): Promise<Blob | null> {
 
 async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const W = 1080;
-  const PAD = 56;
+  const PAD = 64;
   const cw = W - PAD * 2;
-  const innerX = PAD + 38;
-  const innerW = cw - 76;
 
-  // Colors
+  // Colors — red palette to match the original design
   const RED = "#E8192C";
-  const TEAL = "#14b8a6";
-  const BLUE = "#3b82f6";
-  const GOLD = "#f59e0b";
+  const TEAL = "#2dd4bf";
   const WHITE = "#ffffff";
-  const MUTED = "rgba(255,255,255,0.62)";
-  const SOFT = "rgba(255,255,255,0.82)";
-
-  const tierKey = getPickTierKey((pick as any).tier);
-  const badgeLabel = pickCardLabel(pick).toUpperCase();
-  const accentColor = tierKey === "gem" ? TEAL : tierKey === "wildcard" ? GOLD : RED;
-  const tierRgb = tierKey === "gem" ? "20,184,166" : tierKey === "wildcard" ? "245,158,11" : "232,25,44";
+  const MUTED = "rgba(255,255,255,0.5)";
+  const SOFT = "rgba(255,255,255,0.85)";
+  const tierRgb = "232,25,44";
+  const accentColor = RED;
   const accentBg = `rgba(${tierRgb},0.13)`;
 
-  const HAS_MEANING = !!(pick.meaning && pick.meaning.length > 0);
+  const badgeLabel = pickCardLabel(pick).toUpperCase();
   const HAS_REASON = !!(pick.one_line_reason && pick.one_line_reason.length > 0);
+  const HAS_VERDICT = !!((pick as any).model_verdict && (pick as any).model_verdict.length > 0);
 
-  // ---- Measurement pass (so nothing overflows its box) ----
+  // ---- Measurement pass ----
   const measureCanvas = document.createElement("canvas");
   const mctx = measureCanvas.getContext("2d");
   if (!mctx) return null;
 
-  const MATCH_LH = 54;
-  const MARKET_LH = 46;
-  const BODY_LH = 38;
-  const insightTextW = innerW - 4;
+  const MATCH_LH = 84;
+  const MARKET_LH = 54;
+  const REASON_LH = 48;
+  const VERDICT_LH = 40;
 
-  mctx.font = "900 46px Montserrat, sans-serif";
-  const matchLines = wrapLines(mctx, pick.match || "Match", innerW).slice(0, 3);
+  mctx.font = "900 76px Montserrat, sans-serif";
+  const matchLines = wrapLines(mctx, pick.match || "Match", cw).slice(0, 3);
 
-  mctx.font = "900 38px Montserrat, sans-serif";
-  const marketLines = wrapLines(mctx, pick.market_plain || pick.market || "Top market", innerW).slice(0, 3);
+  mctx.font = "800 50px Montserrat, sans-serif";
+  const marketLines = wrapLines(mctx, pick.market_plain || pick.market || "Top market", cw - 240).slice(0, 2);
 
-  mctx.font = "700 24px Montserrat, sans-serif";
-  const detailLines = wrapLines(mctx, `${pick.league || "Football"}  ·  ${formatKickoff(pick.kickoff_wat)}`, innerW).slice(0, 2);
-
-  let meaningLines: string[] = [];
-  if (HAS_MEANING) {
-    mctx.font = "600 27px Montserrat, sans-serif";
-    meaningLines = wrapLines(mctx, pick.meaning as string, insightTextW);
-  }
+  const reasonW = cw - 96;
   let reasonLines: string[] = [];
   if (HAS_REASON) {
-    mctx.font = "600 27px Montserrat, sans-serif";
-    reasonLines = wrapLines(mctx, `"${pick.one_line_reason}"`, insightTextW);
+    mctx.font = "italic 600 34px Georgia, serif";
+    reasonLines = wrapLines(mctx, `"${pick.one_line_reason}"`, reasonW);
+  }
+  const verdictW = cw - 150;
+  let verdictLines: string[] = [];
+  if (HAS_VERDICT) {
+    mctx.font = "italic 500 30px Georgia, serif";
+    verdictLines = wrapLines(mctx, (pick as any).model_verdict as string, verdictW);
   }
 
-  const HEADER_H = 280;
-  const SECTION_GAP = 24;
-  const STAT_H = 116;
-  const LABEL_H = 34;
-  const CARD_H = Math.max(
-    438,
-    48 + LABEL_H + matchLines.length * MATCH_LH + 28 + STAT_H + 34 + LABEL_H + marketLines.length * MARKET_LH + 18 + detailLines.length * 32 + 44,
-  );
-  const INSIGHT_LABEL = 62;
-  const INSIGHT_PAD_BOTTOM = 36;
-  const meaningH = HAS_MEANING ? INSIGHT_LABEL + meaningLines.length * BODY_LH + INSIGHT_PAD_BOTTOM : 0;
-  const reasonH = HAS_REASON ? INSIGHT_LABEL + reasonLines.length * BODY_LH + INSIGHT_PAD_BOTTOM : 0;
+  // ---- Block heights ----
+  const logoH = 64;
+  const afterLogo = 74;
+  const leagueH = 30;
+  const leagueGap = 16;
+  const matchH = matchLines.length * MATCH_LH;
+  const underlineGap = 26;
+  const underlineH = 8;
+  const afterTitle = 44;
+
+  const cardPadTop = 42;
+  const cardLabelH = 28;
+  const cardMarketH = marketLines.length * MARKET_LH;
+  const confGap = 40;
+  const confBlockH = 24 + 18 + 14; // label + gap + bar
+  const cardPadBottom = 44;
+  const CARD_H = cardPadTop + cardLabelH + cardMarketH + confGap + confBlockH + cardPadBottom;
+  const afterCard = 42;
+
+  const reasonH = HAS_REASON ? reasonLines.length * REASON_LH + 8 : 0;
+  const afterReason = HAS_REASON ? 40 : 0;
+
+  const verdictPadTop = 26;
+  const verdictLabelH = 34;
+  const verdictPadBottom = 26;
+  const verdictH = HAS_VERDICT ? verdictPadTop + verdictLabelH + verdictLines.length * VERDICT_LH + verdictPadBottom : 0;
+  const afterVerdict = HAS_VERDICT ? 44 : 0;
+
   const FOOTER_H = 184;
 
-  let H = PAD + HEADER_H + CARD_H + SECTION_GAP;
-  if (HAS_MEANING) H += meaningH + SECTION_GAP;
-  if (HAS_REASON) H += reasonH + SECTION_GAP;
+  let H = PAD + logoH + afterLogo + leagueH + leagueGap + matchH + underlineGap + underlineH + afterTitle;
+  H += CARD_H + afterCard;
+  if (HAS_REASON) H += reasonH + afterReason;
+  if (HAS_VERDICT) H += verdictH + afterVerdict;
   H += FOOTER_H + PAD;
 
   const canvas = document.createElement("canvas");
@@ -1127,153 +1137,180 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   if (!ctx) return null;
   ctx.textBaseline = "top";
 
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, "#140609");
-  bg.addColorStop(0.46, "#0D0D0D");
+  // Background — deep red fading to black
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#0a0202");
+  bg.addColorStop(0.5, "#080404");
   bg.addColorStop(1, "#000000");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  const glow = ctx.createRadialGradient(W / 2, 140, 60, W / 2, 140, 720);
-  glow.addColorStop(0, `rgba(${tierRgb},0.42)`);
-  glow.addColorStop(1, `rgba(${tierRgb},0)`);
+  const glow = ctx.createRadialGradient(W * 0.32, 120, 40, W * 0.32, 120, 760);
+  glow.addColorStop(0, "rgba(160,20,28,0.62)");
+  glow.addColorStop(0.55, "rgba(120,12,20,0.22)");
+  glow.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, 680);
+  ctx.fillRect(0, 0, W, 700);
 
-  ctx.fillStyle = `rgba(${tierRgb},0.9)`;
-  ctx.fillRect(0, 0, W, 12);
+  let y = PAD;
 
-  // ---- Header ----
+  // ---- Header: logo left + tier pill right ----
   try {
     const logo = await loadImage(logoFull);
-    const lh = 74;
-    const lw = (logo.width / logo.height) * lh;
-    ctx.drawImage(logo, (W - lw) / 2, 54, lw, lh);
+    const lw = (logo.width / logo.height) * logoH;
+    ctx.drawImage(logo, PAD, y, lw, logoH);
   } catch {
     ctx.fillStyle = WHITE;
-    ctx.font = "900 52px Montserrat, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("BETPRENEUR", W / 2, 64);
-    ctx.textAlign = "left";
+    ctx.font = "900 48px Montserrat, sans-serif";
+    ctx.fillText("Betpreneur", PAD, y + 6);
   }
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = MUTED;
-  ctx.font = "800 22px Montserrat, sans-serif";
-  ctx.fillText("BETPRENEUR PREDICTION CARD", W / 2, 158);
-
-  const pillW = Math.max(230, ctx.measureText(badgeLabel).width + 68);
-  roundRect(ctx, (W - pillW) / 2, 202, pillW, 54, 27);
-  ctx.fillStyle = accentBg;
+  ctx.font = "900 26px Montserrat, sans-serif";
+  const pillW = ctx.measureText(badgeLabel).width + 56;
+  const pillH = 56;
+  const pillX = W - PAD - pillW;
+  roundRect(ctx, pillX, y + 4, pillW, pillH, pillH / 2);
+  ctx.fillStyle = RED;
   ctx.fill();
-  ctx.strokeStyle = `rgba(${tierRgb},0.55)`;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-  ctx.fillStyle = accentColor;
-  ctx.font = "900 24px Montserrat, sans-serif";
-  ctx.fillText(badgeLabel, W / 2, 216);
+  ctx.fillStyle = WHITE;
+  ctx.textAlign = "center";
+  ctx.fillText(badgeLabel, pillX + pillW / 2, y + 18);
   ctx.textAlign = "left";
 
-  // ---- Main Pick Card ----
-  let y = PAD + HEADER_H;
-  roundRect(ctx, PAD, y, cw, CARD_H, 28);
-  ctx.fillStyle = "rgba(20,20,20,0.96)";
+  y += logoH + afterLogo;
+
+  // ---- League · kickoff ----
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "800 24px Montserrat, sans-serif";
+  ctx.fillText(
+    `${(pick.league || "Football").toUpperCase()}  ·  ${formatKickoff(pick.kickoff_wat).toUpperCase()}`,
+    PAD,
+    y,
+  );
+  y += leagueH + leagueGap;
+
+  // ---- Match title ----
+  ctx.fillStyle = WHITE;
+  ctx.font = "900 76px Montserrat, sans-serif";
+  for (const ln of matchLines) {
+    ctx.fillText(ln, PAD, y);
+    y += MATCH_LH;
+  }
+  y += underlineGap;
+  roundRect(ctx, PAD, y, 92, underlineH, 4);
+  ctx.fillStyle = RED;
   ctx.fill();
-  ctx.strokeStyle = `rgba(${tierRgb},0.55)`;
-  ctx.lineWidth = 2;
+  y += underlineH + afterTitle;
+
+  // ---- The Pick card ----
+  const cardY = y;
+  roundRect(ctx, PAD, cardY, cw, CARD_H, 26);
+  ctx.fillStyle = "rgba(255,255,255,0.05)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  roundRect(ctx, PAD, y, 14, CARD_H, 14);
-  ctx.fillStyle = accentColor;
+  const cInX = PAD + 36;
+  let cy = cardY + cardPadTop;
+
+  // labels row
+  ctx.fillStyle = MUTED;
+  ctx.font = "800 20px Montserrat, sans-serif";
+  ctx.fillText("THE PICK", cInX, cy);
+  ctx.textAlign = "right";
+  ctx.fillText("ODDS", W - PAD - 36, cy);
+  ctx.textAlign = "left";
+  cy += cardLabelH + 6;
+
+  // market (left) + odds (right) baseline-aligned roughly
+  const oddsY = cy;
+  ctx.fillStyle = WHITE;
+  ctx.font = "800 50px Montserrat, sans-serif";
+  let my = cy;
+  for (const ln of marketLines) {
+    ctx.fillText(ln, cInX, my);
+    my += MARKET_LH;
+  }
+  ctx.fillStyle = RED;
+  ctx.font = "900 68px Montserrat, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(Number(pick.odds).toFixed(2), W - PAD - 36, oddsY - 8);
+  ctx.textAlign = "left";
+
+  cy = cardY + cardPadTop + cardLabelH + 6 + cardMarketH + confGap;
+
+  // confidence
+  const confPct = Math.max(0, Math.min(100, pick.confidence));
+  ctx.fillStyle = MUTED;
+  ctx.font = "800 20px Montserrat, sans-serif";
+  ctx.fillText("CONFIDENCE", cInX, cy);
+  ctx.fillStyle = WHITE;
+  ctx.font = "900 24px Montserrat, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(`${confPct.toFixed(1)}%`, W - PAD - 36, cy - 2);
+  ctx.textAlign = "left";
+  const barY = cy + 36;
+  const barW = cw - 72;
+  roundRect(ctx, cInX, barY, barW, 12, 6);
+  ctx.fillStyle = "rgba(255,255,255,0.16)";
+  ctx.fill();
+  roundRect(ctx, cInX, barY, Math.max(12, (barW * confPct) / 100), 12, 6);
+  ctx.fillStyle = RED;
   ctx.fill();
 
-  let cy = y + 42;
-  ctx.fillStyle = MUTED;
-  ctx.font = "900 19px Montserrat, sans-serif";
-  ctx.fillText("MATCH", innerX, cy);
-  cy += LABEL_H;
-  ctx.fillStyle = WHITE;
-  ctx.font = "900 46px Montserrat, sans-serif";
-  for (const ln of matchLines) {
-    ctx.fillText(ln, innerX, cy);
-    cy += MATCH_LH;
-  }
-  cy += 28;
+  y = cardY + CARD_H + afterCard;
 
-  const gap = 22;
-  const statW = (innerW - gap) / 2;
-  drawStatBox(ctx, innerX, cy, statW, STAT_H, "ODDS", Number(pick.odds).toFixed(2), accentColor);
-  drawStatBox(ctx, innerX + statW + gap, cy, statW, STAT_H, "CONFIDENCE", `${Math.max(0, Math.min(100, pick.confidence)).toFixed(0)}%`, accentColor);
-  cy += STAT_H + 34;
-
-  ctx.fillStyle = MUTED;
-  ctx.font = "900 19px Montserrat, sans-serif";
-  ctx.fillText("SELECTION", innerX, cy);
-  cy += LABEL_H;
-  ctx.fillStyle = WHITE;
-  ctx.font = "900 38px Montserrat, sans-serif";
-  for (const ln of marketLines) {
-    ctx.fillText(ln, innerX, cy);
-    cy += MARKET_LH;
-  }
-  cy += 18;
-  ctx.fillStyle = MUTED;
-  ctx.font = "700 24px Montserrat, sans-serif";
-  for (const ln of detailLines) {
-    ctx.fillText(ln, innerX, cy);
-    cy += 32;
+  // ---- Reasoning quote ----
+  if (HAS_REASON) {
+    ctx.fillStyle = SOFT;
+    ctx.font = "italic 600 34px Georgia, serif";
+    for (const ln of reasonLines) {
+      ctx.fillText(ln, PAD, y);
+      y += REASON_LH;
+    }
+    y += afterReason - (REASON_LH - 38);
   }
 
-  // ---- Insight Sections ----
-  y = PAD + HEADER_H + CARD_H + SECTION_GAP;
-
-  if (HAS_MEANING) {
-    roundRect(ctx, PAD, y, cw, meaningH, 22);
-    ctx.fillStyle = "rgba(20,184,166,0.1)";
+  // ---- Model verdict box ----
+  if (HAS_VERDICT) {
+    roundRect(ctx, PAD, y, cw, verdictH, 18);
+    ctx.fillStyle = "rgba(45,212,191,0.08)";
     ctx.fill();
-    ctx.strokeStyle = "rgba(20,184,166,0.35)";
+    ctx.strokeStyle = "rgba(45,212,191,0.4)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
+
+    // bullet icon
+    ctx.beginPath();
+    ctx.arc(PAD + 38, y + verdictPadTop + 10, 11, 0, Math.PI * 2);
+    ctx.fillStyle = RED;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(PAD + 38, y + verdictPadTop + 10, 4, 0, Math.PI * 2);
+    ctx.fillStyle = WHITE;
+    ctx.fill();
 
     ctx.fillStyle = TEAL;
-    ctx.font = "700 20px Montserrat, sans-serif";
-    ctx.fillText("WHAT DOES THIS MEAN?", PAD + 32, y + 28);
+    ctx.font = "800 22px Montserrat, sans-serif";
+    ctx.fillText("MODEL VERDICT", PAD + 62, y + verdictPadTop);
+
     ctx.fillStyle = SOFT;
-    ctx.font = "600 27px Montserrat, sans-serif";
-    let ly = y + INSIGHT_LABEL;
-    for (const ln of meaningLines) {
-      ctx.fillText(ln, PAD + 32, ly);
-      ly += BODY_LH;
+    ctx.font = "italic 500 30px Georgia, serif";
+    let vy = y + verdictPadTop + verdictLabelH;
+    for (const ln of verdictLines) {
+      ctx.fillText(ln, PAD + 62, vy);
+      vy += VERDICT_LH;
     }
-    y += meaningH + SECTION_GAP;
+    y += verdictH + afterVerdict;
   }
 
-  if (HAS_REASON) {
-    roundRect(ctx, PAD, y, cw, reasonH, 22);
-    ctx.fillStyle = "rgba(59,130,246,0.1)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(59,130,246,0.35)";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    ctx.fillStyle = BLUE;
-    ctx.font = "700 20px Montserrat, sans-serif";
-    ctx.fillText("WHY THIS PICK?", PAD + 32, y + 28);
-    ctx.fillStyle = SOFT;
-    ctx.font = "600 27px Montserrat, sans-serif";
-    let ly = y + INSIGHT_LABEL;
-    for (const ln of reasonLines) {
-      ctx.fillText(ln, PAD + 32, ly);
-      ly += BODY_LH;
-    }
-    y += reasonH + SECTION_GAP;
-  }
-
-  // ---- Footer ----
+  // ---- Footer (retained style + text) ----
   roundRect(ctx, PAD, y, cw, FOOTER_H, 24);
   ctx.fillStyle = accentBg;
   ctx.fill();
   ctx.strokeStyle = `rgba(${tierRgb},0.4)`;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   ctx.textAlign = "center";
