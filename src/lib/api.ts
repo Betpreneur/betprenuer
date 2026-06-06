@@ -771,35 +771,38 @@ export const api = {
   /** GET /algo/public/record/ — Public audited pick record */
   async getRecord(days = 90): Promise<RecordResponse> {
     const url = days !== 90 ? `${ENDPOINTS.algoPublicRecord}?days=${days}` : ENDPOINTS.algoPublicRecord;
-    return request<RecordResponse>(url);
+    return requestCached<RecordResponse>(url, `algo:public-record:${days}`);
   },
 
   /** GET /algo/public/summary/ — Public summary for landing page */
   async getPublicSummary(): Promise<PublicSummary> {
-    return request<PublicSummary>(ENDPOINTS.algoPublicSummary);
+    return requestCached<PublicSummary>(ENDPOINTS.algoPublicSummary, "algo:public-summary");
   },
 
   /** GET /algo/picks/ — Daily picks (optional date) */
   async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
     const url = date ? `${ENDPOINTS.algoPicks}?date=${date}` : ENDPOINTS.algoPicks;
-    return request<TodayPicksResponse>(url);
+    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}`);
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
   async getAlgoGames(date?: string): Promise<AlgoGamesResponse> {
     const url = date ? `${ENDPOINTS.algoGames}?date=${date}` : ENDPOINTS.algoGames;
-    return request<AlgoGamesResponse>(url);
+    return requestCached<AlgoGamesResponse>(url, `algo:games:${date ?? "today"}`);
   },
 
   /** GET /algo/games/:matchId/ — Full game detail context */
   async getGameDetail(matchId: string): Promise<GameDetailResponse> {
-    return request<GameDetailResponse>(ENDPOINTS.algoGame(matchId));
+    return requestCached<GameDetailResponse>(
+      ENDPOINTS.algoGame(matchId),
+      `algo:game:${matchId}:${todayLagosISO()}`,
+    );
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */
   async getTopPick(date?: string): Promise<TopPickResponse> {
     const url = date ? `${ENDPOINTS.algoTopPick}?date=${date}` : ENDPOINTS.algoTopPick;
-    return request<TopPickResponse>(url);
+    return requestCached<TopPickResponse>(url, `algo:top-pick:${date ?? "today"}`);
   },
 
   /** GET /algo/picks/:id/ — Get a specific pick */
