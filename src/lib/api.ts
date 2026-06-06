@@ -1,4 +1,5 @@
 import type { Tier } from "./stake";
+import { todayLagosISO } from "./time";
 
 /**
  * Typed REST client for Betpreneur backend.
@@ -222,6 +223,100 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   }
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
+}
+
+// ============== ETag response cache ===================================
+// Persists response body + ETag + timestamp per cache key so we can send
+// `If-None-Match` and fall back to the last good response on 304 / 503 /
+// network failure.
+
+const CACHE_PREFIX = "terminal.cache.";
+
+interface CacheEntry<T> {
+  data: T;
+  etag: string | null;
+  ts: number;
+}
+
+function readCache<T>(key: string): CacheEntry<T> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    return raw ? (JSON.parse(raw) as CacheEntry<T>) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache<T>(key: string, data: T, etag: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    const entry: CacheEntry<T> = { data, etag, ts: Date.now() };
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
+  } catch {
+    /* storage full / unavailable — ignore, caching is best-effort */
+  }
+}
+
+/**
+ * GET request with ETag revalidation + offline fallback.
+ * - Sends `If-None-Match` when a cached ETag exists.
+ * - 304: returns the cached body (no JSON parse).
+ * - 200: updates the cache + ETag and returns fresh body.
+ * - 503 / network failure / failed fetch: returns the last cached body.
+ */
+async function requestCached<T>(path: string, cacheKey: string, retry = true): Promise<T> {
+  const cached = readCache<T>(cacheKey);
+  const token = session.getToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(cached?.etag ? { "If-None-Match": cached.etag } : {}),
+  };
+
+  let res: Response;
+  try {
+    res = await fetch(apiUrl(path), { method: "GET", headers });
+  } catch {
+    // Network failure / failed to fetch — serve last cached response.
+    if (cached) return cached.data;
+    throw new Error("Network error and no cached data available");
+  }
+
+  if (res.status === 401 && retry && session.getRefresh()) {
+    const ok = await tryRefresh();
+    if (ok) return requestCached<T>(path, cacheKey, false);
+  }
+
+  // Not Modified — reuse cached body, do not read response body.
+  if (res.status === 304) {
+    if (cached) return cached.data;
+    // Cache lost but server says unchanged — refetch without validator.
+    return requestCached<T>(path, cacheKey + ".__force", false);
+  }
+
+  // Backend unavailable — serve last cached response if present.
+  if (res.status === 503) {
+    if (cached) return cached.data;
+    throw new Error("Service unavailable and no cached data available");
+  }
+
+  if (!res.ok) {
+    if (cached) return cached.data;
+    let payload: unknown = null;
+    try {
+      payload = await res.json();
+    } catch {
+      /* noop */
+    }
+    throw new Error(extractError(payload, `Request failed (${res.status})`));
+  }
+
+  if (res.status === 204) return undefined as T;
+  const data = (await res.json()) as T;
+  const etag = res.headers.get("ETag") ?? res.headers.get("etag");
+  writeCache(cacheKey, data, etag);
+  return data;
 }
 
 // ============== Pick types from new API ================
@@ -677,35 +772,38 @@ export const api = {
   /** GET /algo/public/record/ — Public audited pick record */
   async getRecord(days = 90): Promise<RecordResponse> {
     const url = days !== 90 ? `${ENDPOINTS.algoPublicRecord}?days=${days}` : ENDPOINTS.algoPublicRecord;
-    return request<RecordResponse>(url);
+    return requestCached<RecordResponse>(url, `algo:public-record:${days}`);
   },
 
   /** GET /algo/public/summary/ — Public summary for landing page */
   async getPublicSummary(): Promise<PublicSummary> {
-    return request<PublicSummary>(ENDPOINTS.algoPublicSummary);
+    return requestCached<PublicSummary>(ENDPOINTS.algoPublicSummary, "algo:public-summary");
   },
 
   /** GET /algo/picks/ — Daily picks (optional date) */
   async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
     const url = date ? `${ENDPOINTS.algoPicks}?date=${date}` : ENDPOINTS.algoPicks;
-    return request<TodayPicksResponse>(url);
+    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}`);
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
   async getAlgoGames(date?: string): Promise<AlgoGamesResponse> {
     const url = date ? `${ENDPOINTS.algoGames}?date=${date}` : ENDPOINTS.algoGames;
-    return request<AlgoGamesResponse>(url);
+    return requestCached<AlgoGamesResponse>(url, `algo:games:${date ?? "today"}`);
   },
 
   /** GET /algo/games/:matchId/ — Full game detail context */
   async getGameDetail(matchId: string): Promise<GameDetailResponse> {
-    return request<GameDetailResponse>(ENDPOINTS.algoGame(matchId));
+    return requestCached<GameDetailResponse>(
+      ENDPOINTS.algoGame(matchId),
+      `algo:game:${matchId}:${todayLagosISO()}`,
+    );
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */
   async getTopPick(date?: string): Promise<TopPickResponse> {
     const url = date ? `${ENDPOINTS.algoTopPick}?date=${date}` : ENDPOINTS.algoTopPick;
-    return request<TopPickResponse>(url);
+    return requestCached<TopPickResponse>(url, `algo:top-pick:${date ?? "today"}`);
   },
 
   /** GET /algo/picks/:id/ — Get a specific pick */
