@@ -1,4 +1,5 @@
 import type { Tier } from "./stake";
+import { todayLagosISO } from "./time";
 
 /**
  * Typed REST client for Betpreneur backend.
