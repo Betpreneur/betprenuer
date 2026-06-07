@@ -8,4 +8,4 @@ bucket = "./dist/client"
 precompiled = false
 
 [vars]
-VITE_API_BASE_URL = "https://backend.betpreneur.ng/api"
+VITE_API_BASE_URL = "https://api.betpreneur.ng/"

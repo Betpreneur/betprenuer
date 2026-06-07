@@ -7,7 +7,7 @@ RUN npm install -g npm@11.6.2 && npm install
 
 COPY . .
 
-ARG VITE_API_BASE_URL=https://backend.betpreneur.ng/api
+ARG VITE_API_BASE_URL=https://api.betpreneur.ng/
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
