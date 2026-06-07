@@ -3,13 +3,13 @@ import { todayLagosISO } from "./time";
 
 /**
  * Typed REST client for Betpreneur backend.
- * Base URL: https://backend.betpreneur.ng/api
+ * Base URL: https://api.betpreneur.ng
  */
 
 export const API_BASE_URL: string =
   ((import.meta as { env?: Record<string, string | undefined> }).env
     ?.VITE_API_BASE_URL as string | undefined) ??
-  "https://backend.betpreneur.ng/api";
+  "https://api.betpreneur.ng";
 
 export const ENDPOINTS = {
   signup: "/auth/signup/",

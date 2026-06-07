@@ -6,7 +6,7 @@ Use the `Dockerfile` deployment mode for this app.
 
 - Build pack: `Dockerfile`
 - Exposed port: `3000`
-- Build argument: `VITE_API_BASE_URL=https://backend.betpreneur.ng/api`
+- Build argument: `VITE_API_BASE_URL=https://api.betpreneur.ng`
 
 ## Local Check
 
