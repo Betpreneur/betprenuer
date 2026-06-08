@@ -128,11 +128,22 @@ function GameCard({ game }: { game: GameInfo }) {
   );
 }
 
+// Confidence filter ranges
+const CONFIDENCE_RANGES = [
+  { label: "80%+", min: 80, max: 100 },
+  { label: "70-79%", min: 70, max: 79 },
+  { label: "65-69%", min: 65, max: 69 },
+  { label: "Below 65%", min: 0, max: 64 },
+];
+
+type FilterType = "league" | "market" | "confidence";
+
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<AlgoGamesResponse | null>(null);
   const [error, setError] = useState(false);
-  const [filter, setFilter] = useState("All");
+  const [filterType, setFilterType] = useState<FilterType>("league");
+  const [filterValue, setFilterValue] = useState("All");
 
   const load = () => {
     setError(false);
@@ -175,9 +186,42 @@ function HomePage() {
     );
   }
 
-  const leagues = [...new Set(games.map((g) => g.league))];
-  const filters = ["All", ...leagues];
-  const filteredGames = filter === "All" ? games : games.filter((g) => g.league === filter);
+  // Extract unique leagues
+  const leagues = ["All", ...new Set(games.map((g) => g.league))];
+
+  // Extract unique markets from API
+  const markets = ["All", ...new Set(games.flatMap((g) => {
+    const m: string[] = [];
+    if (g.official_pick?.market) m.push(g.official_pick.market);
+    if (g.top_market?.market && g.official_pick?.market !== g.top_market.market) m.push(g.top_market.market);
+    return m;
+  }))];
+
+  // Confidence filter options
+  const confidenceFilters = ["All", ...CONFIDENCE_RANGES.map((r) => r.label)];
+
+  // Determine current filter options based on type
+  const currentFilters = filterType === "league" ? leagues : filterType === "market" ? markets : confidenceFilters;
+
+  // Apply filtering
+  const filteredGames = games.filter((g) => {
+    if (filterValue === "All") return true;
+    if (filterType === "league") return g.league === filterValue;
+    if (filterType === "market") {
+      const gameMarkets = [];
+      if (g.official_pick?.market) gameMarkets.push(g.official_pick.market);
+      if (g.top_market?.market) gameMarkets.push(g.top_market.market);
+      return gameMarkets.includes(filterValue);
+    }
+    if (filterType === "confidence") {
+      const confRange = CONFIDENCE_RANGES.find((r) => r.label === filterValue);
+      if (!confRange) return true;
+      const conf = g.official_pick?.confidence ?? g.top_market?.confidence ?? 0;
+      return conf >= confRange.min && conf <= confRange.max;
+    }
+    return true;
+  });
+
   const liveCount = games.filter((g) => g.status === "live" || g.home_score != null).length;
 
   return (
@@ -205,8 +249,8 @@ function HomePage() {
 
       {/* Filter row with dropdown */}
       <div className="flex items-center gap-3">
-        {/* Quick dropdown filter */}
-        <Select.Root value={filter} onValueChange={setFilter}>
+        {/* Filter type selector dropdown */}
+        <Select.Root value={filterType} onValueChange={(v) => { setFilterType(v as FilterType); setFilterValue("All"); }}>
           <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[110px]">
             <Select.Value placeholder="Filter" />
             <Select.Icon asChild>
@@ -216,21 +260,59 @@ function HomePage() {
           <Select.Portal>
             <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50">
               <Select.Viewport className="p-1">
-                {filters.map((f) => (
+                <Select.Item value="league" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                  <Select.ItemText>League</Select.ItemText>
+                  <Select.ItemIndicator className="ml-auto">
+                    <Check className="w-3.5 h-3.5 text-brand-green" />
+                  </Select.ItemIndicator>
+                </Select.Item>
+                <Select.Item value="market" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                  <Select.ItemText>Market</Select.ItemText>
+                  <Select.ItemIndicator className="ml-auto">
+                    <Check className="w-3.5 h-3.5 text-brand-green" />
+                  </Select.ItemIndicator>
+                </Select.Item>
+                <Select.Item value="confidence" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                  <Select.ItemText>Confidence</Select.ItemText>
+                  <Select.ItemIndicator className="ml-auto">
+                    <Check className="w-3.5 h-3.5 text-brand-green" />
+                  </Select.ItemIndicator>
+                </Select.Item>
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
+
+        {/* Filter value dropdown */}
+        <Select.Root value={filterValue} onValueChange={setFilterValue}>
+          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[110px]">
+            <Select.Value placeholder="All" />
+            <Select.Icon asChild>
+              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50">
+              <Select.Viewport className="p-1 max-h-[300px] overflow-y-auto">
+                {currentFilters.map((f) => (
                   <Select.Item key={f} value={f} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
                     <Select.ItemText className="flex items-center gap-2">
-                      {(() => {
-                        const lg = games.find((g) => g.league === f);
-                        const logo = lg?.competition_logo || lg?.league_logo;
-                        const flag = lg?.country_flag;
-                        return (
-                          <>
-                            {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                            {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                            {f}
-                          </>
-                        );
-                      })()}
+                      {filterType === "league" && f !== "All" ? (
+                        (() => {
+                          const lg = games.find((g) => g.league === f);
+                          const logo = lg?.competition_logo || lg?.league_logo;
+                          const flag = lg?.country_flag;
+                          return (
+                            <>
+                              {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                              {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                              {f}
+                            </>
+                          );
+                        })()
+                      ) : (
+                        f
+                      )}
                     </Select.ItemText>
                     <Select.ItemIndicator className="ml-auto">
                       <Check className="w-3.5 h-3.5 text-brand-green" />
@@ -244,15 +326,12 @@ function HomePage() {
 
         {/* Filter chips scroll */}
         <div className="flex-1 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {filters.map((f) => {
-            const lg = games.find((g) => g.league === f);
-            const logo = lg?.competition_logo || lg?.league_logo;
-            const flag = lg?.country_flag;
-            const active = filter === f;
+          {currentFilters.map((f) => {
+            const active = filterValue === f;
             return (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => setFilterValue(f)}
                 className={cn(
                   "shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition-all",
                   active
@@ -260,9 +339,22 @@ function HomePage() {
                     : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50 hover:text-foreground"
                 )}
               >
-                {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                {f}
+                {filterType === "league" && f !== "All" ? (
+                  (() => {
+                    const lg = games.find((g) => g.league === f);
+                    const logo = lg?.competition_logo || lg?.league_logo;
+                    const flag = lg?.country_flag;
+                    return (
+                      <>
+                        {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                        {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                        {f}
+                      </>
+                    );
+                  })()
+                ) : (
+                  f
+                )}
               </button>
             );
           })}
