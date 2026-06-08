@@ -290,10 +290,11 @@ function writeCache<T>(key: string, data: T, etag: string | null) {
 
 /**
  * GET request with ETag revalidation + offline fallback.
- * - Sends `If-None-Match` when a cached ETag exists.
- * - 304: returns the cached body (no JSON parse).
- * - 200: updates the cache + ETag and returns fresh body.
- * - 503 / network failure / failed fetch: returns the last cached body.
+ * - 200: caches the response + ETag for future requests.
+ * - 503 / network failure: returns the last cached body.
+ *
+ * Note: `If-None-Match` is disabled to avoid CORS preflight issues with some backends.
+ * The caching still works for offline fallback, just without revalidation.
  */
 async function requestCached<T>(path: string, cacheKey: string, retry = true): Promise<T> {
   const cached = readCache<T>(cacheKey);
@@ -301,7 +302,7 @@ async function requestCached<T>(path: string, cacheKey: string, retry = true): P
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(cached?.etag ? { "If-None-Match": cached.etag } : {}),
+    // If-None-Match disabled: causes CORS preflight failures on some servers
   };
 
   let res: Response;
