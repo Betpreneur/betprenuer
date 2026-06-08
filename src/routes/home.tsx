@@ -5,7 +5,8 @@ import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
 import * as Select from "@radix-ui/react-select";
-import { Check, ChevronDown } from "lucide-react";
+import * as Popover from "@radix-ui/react-popover";
+import { Check, ChevronDown, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/home")({
@@ -247,106 +248,123 @@ function HomePage() {
         </div>
       </header>
 
-      {/* Filter row with single dropdown */}
-      <div className="flex items-center gap-3">
-        {/* Single dynamic filter dropdown */}
-        <Select.Root value={`${filterType}:${filterValue}`} onValueChange={(v) => {
-          const [type, value] = v.split(":");
-          setFilterType(type as FilterType);
-          setFilterValue(value);
-        }}>
-          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[120px]">
-            <Select.Value placeholder="Filter" />
-            <Select.Icon asChild>
+      {/* Filter row with nested dropdown */}
+      <div className="flex items-center gap-2">
+        <Popover.Root>
+          <Popover.Trigger asChild>
+            <button className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors">
+              <Filter className="w-3.5 h-3.5" />
+              Filter
               <ChevronDown className="w-3.5 h-3.5 opacity-60" />
-            </Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50 max-h-[400px]">
-              <Select.Viewport className="p-1">
-                {/* League section */}
-                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">League</div>
-                {leagues.map((f) => (
-                  <Select.Item key={`league:${f}`} value={`league:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                    <Select.ItemText className="flex items-center gap-2">
-                      {f !== "All" ? (() => {
-                        const lg = games.find((g) => g.league === f);
-                        const logo = lg?.competition_logo || lg?.league_logo;
-                        const flag = lg?.country_flag;
-                        return (
-                          <>
-                            {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                            {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                            {f}
-                          </>
-                        );
-                      })() : f}
-                    </Select.ItemText>
-                    <Select.ItemIndicator className="ml-auto">
-                      <Check className="w-3.5 h-3.5 text-brand-green" />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-                {/* Market section */}
-                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">Market</div>
-                {markets.map((f) => (
-                  <Select.Item key={`market:${f}`} value={`market:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                    <Select.ItemText>{f}</Select.ItemText>
-                    <Select.ItemIndicator className="ml-auto">
-                      <Check className="w-3.5 h-3.5 text-brand-green" />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-                {/* Confidence section */}
-                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">Confidence</div>
-                {confidenceFilters.map((f) => (
-                  <Select.Item key={`confidence:${f}`} value={`confidence:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                    <Select.ItemText>{f}</Select.ItemText>
-                    <Select.ItemIndicator className="ml-auto">
-                      <Check className="w-3.5 h-3.5 text-brand-green" />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                ))}
-              </Select.Viewport>
-            </Select.Content>
-          </Select.Portal>
-        </Select.Root>
+            </button>
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 min-w-[180px]" sideOffset={5}>
+              <div className="flex flex-col gap-1">
+                {/* Competition sub-dropdown */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-bold hover:bg-accent hover:text-accent-foreground text-left">
+                      Competition
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 max-h-[250px] overflow-y-auto ml-1" sideOffset={5} side="right">
+                      {leagues.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => { setFilterType("league"); setFilterValue(f); }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground text-left",
+                            filterType === "league" && filterValue === f && "text-brand-green"
+                          )}
+                        >
+                          {f !== "All" ? (() => {
+                            const lg = games.find((g) => g.league === f);
+                            const logo = lg?.competition_logo || lg?.league_logo;
+                            const flag = lg?.country_flag;
+                            return (
+                              <>
+                                {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                                {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                                {f}
+                              </>
+                            );
+                          })() : f}
+                        </button>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
 
-        {/* Filter chips scroll */}
-        <div className="flex-1 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {currentFilters.map((f) => {
-            const active = filterValue === f;
-            return (
-              <button
-                key={f}
-                onClick={() => setFilterValue(f)}
-                className={cn(
-                  "shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition-all",
-                  active
-                    ? "bg-brand-green text-primary-foreground shadow-[0_4px_14px_-4px_rgba(34,197,94,0.6)]"
-                    : "bg-card border border-brand-border text-muted-foreground hover:border-brand-green/50 hover:text-foreground"
-                )}
-              >
-                {filterType === "league" && f !== "All" ? (
-                  (() => {
-                    const lg = games.find((g) => g.league === f);
-                    const logo = lg?.competition_logo || lg?.league_logo;
-                    const flag = lg?.country_flag;
-                    return (
-                      <>
-                        {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                        {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                        {f}
-                      </>
-                    );
-                  })()
-                ) : (
-                  f
-                )}
-              </button>
-            );
-          })}
-        </div>
+                {/* Market sub-dropdown */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-bold hover:bg-accent hover:text-accent-foreground text-left">
+                      Market
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 max-h-[250px] overflow-y-auto ml-1" sideOffset={5} side="right">
+                      {markets.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => { setFilterType("market"); setFilterValue(f); }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground text-left",
+                            filterType === "market" && filterValue === f && "text-brand-green"
+                          )}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+
+                {/* Confidence sub-dropdown */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-bold hover:bg-accent hover:text-accent-foreground text-left">
+                      Confidence
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 ml-1" sideOffset={5} side="right">
+                      {confidenceFilters.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => { setFilterType("confidence"); setFilterValue(f); }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground text-left",
+                            filterType === "confidence" && filterValue === f && "text-brand-green"
+                          )}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+              </div>
+              <Popover.Arrow className="fill-border" />
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
+
+        {/* Active filter indicator */}
+        {filterValue !== "All" && (
+          <button
+            onClick={() => setFilterValue("All")}
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full text-[12px] font-bold bg-brand-green text-primary-foreground"
+          >
+            {filterType === "league" ? "Competition" : filterType === "market" ? "Market" : "Confidence"}: {filterValue}
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Games grid */}
