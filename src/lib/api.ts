@@ -238,6 +238,36 @@ interface CacheEntry<T> {
   ts: number;
 }
 
+/**
+ * Clear cached data for a specific key or pattern.
+ * Call this after backend updates to force fresh fetches.
+ */
+function clearCache(keyPattern?: string) {
+  if (typeof window === "undefined") return;
+  if (!keyPattern) {
+    // Clear all cache
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+    keys.forEach(k => localStorage.removeItem(k));
+    console.log("[cache] Cleared all cache entries");
+    return;
+  }
+  // Clear specific key(s) matching pattern
+  const fullPattern = CACHE_PREFIX + keyPattern;
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(fullPattern));
+  keys.forEach(k => localStorage.removeItem(k));
+  console.log("[cache] Cleared:", keys);
+}
+
+/** Clear game cache for today (call after backend updates) */
+export function clearGameCache(matchId?: string) {
+  if (matchId) {
+    clearCache(`algo:game:${matchId}:${todayLagosISO()}`);
+  } else {
+    // Clear all game caches
+    clearCache("algo:game:");
+  }
+}
+
 function readCache<T>(key: string): CacheEntry<T> | null {
   if (typeof window === "undefined") return null;
   try {
@@ -787,23 +817,36 @@ export const api = {
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
-  async getAlgoGames(date?: string): Promise<AlgoGamesResponse> {
+  async getAlgoGames(date?: string, bypassCache = false): Promise<AlgoGamesResponse> {
+    const cacheKey = `algo:games:${date ?? "today"}`;
+    if (bypassCache) {
+      clearCache(cacheKey);
+    }
     const url = date ? `${ENDPOINTS.algoGames}?date=${date}` : ENDPOINTS.algoGames;
-    return requestCached<AlgoGamesResponse>(url, `algo:games:${date ?? "today"}`);
+    return requestCached<AlgoGamesResponse>(url, cacheKey);
   },
 
   /** GET /algo/games/:matchId/ — Full game detail context */
-  async getGameDetail(matchId: string): Promise<GameDetailResponse> {
+  async getGameDetail(matchId: string, bypassCache = false): Promise<GameDetailResponse> {
+    const cacheKey = `algo:game:${matchId}:${todayLagosISO()}`;
+    // Clear cache first if bypass requested
+    if (bypassCache) {
+      clearCache(cacheKey);
+    }
     return requestCached<GameDetailResponse>(
       ENDPOINTS.algoGame(matchId),
-      `algo:game:${matchId}:${todayLagosISO()}`,
+      cacheKey,
     );
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */
-  async getTopPick(date?: string): Promise<TopPickResponse> {
+  async getTopPick(date?: string, bypassCache = false): Promise<TopPickResponse> {
+    const cacheKey = `algo:top-pick:${date ?? "today"}`;
+    if (bypassCache) {
+      clearCache(cacheKey);
+    }
     const url = date ? `${ENDPOINTS.algoTopPick}?date=${date}` : ENDPOINTS.algoTopPick;
-    return requestCached<TopPickResponse>(url, `algo:top-pick:${date ?? "today"}`);
+    return requestCached<TopPickResponse>(url, cacheKey);
   },
 
   /** GET /algo/picks/:id/ — Get a specific pick */

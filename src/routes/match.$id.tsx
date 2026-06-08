@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api, type PickDetail, type GameDetailResponse } from "@/lib/api";
+import { api, type PickDetail, type GameDetailResponse, clearGameCache } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { tierLabel } from "@/lib/stake";
 import { formatKickoff, todayLagosISO } from "@/lib/time";
@@ -131,12 +131,13 @@ function MatchPage() {
       return;
     }
 
-    // Always call API directly, no cache
-    console.log("[MatchPage] Calling API:", id);
+    // Clear cache and fetch fresh data from API
+    console.log("[MatchPage] Calling API (bypass cache):", id);
     setError(false);
     setAppLoading(true);
     
-    api.getGameDetail(id)
+    clearGameCache(id);
+    api.getGameDetail(id, true)
       .then((res) => {
         if (!res?.game) {
           setError(true);
