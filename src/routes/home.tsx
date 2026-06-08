@@ -247,73 +247,61 @@ function HomePage() {
         </div>
       </header>
 
-      {/* Filter row with dropdown */}
+      {/* Filter row with single dropdown */}
       <div className="flex items-center gap-3">
-        {/* Filter type selector dropdown */}
-        <Select.Root value={filterType} onValueChange={(v) => { setFilterType(v as FilterType); setFilterValue("All"); }}>
-          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[110px]">
+        {/* Single dynamic filter dropdown */}
+        <Select.Root value={`${filterType}:${filterValue}`} onValueChange={(v) => {
+          const [type, value] = v.split(":");
+          setFilterType(type as FilterType);
+          setFilterValue(value);
+        }}>
+          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[120px]">
             <Select.Value placeholder="Filter" />
             <Select.Icon asChild>
               <ChevronDown className="w-3.5 h-3.5 opacity-60" />
             </Select.Icon>
           </Select.Trigger>
           <Select.Portal>
-            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50">
+            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50 max-h-[400px]">
               <Select.Viewport className="p-1">
-                <Select.Item value="league" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                  <Select.ItemText>League</Select.ItemText>
-                  <Select.ItemIndicator className="ml-auto">
-                    <Check className="w-3.5 h-3.5 text-brand-green" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-                <Select.Item value="market" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                  <Select.ItemText>Market</Select.ItemText>
-                  <Select.ItemIndicator className="ml-auto">
-                    <Check className="w-3.5 h-3.5 text-brand-green" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-                <Select.Item value="confidence" className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-                  <Select.ItemText>Confidence</Select.ItemText>
-                  <Select.ItemIndicator className="ml-auto">
-                    <Check className="w-3.5 h-3.5 text-brand-green" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-              </Select.Viewport>
-            </Select.Content>
-          </Select.Portal>
-        </Select.Root>
-
-        {/* Filter value dropdown */}
-        <Select.Root value={filterValue} onValueChange={setFilterValue}>
-          <Select.Trigger className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors min-w-[110px]">
-            <Select.Value placeholder="All" />
-            <Select.Icon asChild>
-              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
-            </Select.Icon>
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Content className="overflow-hidden bg-popover border rounded-lg shadow-lg z-50">
-              <Select.Viewport className="p-1 max-h-[300px] overflow-y-auto">
-                {currentFilters.map((f) => (
-                  <Select.Item key={f} value={f} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                {/* League section */}
+                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">League</div>
+                {leagues.map((f) => (
+                  <Select.Item key={`league:${f}`} value={`league:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
                     <Select.ItemText className="flex items-center gap-2">
-                      {filterType === "league" && f !== "All" ? (
-                        (() => {
-                          const lg = games.find((g) => g.league === f);
-                          const logo = lg?.competition_logo || lg?.league_logo;
-                          const flag = lg?.country_flag;
-                          return (
-                            <>
-                              {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                              {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
-                              {f}
-                            </>
-                          );
-                        })()
-                      ) : (
-                        f
-                      )}
+                      {f !== "All" ? (() => {
+                        const lg = games.find((g) => g.league === f);
+                        const logo = lg?.competition_logo || lg?.league_logo;
+                        const flag = lg?.country_flag;
+                        return (
+                          <>
+                            {flag && <img src={flag} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                            {logo && !flag && <img src={logo} alt="" className="w-4 h-4 rounded-full object-contain" />}
+                            {f}
+                          </>
+                        );
+                      })() : f}
                     </Select.ItemText>
+                    <Select.ItemIndicator className="ml-auto">
+                      <Check className="w-3.5 h-3.5 text-brand-green" />
+                    </Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+                {/* Market section */}
+                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">Market</div>
+                {markets.map((f) => (
+                  <Select.Item key={`market:${f}`} value={`market:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                    <Select.ItemText>{f}</Select.ItemText>
+                    <Select.ItemIndicator className="ml-auto">
+                      <Check className="w-3.5 h-3.5 text-brand-green" />
+                    </Select.ItemIndicator>
+                  </Select.Item>
+                ))}
+                {/* Confidence section */}
+                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground">Confidence</div>
+                {confidenceFilters.map((f) => (
+                  <Select.Item key={`confidence:${f}`} value={`confidence:${f}`} className="relative flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer select-none outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
+                    <Select.ItemText>{f}</Select.ItemText>
                     <Select.ItemIndicator className="ml-auto">
                       <Check className="w-3.5 h-3.5 text-brand-green" />
                     </Select.ItemIndicator>
