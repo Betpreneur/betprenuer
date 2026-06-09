@@ -239,6 +239,32 @@ interface CacheEntry<T> {
 }
 
 /**
+ * Initialize cache - clear any stored ETags permanently on app startup.
+ * This ensures fresh fetches without using cached ETags.
+ */
+function initCache() {
+  if (typeof window === "undefined") return;
+  // Clear all cached ETags - permanently disabled
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+  keys.forEach(k => {
+    try {
+      const entry = JSON.parse(localStorage.getItem(k));
+      // Remove etag property to disable ETag-based caching
+      if (entry && typeof entry === "object") {
+        entry.etag = null;
+        localStorage.setItem(k, JSON.stringify(entry));
+      }
+    } catch {
+      /* ignore */
+    }
+  });
+  console.log("[cache] ETags permanently disabled");
+}
+
+// Run on module load to clear ETags
+initCache();
+
+/**
  * Clear cached data for a specific key or pattern.
  * Call this after backend updates to force fresh fetches.
  */
@@ -278,10 +304,11 @@ function readCache<T>(key: string): CacheEntry<T> | null {
   }
 }
 
-function writeCache<T>(key: string, data: T, etag: string | null) {
+function writeCache<T>(key: string, data: T, _etag: string | null) {
   if (typeof window === "undefined") return;
   try {
-    const entry: CacheEntry<T> = { data, etag, ts: Date.now() };
+    // ETags disabled permanently - don't store etag to ensure fresh fetches
+    const entry: CacheEntry<T> = { data, etag: null, ts: Date.now() };
     localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
   } catch {
     /* storage full / unavailable — ignore, caching is best-effort */
@@ -345,8 +372,8 @@ async function requestCached<T>(path: string, cacheKey: string, retry = true): P
 
   if (res.status === 204) return undefined as T;
   const data = (await res.json()) as T;
-  const etag = res.headers.get("ETag") ?? res.headers.get("etag");
-  writeCache(cacheKey, data, etag);
+  // ETags disabled permanently - pass null to ensure no etag is stored
+  writeCache(cacheKey, data, null);
   return data;
 }
 
