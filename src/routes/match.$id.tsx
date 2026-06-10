@@ -283,7 +283,7 @@ function MatchPage() {
       ``,
       `"${pick.one_line_reason}"`,
       ``,
-      `Get daily picks → ${signupUrl}`,
+      `Get daily picks ΓåÆ ${signupUrl}`,
     ].join("\n");
   }
 
@@ -320,7 +320,7 @@ function MatchPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setShareMsg("Card downloaded ✓");
+    setShareMsg("Card downloaded Γ£ô");
     setTimeout(() => setShareMsg(null), 2500);
   }
 
@@ -344,7 +344,7 @@ function MatchPage() {
     downloadFromPreview();
     const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
-    setShareMsg("Card saved ✓ Attach it in WhatsApp");
+    setShareMsg("Card saved Γ£ô Attach it in WhatsApp");
     setTimeout(() => setShareMsg(null), 3500);
   }
 
@@ -431,7 +431,7 @@ function MatchPage() {
                 </div>
                 <div className="text-xl font-bold text-foreground">{pick.market_plain}</div>
                 <div className="flex items-baseline gap-3 mt-2">
-                  <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
+                  <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "ΓÇö"}</span>
                   {pick.confidence > 0 && (
                     <span className="flex items-center gap-1.5 text-sm">
                       <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
@@ -453,7 +453,7 @@ function MatchPage() {
         </div>
       </header>
 
-      {/* Details - collapsible sections */}
+      {/* Collapsible Insights - closed by default */}
       <details className="space-y-3">
         <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer font-semibold text-sm bg-card border border-border rounded-xl hover:bg-muted/50">
           <svg className="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -520,7 +520,7 @@ function MatchPage() {
               <div className="w-px h-12 bg-border" />
               <div className="text-center">
                 <div className="text-3xl font-black text-win-green">
-                  ₦{Number(pick.stake).toLocaleString()}
+                  Γéª{Number(pick.stake).toLocaleString()}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">Recommended Stake</div>
               </div>
@@ -925,9 +925,9 @@ function MatchPage() {
           : pick.result === "lost" ? "bg-danger-bg text-danger-red"
           : "bg-white/5 text-foreground"
         }`}>
-          {pick.result === "won" && "Result: Won ✓"}
+          {pick.result === "won" && "Result: Won Γ£ô"}
           {pick.result === "lost" && "Result: Lost Γ£ù"}
-          {pick.result === "void" && "Void – stake returned"}
+          {pick.result === "void" && "Void ΓÇö stake returned"}
         </div>
       )}
 
@@ -948,7 +948,7 @@ function MatchPage() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Backed ✓
+                Backed Γ£ô
               </>
             ) : backing ? (
               <>
@@ -1061,7 +1061,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const PAD = 64;
   const cw = W - PAD * 2;
 
-  // Colors – red palette to match the original design
+  // Colors ΓÇö red palette to match the original design
   const RED = "#E8192C";
   const TEAL = "#2dd4bf";
   const WHITE = "#ffffff";
@@ -1147,7 +1147,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   if (!ctx) return null;
   ctx.textBaseline = "top";
 
-  // Background – deep red fading to black
+  // Background ΓÇö deep red fading to black
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, "#0a0202");
   bg.addColorStop(0.5, "#080404");
@@ -1452,4 +1452,3 @@ function Row({ team, form }: { team: string; form: ("W" | "D" | "L")[] }) {
     </div>
   );
 }
-
