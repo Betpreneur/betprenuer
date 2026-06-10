@@ -104,7 +104,7 @@ function RecordPage() {
 
   useEffect(() => {
     // Direct call to backend to bypass Worker proxy issues
-    fetch(`https://dev.api.betpreneur.ng/api/algo/public/record/`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL || "https://dev.api.betpreneur.ng/api"}/algo/public/record/`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
