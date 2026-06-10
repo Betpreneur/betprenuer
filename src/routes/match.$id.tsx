@@ -283,7 +283,7 @@ function MatchPage() {
       ``,
       `"${pick.one_line_reason}"`,
       ``,
-      `Get daily picks → ${signupUrl}`,
+      `Get daily picks ΓåÆ ${signupUrl}`,
     ].join("\n");
   }
 
@@ -320,7 +320,7 @@ function MatchPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setShareMsg("Card downloaded ✓");
+    setShareMsg("Card downloaded Γ£ô");
     setTimeout(() => setShareMsg(null), 2500);
   }
 
@@ -344,7 +344,7 @@ function MatchPage() {
     downloadFromPreview();
     const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
-    setShareMsg("Card saved ✓ Attach it in WhatsApp");
+    setShareMsg("Card saved Γ£ô Attach it in WhatsApp");
     setTimeout(() => setShareMsg(null), 3500);
   }
 
@@ -431,7 +431,7 @@ function MatchPage() {
                 </div>
                 <div className="text-xl font-bold text-foreground">{pick.market_plain}</div>
                 <div className="flex items-baseline gap-3 mt-2">
-                  <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "–"}</span>
+                  <span className="text-2xl font-black text-brand-green">@{pick.odds ? Number(pick.odds).toFixed(2) : "ΓÇö"}</span>
                   {pick.confidence > 0 && (
                     <span className="flex items-center gap-1.5 text-sm">
                       <svg className="w-4 h-4 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
@@ -453,45 +453,15 @@ function MatchPage() {
         </div>
       </header>
 
-      {/* Back Pick button - visible immediately after header */}
-      {pick.status !== "settled" && (
-        <button
-          onClick={handleBacked}
-          disabled={pick.user_backed || backing}
-          className={`w-full min-h-[56px] rounded-xl font-semibold inline-flex items-center justify-center gap-2 ${
-            pick.user_backed
-              ? "bg-white/10 text-muted-foreground cursor-default"
-              : "bg-win-green text-background hover:opacity-90"
-          }`}
-        >
-          {pick.user_backed ? (
-            <>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Backed
-            </>
-          ) : backing ? (
-            <>
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Saving...
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              I backed this
-            </>
-          )}
-        </button>
-      )}
-
-      {/* Insight Cards - Modern Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Details - collapsible sections */}
+      <details open className="space-y-3">
+        <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer font-semibold text-sm bg-card border border-border rounded-xl hover:bg-muted/50">
+          <svg className="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          Insights & Analysis
+        </summary>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-4">
         {/* What does this mean? */}
         {(pick as any).meaning && (
           <div className="bg-gradient-to-br from-teal-500/10 to-teal-500/5 rounded-xl p-4 border border-teal-500/20">
@@ -550,7 +520,7 @@ function MatchPage() {
               <div className="w-px h-12 bg-border" />
               <div className="text-center">
                 <div className="text-3xl font-black text-win-green">
-                  ₦{Number(pick.stake).toLocaleString()}
+                  Γéª{Number(pick.stake).toLocaleString()}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">Recommended Stake</div>
               </div>
@@ -955,9 +925,9 @@ function MatchPage() {
           : pick.result === "lost" ? "bg-danger-bg text-danger-red"
           : "bg-white/5 text-foreground"
         }`}>
-          {pick.result === "won" && "Result: Won ✓"}
+          {pick.result === "won" && "Result: Won Γ£ô"}
           {pick.result === "lost" && "Result: Lost Γ£ù"}
-          {pick.result === "void" && "Void – stake returned"}
+          {pick.result === "void" && "Void ΓÇö stake returned"}
         </div>
       )}
 
@@ -978,7 +948,7 @@ function MatchPage() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Backed ✓
+                Backed Γ£ô
               </>
             ) : backing ? (
               <>
@@ -1016,6 +986,8 @@ function MatchPage() {
           </button>
         </div>
       )}
+      </details>
+
       {shareMsg && (
         <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
       )}
@@ -1089,7 +1061,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   const PAD = 64;
   const cw = W - PAD * 2;
 
-  // Colors – red palette to match the original design
+  // Colors ΓÇö red palette to match the original design
   const RED = "#E8192C";
   const TEAL = "#2dd4bf";
   const WHITE = "#ffffff";
@@ -1175,7 +1147,7 @@ async function renderShareCardImpl(pick: PickDetail): Promise<Blob | null> {
   if (!ctx) return null;
   ctx.textBaseline = "top";
 
-  // Background – deep red fading to black
+  // Background ΓÇö deep red fading to black
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, "#0a0202");
   bg.addColorStop(0.5, "#080404");
@@ -1480,4 +1452,3 @@ function Row({ team, form }: { team: string; form: ("W" | "D" | "L")[] }) {
     </div>
   );
 }
-
