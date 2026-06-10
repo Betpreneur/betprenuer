@@ -843,7 +843,7 @@ function MatchPage() {
               <div className="space-y-1">
                 <div className="text-muted-foreground text-[11px]">Key Signals</div>
                 {(pick as any).insights.key_signals.map((signal: string, i: number) => (
-                  <div key={i} className="text-foreground">ΓÇó {signal}</div>
+                  <div key={i} className="text-foreground">• {signal}</div>
                 ))}
               </div>
             )}
@@ -851,7 +851,7 @@ function MatchPage() {
               <div className="space-y-1">
                 <div className="text-muted-foreground text-[11px]">Confidence Drivers</div>
                 {(pick as any).insights.confidence_drivers.map((driver: string, i: number) => (
-                  <div key={i} className="text-win-green">ΓÇó {driver}</div>
+                  <div key={i} className="text-win-green">• {driver}</div>
                 ))}
               </div>
             )}
@@ -929,7 +929,7 @@ function MatchPage() {
         <ul className="space-y-2 text-[14px] text-foreground/90">
           {pick.goals_profile?.map((g, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-win-green mt-0.5">ΓÇó</span>
+              <span className="text-win-green mt-0.5">•</span>
               <span>{g}</span>
             </li>
           ))}
@@ -1508,4 +1508,5 @@ function Row({ team, form }: { team: string; form: ("W" | "D" | "L")[] }) {
     </div>
   );
 }
+
 
