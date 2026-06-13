@@ -148,10 +148,10 @@ const TIME_RANGES = [
 
 // Odds filter ranges
 const ODDS_RANGES = [
-  { label: "1.0 - 1.29", min: 1.0, max: 1.29 },
+  { label: "1.00 - 1.29", min: 1.0, max: 1.29 },
   { label: "1.30 - 1.49", min: 1.3, max: 1.49 },
   { label: "1.50 - 1.79", min: 1.5, max: 1.79 },
-  { label: "1.80+", min: 1.8, max: 100 },
+  { label: "1.80+", min: 1.8, max: 10 },
 ];
 
 type FilterType = "league" | "market" | "confidence" | "time" | "odds";
@@ -217,7 +217,11 @@ function HomePage() {
 
   // Confidence filter options
   const confidenceFilters = ["All", ...CONFIDENCE_RANGES.map((r) => r.label)];
+
+  // Time filter options
   const timeFilters = ["All", ...TIME_RANGES.map((r) => r.label)];
+
+  // Odds filter options
   const oddsFilters = ["All", ...ODDS_RANGES.map((r) => r.label)];
 
   // Determine current filter options based on type
@@ -242,10 +246,8 @@ function HomePage() {
     if (filterType === "time") {
       const timeRange = TIME_RANGES.find((r) => r.label === filterValue);
       if (!timeRange) return true;
-      // Parse kickoff time (format: "HH:MM")
-      const kickoffMatch = g.kickoff?.match(/^(\d{1,2}):(\d{2})/);
-      if (!kickoffMatch) return false;
-      const hour = parseInt(kickoffMatch[1], 10);
+      // Parse kickoff time in WAT (e.g., "14:00")
+      const hour = parseInt(g.kickoff.split(":")[0], 10);
       return hour >= timeRange.min && hour <= timeRange.max;
     }
     if (filterType === "odds") {
