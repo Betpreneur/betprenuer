@@ -137,7 +137,24 @@ const CONFIDENCE_RANGES = [
   { label: "Below 65%", min: 0, max: 64 },
 ];
 
-type FilterType = "league" | "market" | "confidence";
+// Time filter ranges (WAT timezone)
+const TIME_RANGES = [
+  { label: "Early Morning", min: 0, max: 5 },
+  { label: "Morning", min: 6, max: 11 },
+  { label: "Afternoon", min: 12, max: 15 },
+  { label: "Evening", min: 16, max: 19 },
+  { label: "Night", min: 20, max: 23 },
+];
+
+// Odds filter ranges
+const ODDS_RANGES = [
+  { label: "1.0 - 1.29", min: 1.0, max: 1.29 },
+  { label: "1.30 - 1.49", min: 1.3, max: 1.49 },
+  { label: "1.50 - 1.79", min: 1.5, max: 1.79 },
+  { label: "1.80+", min: 1.8, max: 100 },
+];
+
+type FilterType = "league" | "market" | "confidence" | "time" | "odds";
 
 function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
@@ -200,9 +217,11 @@ function HomePage() {
 
   // Confidence filter options
   const confidenceFilters = ["All", ...CONFIDENCE_RANGES.map((r) => r.label)];
+  const timeFilters = ["All", ...TIME_RANGES.map((r) => r.label)];
+  const oddsFilters = ["All", ...ODDS_RANGES.map((r) => r.label)];
 
   // Determine current filter options based on type
-  const currentFilters = filterType === "league" ? leagues : filterType === "market" ? markets : confidenceFilters;
+  const currentFilters = filterType === "league" ? leagues : filterType === "market" ? markets : filterType === "confidence" ? confidenceFilters : filterType === "time" ? timeFilters : oddsFilters;
 
   // Apply filtering
   const filteredGames = games.filter((g) => {
@@ -219,6 +238,21 @@ function HomePage() {
       if (!confRange) return true;
       const conf = g.official_pick?.confidence ?? g.top_market?.confidence ?? 0;
       return conf >= confRange.min && conf <= confRange.max;
+    }
+    if (filterType === "time") {
+      const timeRange = TIME_RANGES.find((r) => r.label === filterValue);
+      if (!timeRange) return true;
+      // Parse kickoff time (format: "HH:MM")
+      const kickoffMatch = g.kickoff?.match(/^(\d{1,2}):(\d{2})/);
+      if (!kickoffMatch) return false;
+      const hour = parseInt(kickoffMatch[1], 10);
+      return hour >= timeRange.min && hour <= timeRange.max;
+    }
+    if (filterType === "odds") {
+      const oddsRange = ODDS_RANGES.find((r) => r.label === filterValue);
+      if (!oddsRange) return true;
+      const odds = g.official_pick?.odds ?? g.top_market?.odds ?? 0;
+      return odds >= oddsRange.min && odds <= oddsRange.max;
     }
     return true;
   });
@@ -349,6 +383,58 @@ function HomePage() {
                     </Popover.Content>
                   </Popover.Portal>
                 </Popover.Root>
+
+                {/* Time sub-dropdown */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-bold hover:bg-accent hover:text-accent-foreground text-left">
+                      Time
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 ml-1" sideOffset={5} side="right">
+                      {timeFilters.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => { setFilterType("time"); setFilterValue(f); }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground text-left",
+                            filterType === "time" && filterValue === f && "text-brand-green"
+                          )}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
+
+                {/* Odds sub-dropdown */}
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <button className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-bold hover:bg-accent hover:text-accent-foreground text-left">
+                      Odds
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                    </button>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content className="bg-popover border rounded-lg shadow-lg z-50 p-1 ml-1" sideOffset={5} side="right">
+                      {oddsFilters.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => { setFilterType("odds"); setFilterValue(f); }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground text-left",
+                            filterType === "odds" && filterValue === f && "text-brand-green"
+                          )}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover.Root>
               </div>
               <Popover.Arrow className="fill-border" />
             </Popover.Content>
@@ -361,7 +447,7 @@ function HomePage() {
             onClick={() => setFilterValue("All")}
             className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-full text-[12px] font-bold bg-brand-green text-primary-foreground"
           >
-            {filterType === "league" ? "Competition" : filterType === "market" ? "Market" : "Confidence"}: {filterValue}
+            {filterType === "league" ? "Competition" : filterType === "market" ? "Market" : filterType === "confidence" ? "Confidence" : filterType === "time" ? "Time" : "Odds"}: {filterValue}
             <Check className="w-3.5 h-3.5" />
           </button>
         )}
