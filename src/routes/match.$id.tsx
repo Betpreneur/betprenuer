@@ -285,11 +285,11 @@ function MatchPage() {
     }
   }
 
-  async function handleBackMarket(marketKey: string) {
+  async function handleBackMarket(marketKey: string, marketName: string) {
     if (backingMarket || backedMarkets[marketKey]) return;
     setBackingMarket(marketKey);
     try {
-      await api.markBacked(id, todayLagosISO());
+      await api.markBacked(id, todayLagosISO(), marketName);
       setBackedMarkets(prev => ({ ...prev, [marketKey]: true }));
       addBackedCount(Number(id) * 1000 + (marketKey.split("").reduce((a, c) => a + c.charCodeAt(0), 0)));
     } catch (e) {
@@ -960,7 +960,7 @@ function MatchPage() {
                       </span>
                     )}
                     <button
-                      onClick={() => handleBackMarket(marketKey)}
+                      onClick={() => handleBackMarket(marketKey, m.market)}
                       disabled={isBacked || backingMarket === marketKey}
                       className={`p-1.5 rounded-full transition-colors ${
                         isBacked

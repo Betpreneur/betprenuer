@@ -3,13 +3,13 @@ import { todayLagosISO } from "./time";
 
 /**
  * Typed REST client for Betpreneur backend.
- * Base URL: https://dev.api.betpreneur.ng/api/
+ * Base URL: https://api.betpreneur.ng/api/
  */
 
 export const API_BASE_URL: string =
   ((import.meta as { env?: Record<string, string | undefined> }).env
     ?.VITE_API_BASE_URL as string | undefined) ??
-  "https://dev.api.betpreneur.ng/api";
+  "https://api.betpreneur.ng/api";
 
 export const ENDPOINTS = {
   signup: "/auth/signup/",
@@ -225,9 +225,10 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   return (await res.json()) as T;
 }
 
-// ============== Response cache ===================================
-// Persists response body + timestamp per cache key for offline fallback
-// on 304 / 503 / network failure.
+// ============== ETag response cache ===================================
+// Persists response body + ETag + timestamp per cache key so we can send
+// `If-None-Match` and fall back to the last good response on 304 / 503 /
+// network failure.
 
 const CACHE_PREFIX = "terminal.cache.";
 
@@ -236,29 +237,6 @@ interface CacheEntry<T> {
   etag: string | null;
   ts: number;
 }
-
-/**
- * Initialize cache - clear any stored etag values on app startup.
- */
-function initCache() {
-  if (typeof window === "undefined") return;
-  // Clear etag values from cached entries
-  const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
-  keys.forEach(k => {
-    try {
-      const entry = JSON.parse(localStorage.getItem(k));
-      if (entry && typeof entry === "object") {
-        entry.etag = null;
-        localStorage.setItem(k, JSON.stringify(entry));
-      }
-    } catch {
-      /* ignore */
-    }
-  });
-}
-
-// Run on module load
-initCache();
 
 /**
  * Clear cached data for a specific key or pattern.
@@ -300,10 +278,10 @@ function readCache<T>(key: string): CacheEntry<T> | null {
   }
 }
 
-function writeCache<T>(key: string, data: T, _etag: string | null) {
+function writeCache<T>(key: string, data: T, etag: string | null) {
   if (typeof window === "undefined") return;
   try {
-    const entry: CacheEntry<T> = { data, etag: null, ts: Date.now() };
+    const entry: CacheEntry<T> = { data, etag, ts: Date.now() };
     localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(entry));
   } catch {
     /* storage full / unavailable — ignore, caching is best-effort */
@@ -311,9 +289,12 @@ function writeCache<T>(key: string, data: T, _etag: string | null) {
 }
 
 /**
- * GET request with offline fallback.
- * - 200: caches the response for future requests.
+ * GET request with ETag revalidation + offline fallback.
+ * - 200: caches the response + ETag for future requests.
  * - 503 / network failure: returns the last cached body.
+ *
+ * Note: `If-None-Match` is disabled to avoid CORS preflight issues with some backends.
+ * The caching still works for offline fallback, just without revalidation.
  */
 async function requestCached<T>(path: string, cacheKey: string, retry = true): Promise<T> {
   const cached = readCache<T>(cacheKey);
@@ -321,6 +302,7 @@ async function requestCached<T>(path: string, cacheKey: string, retry = true): P
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    // If-None-Match disabled: causes CORS preflight failures on some servers
   };
 
   let res: Response;
@@ -363,7 +345,8 @@ async function requestCached<T>(path: string, cacheKey: string, retry = true): P
 
   if (res.status === 204) return undefined as T;
   const data = (await res.json()) as T;
-  writeCache(cacheKey, data, null);
+  const etag = res.headers.get("ETag") ?? res.headers.get("etag");
+  writeCache(cacheKey, data, etag);
   return data;
 }
 
@@ -878,10 +861,14 @@ export const api = {
   },
 
   /** POST /api/algo/games/<match_id>/backed/ — Mark that user backed this game */
-  async markBacked(matchId: number | string, date?: string): Promise<{ success: true }> {
+  async markBacked(matchId: number | string, date?: string, market?: string): Promise<{ success: true }> {
+    const body: Record<string, unknown> = { date: date ?? null };
+    if (market) {
+      body.market = market;
+    }
     await request(ENDPOINTS.algoBackGame(String(matchId)), {
       method: "POST",
-      body: JSON.stringify({ date: date ?? null }),
+      body: JSON.stringify(body),
     });
     return { success: true };
   },
