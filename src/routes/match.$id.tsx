@@ -960,7 +960,7 @@ function MatchPage() {
                       </span>
                     )}
                     <button
-                      onClick={() => handleBackMarket(marketKey, m.market)}
+                      onClick={() => handleBackMarket(marketKey, m.name || m.market)}
                       disabled={isBacked || backingMarket === marketKey}
                       className={`p-1.5 rounded-full transition-colors ${
                         isBacked
