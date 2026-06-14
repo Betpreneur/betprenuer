@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link, Navigate, useRouter } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, Navigate, useRouter, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api, type PickDetail, type GameDetailResponse, clearGameCache } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -111,6 +111,7 @@ function MatchPage() {
   }
   const { isAuthed, loading: authLoading } = useAuth();
   const router = useRouter();
+  const navigate = useNavigate();
   const [pick, setPick] = useState<PickDetail | null>(null);
   const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
   const [error, setError] = useState(false);
@@ -123,6 +124,8 @@ function MatchPage() {
     fileName: string;
   } | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [backedMarkets, setBackedMarkets] = useState<Record<string, boolean>>({});
+  const [backingMarket, setBackingMarket] = useState<string | null>(null);
 
   const load = () => {
     if (!id || !id.trim()) {
@@ -217,6 +220,20 @@ function MatchPage() {
     load();
   }, [isAuthed, id]);
 
+  // Restore scroll position from sessionStorage on mount
+  useEffect(() => {
+    const scrollKey = `scroll:${id}`;
+    const savedY = sessionStorage.getItem(scrollKey);
+    if (savedY) {
+      const y = parseInt(savedY, 10);
+      if (!isNaN(y)) {
+        window.scrollTo(0, y);
+      }
+      // Clear after restoring to allow fresh save on next visit
+      sessionStorage.removeItem(scrollKey);
+    }
+  }, [id]);
+
   if (appLoading) {
     return (
       <div className="space-y-4">
@@ -265,6 +282,22 @@ function MatchPage() {
       setTimeout(() => setShareMsg(null), 3500);
     } finally {
       setBacking(false);
+    }
+  }
+
+  async function handleBackMarket(marketKey: string) {
+    if (backingMarket || backedMarkets[marketKey]) return;
+    setBackingMarket(marketKey);
+    try {
+      await api.markBacked(id, todayLagosISO());
+      setBackedMarkets(prev => ({ ...prev, [marketKey]: true }));
+      addBackedCount(Number(id) * 1000 + (marketKey.split("").reduce((a, c) => a + c.charCodeAt(0), 0)));
+    } catch (e) {
+      console.error("Failed to back market:", e);
+      setShareMsg("Could not save this market. Please try again.");
+      setTimeout(() => setShareMsg(null), 3500);
+    } finally {
+      setBackingMarket(null);
     }
   }
 
@@ -350,12 +383,19 @@ function MatchPage() {
 
   return (
     <div className="space-y-5">
-      <Link to="/home" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-brand-green transition-colors">
+      <button
+        onClick={() => {
+          // Save current scroll position before navigating away
+          sessionStorage.setItem(`scroll:${id}`, String(window.scrollY));
+          window.history.back();
+        }}
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-brand-green transition-colors"
+      >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Back to home
-      </Link>
+        Back
+      </button>
 
 {/* Hero Match Header - Premium Glass Design */}
       <header className="
@@ -895,30 +935,61 @@ function MatchPage() {
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">All Available Markets</h2>
           <div className="max-h-64 overflow-y-auto space-y-2 text-[13px]">
-            {(pick as any).markets.map((m: any, i: number) => (
-              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{m.name || m.market}</div>
-                  {m.selection && (
-                    <div className="text-muted-foreground text-[12px] truncate">{m.selection}</div>
-                  )}
+            {(pick as any).markets.map((m: any, i: number) => {
+              const marketKey = `${m.market}-${m.selection || ""}-${i}`;
+              const isBacked = backedMarkets[marketKey];
+              return (
+                <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{m.name || m.market}</div>
+                    {m.selection && (
+                      <div className="text-muted-foreground text-[12px] truncate">{m.selection}</div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 ml-2">
+                    {m.odds && (
+                      <span className="font-semibold text-brand-green">@{m.odds}</span>
+                    )}
+                    {m.confidence && (
+                      <span className={`text-[11px] px-1.5 py-0.5 rounded ${
+                        m.confidence >= 70 ? 'bg-win-green/20 text-win-green' :
+                        m.confidence >= 65 ? 'bg-teal-accent/20 text-teal-accent' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {m.confidence}%
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleBackMarket(marketKey)}
+                      disabled={isBacked || backingMarket === marketKey}
+                      className={`p-1.5 rounded-full transition-colors ${
+                        isBacked
+                          ? "text-danger-red bg-danger-red/10"
+                          : "text-muted-foreground hover:text-danger-red hover:bg-danger-red/10"
+                      }`}
+                      title={isBacked ? "Backed" : "Back this market"}
+                    >
+                      {backingMarket === marketKey ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-4 h-4"
+                          fill={isBacked ? "currentColor" : "none"}
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 ml-2">
-                  {m.odds && (
-                    <span className="font-semibold text-brand-green">@{m.odds}</span>
-                  )}
-                  {m.confidence && (
-                    <span className={`text-[11px] px-1.5 py-0.5 rounded ${
-                      m.confidence >= 70 ? 'bg-win-green/20 text-win-green' :
-                      m.confidence >= 65 ? 'bg-teal-accent/20 text-teal-accent' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                      {m.confidence}%
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
