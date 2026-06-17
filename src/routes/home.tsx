@@ -160,12 +160,22 @@ function HomePage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [data, setData] = useState<AlgoGamesResponse | null>(null);
   const [error, setError] = useState(false);
+  const [authError, setAuthError] = useState(false);
   const [filterType, setFilterType] = useState<FilterType>("league");
   const [filterValue, setFilterValue] = useState("All");
 
   const load = () => {
     setError(false);
-    api.getAlgoGames().then(setData).catch(() => setError(true));
+    api.getAlgoGames()
+      .then(setData)
+      .catch((err) => {
+        // If 401/unauthorized, session expired - redirect to login
+        if (err instanceof Error && (err.message.includes("401") || err.message.includes("Unauthorized") || err.message.includes("auth"))) {
+          setAuthError(true);
+        } else {
+          setError(true);
+        }
+      });
   };
 
   useEffect(() => {
@@ -178,6 +188,12 @@ function HomePage() {
     const id = setInterval(load, 60000);
     return () => clearInterval(id);
   }, [data?.published]);
+
+  // Redirect to login if session expired
+  if (authError) {
+    window.location.href = "/login";
+    return null;
+  }
 
   if (authLoading || !data) return <HomePageSkeleton />;
   if (error) return <div className="p-8 text-center text-muted-foreground">Failed to load games.</div>;

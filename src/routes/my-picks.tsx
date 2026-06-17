@@ -229,6 +229,7 @@ function MyPicksPage() {
     // Primary source: backend, so picks sync across all devices.
     try {
       const res = await api.getBackedPicks(_date);
+      console.log("[DEBUG getBackedPicks] raw response:", JSON.stringify(res, null, 2));
       // API returns { date, count, games[] } where each game has official_pick or top_market
       const raw = Array.isArray(res) ? res : ((res as any)?.games || (res as any)?.results || (res as any)?.data || (res as any)?.picks || []);
       // Extract official_pick, or fall back to top_market with additional game info

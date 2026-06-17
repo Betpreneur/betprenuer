@@ -97,6 +97,7 @@ function TopPickPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const [picks, setPicks] = useState<Pick[]>([]);
   const [error, setError] = useState(false);
+  const [authError, setAuthError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -110,16 +111,39 @@ function TopPickPage() {
         ) ?? [];
         setPicks(all);
       })
-      .catch(() => setError(true))
+      .catch((err) => {
+        // If 401/unauthorized, session expired - redirect to login
+        if (err instanceof Error && (err.message.includes("401") || err.message.includes("Unauthorized") || err.message.includes("auth"))) {
+          setAuthError(true);
+        } else {
+          setError(true);
+        }
+      })
       .finally(() => setLoading(false));
   }, [authLoading, isAuthed]);
+
+  // Redirect to login if session expired
+  if (authError) {
+    window.location.href = "/login";
+    return null;
+  }
 
   if (authLoading || loading) {
     return <TopPicksSkeleton />;
   }
 
-  if (error || !picks.length) {
-    return null;
+  if (error) {
+    return <div className="p-8 text-center text-muted-foreground">Failed to load picks.</div>;
+  }
+
+  if (!picks.length) {
+    return (
+      <div className="p-10 text-center">
+        <div className="text-4xl mb-3">📭</div>
+        <h1 className="text-xl font-black mb-1">No Top Picks Today</h1>
+        <p className="text-muted-foreground">Check back later for today's picks</p>
+      </div>
+    );
   }
 
   const bankers = picks.filter(p => p.tier === "banker");

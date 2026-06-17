@@ -115,6 +115,7 @@ function MatchPage() {
   const [pick, setPick] = useState<PickDetail | null>(null);
   const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
   const [error, setError] = useState(false);
+  const [authError, setAuthError] = useState(false);
   const [backing, setBacking] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
   const [shareMsg, setShareMsg] = useState<string | null>(null);
@@ -211,7 +212,14 @@ function MatchPage() {
           league_strength: g.fixture_context?.league_strength,
         });
       })
-      .catch(() => setError(true))
+      .catch((err) => {
+        // If 401/unauthorized, session expired - redirect to login
+        if (err instanceof Error && (err.message.includes("401") || err.message.includes("Unauthorized") || err.message.includes("auth"))) {
+          setAuthError(true);
+        } else {
+          setError(true);
+        }
+      })
       .finally(() => setAppLoading(false));
   };
 
@@ -243,6 +251,12 @@ function MatchPage() {
         <div className="h-24 bg-card border border-brand-border rounded-lg animate-pulse" />
       </div>
     );
+  }
+
+  // Redirect to login if session expired
+  if (authError) {
+    window.location.href = "/login";
+    return null;
   }
 
   if (!isAuthed) return <Navigate to="/login" />;
