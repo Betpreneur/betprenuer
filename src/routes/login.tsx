@@ -24,7 +24,7 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   if (loading) return null;
-  if (isAuthed) return <Navigate to="/home" />;
+  if (isAuthed) return <Navigate to="/top-pick" />;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -37,7 +37,7 @@ function LoginPage() {
     try {
       await api.login(identifier.trim(), password);
       await refresh();
-      router.navigate({ to: "/home" });
+      router.navigate({ to: "/top-pick" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not log you in. Check your details and try again.");
     } finally {

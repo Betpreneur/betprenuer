@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
-  { to: "/home", label: "Home", icon: Home },
-  { to: "/top-pick", label: "Top Pick", icon: Trophy },
+  { to: "/top-pick", label: "Top Picks", icon: Trophy },
+  { to: "/home", label: "All Games", icon: Home },
   { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ul className="grid grid-cols-5">
             {navItems.map((n) => {
               const Icon = n.icon;
-              const isActive = path === n.to || (n.to === "/home" && path === "/");
+              const isActive = path === n.to || (n.to === "/top-pick" && (path === "/" || path === "/home"));
               return (
                 <li key={n.to}>
                   <Link

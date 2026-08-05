@@ -266,13 +266,13 @@ function MatchPage() {
       <div className="text-center py-16">
         <p>This pick is no longer available or doesn't exist.</p>
         <button
-          onClick={() => router.navigate({ to: "/home" })}
+          onClick={() => router.navigate({ to: "/top-pick" })}
           className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-brand-green hover:bg-brand-green/90 text-background font-medium rounded-xl transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to home
+          Back to Top Picks
         </button>
       </div>
     );
