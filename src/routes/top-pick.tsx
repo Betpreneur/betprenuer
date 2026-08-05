@@ -142,6 +142,18 @@ function TopPickPage() {
         <div className="text-4xl mb-3">📭</div>
         <h1 className="text-xl font-black mb-1">No Top Picks Today</h1>
         <p className="text-muted-foreground">Check back later for today's picks</p>
+        <div className="mt-6">
+          <p className="text-sm font-medium mb-2">Want more games?</p>
+          <Link
+            to="/home"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-green hover:bg-brand-green/90 text-background font-medium rounded-xl transition-colors"
+          >
+            Check All Games
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
       </div>
     );
   }
