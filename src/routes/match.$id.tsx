@@ -186,8 +186,12 @@ function MatchPage() {
           risk_flags: Array.isArray(effectivePick?.risk_flags) ? effectivePick.risk_flags : [],
           risk_level: effectivePick?.risk_level || "",
           user_backed: effectivePick?.backed_by_me || false,
+          backed_count: effectivePick?.backed_count || 0,
+          reasoning: effectivePick?.reasoning || "",
           insights: g.insights,
           team_news: { home: g.team_news?.home, away: g.team_news?.away },
+          home_news: g.home_news,
+          away_news: g.away_news,
           market: effectivePick?.market || "",
           odds: effectivePick?.odds || "",
           confidence: effectivePick?.confidence || 0,
@@ -601,7 +605,39 @@ function MatchPage() {
             <p className="text-sm text-muted-foreground leading-relaxed">{pick.one_line_reason}</p>
           </div>
         )}
-      </div>
+
+        {/* Full reasoning - expandable */}
+        {(pick as any).reasoning && (
+          <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-xl p-4 border border-purple-500/20 md:col-span-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-purple-500">Full Reasoning</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">{(pick as any).reasoning}</p>
+          </div>
+        )}
+
+        {/* Backed count */}
+        {(pick as any).backed_count > 0 && (
+          <div className="bg-gradient-to-br from-pink-500/10 to-pink-500/5 rounded-xl p-4 border border-pink-500/20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-pink-500">Community</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-bold text-pink-500">{(pick as any).backed_count}</span> backing{(pick as any).backed_count !== 1 ? "s" : ""}
+            </p>
+          </div>
+        )}
+        </div>
 
       {/* Value & Stake - Glass Card */}
       {pick.ev !== undefined && pick.ev !== null && pick.stake && (
@@ -817,31 +853,65 @@ function MatchPage() {
       )}
 
       {/* Team News */}
-      {(pick as any).team_news && (
+      {((pick as any).team_news || (pick as any).home_news || (pick as any).away_news) && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">Team News</h2>
           <div className="space-y-3 text-[13px]">
-            {!(pick as any).team_news.available && (
+            {/* Text-based team news from API */}
+            {((pick as any).home_news || (pick as any).away_news) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(pick as any).home_news && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                    <p className="text-muted-foreground text-xs whitespace-pre-line">{(pick as any).home_news}</p>
+                  </div>
+                )}
+                {(pick as any).away_news && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                    <p className="text-muted-foreground text-xs whitespace-pre-line">{(pick as any).away_news}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Structured team news (injury counts) */}
+            {((pick as any).team_news?.home || (pick as any).team_news?.away) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(pick as any).team_news?.home && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <span className="text-muted-foreground">Injuries</span>
+                      <span className="font-medium">{(pick as any).team_news.home.injuries ?? 0}</span>
+                      {(pick as any).team_news.home.suspended !== undefined && (
+                        <>
+                          <span className="text-muted-foreground">Suspended</span>
+                          <span className="font-medium">{(pick as any).team_news.home.suspended ?? 0}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {(pick as any).team_news?.away && (
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <span className="text-muted-foreground">Injuries</span>
+                      <span className="font-medium">{(pick as any).team_news.away.injuries ?? 0}</span>
+                      {(pick as any).team_news.away.suspended !== undefined && (
+                        <>
+                          <span className="text-muted-foreground">Suspended</span>
+                          <span className="font-medium">{(pick as any).team_news.away.suspended ?? 0}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {!(pick as any).home_news && !(pick as any).away_news && !(pick as any).team_news?.home && !(pick as any).team_news?.away && (
               <div className="text-muted-foreground text-sm italic">
                 Team news currently unavailable
-              </div>
-            )}
-            {(pick as any).team_news.home && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-muted-foreground">Injuries</span>
-                  <span className="font-medium">{(pick as any).team_news.home.injuries ?? 0}</span>
-                </div>
-              </div>
-            )}
-            {(pick as any).team_news.away && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="text-muted-foreground">Injuries</span>
-                  <span className="font-medium">{(pick as any).team_news.away.injuries ?? 0}</span>
-                </div>
               </div>
             )}
           </div>

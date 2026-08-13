@@ -65,7 +65,18 @@ function PickItem({ pick, clickable = true, onRemove }: { pick: Pick; clickable?
       )}
       <div className="flex items-center justify-between mb-1">
         <span className="text-[10px] text-muted-foreground">{pick.league}</span>
-        {getStatusBadge(pick.status)}
+        <div className="flex items-center gap-2">
+          {/* Backed count */}
+          {(pick as any).backed_count > 0 && (
+            <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {(pick as any).backed_count}
+            </span>
+          )}
+          {getStatusBadge(pick.status)}
+        </div>
       </div>
       <h3 className="text-[13px] font-medium truncate">{pick.fixture || (pick as any).match || "Unknown match"}</h3>
       <div className="flex items-center justify-between mt-2 text-[11px]">
