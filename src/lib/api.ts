@@ -40,6 +40,18 @@ export const ENDPOINTS = {
   // Public
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
+  // Slip Reviews
+  slipReview: (id: number) => `/algo/slip-reviews/${id}/`,
+  slipReviewView: (id: number, view: string) => `/algo/slip-reviews/${id}/?view=${view}`,
+  slipReviewStreamToken: (id: number) => `/algo/slip-reviews/${id}/stream-token/`,
+  slipReviewEvents: (id: number, afterId?: number, limit = 100) => {
+    let url = `/algo/slip-reviews/${id}/events/`;
+    const params = new URLSearchParams();
+    if (afterId !== undefined) params.set("after_id", String(afterId));
+    params.set("limit", String(limit));
+    return `${url}?${params.toString()}`;
+  },
+  slipReviewCreate: "/algo/slip-reviews/sportybet/",
 } as const;
 
 export function apiUrl(path: string): string {
@@ -664,6 +676,160 @@ export interface PickDetailResponse {
 // Alias for backwards compatibility (the detailed pick format)
 export type PickDetail = Pick;
 
+// ============== Slip Review Types ====================================
+
+export type SlipReviewStatus = "queued" | "analysing" | "completed" | "partial" | "failed";
+
+export interface SlipReviewProgress {
+  phase: string;
+  total: number;
+  completed: number;
+  percent: number;
+  message?: string;
+}
+
+export interface SlipReviewSummary {
+  progress: SlipReviewProgress;
+}
+
+export interface SlipReviewQueued {
+  id: number;
+  source: string;
+  status: SlipReviewStatus;
+  summary: SlipReviewSummary;
+  latest_event_id: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface StreamTokenResponse {
+  ticket: string;
+  expires_in: number;
+  expires_at: string;
+  ws_path: string;
+  ws_url: string;
+}
+
+export interface SlipReviewEvent {
+  id: number;
+  review_id: number;
+  event_type: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface SlipReviewEventsResponse {
+  review_id: number;
+  status: SlipReviewStatus;
+  progress: SlipReviewProgress;
+  latest_event_id: number;
+  events: SlipReviewEvent[];
+}
+
+export interface UserPick {
+  market: string;
+  odds: number;
+  confidence_score: number;
+  confidence_label: string;
+  verdict: string;
+  summary: string;
+}
+
+export interface RecommendedPick {
+  market: string;
+  confidence_score: number;
+  confidence_label: string;
+}
+
+export interface GameAnalysis {
+  positive_evidence: string[];
+  risk_evidence: string[];
+  conclusion: string;
+}
+
+export interface Recommendation {
+  action: string;
+  pick: RecommendedPick;
+  why: string[];
+}
+
+export interface GameData {
+  id: string;
+  match: string;
+  kickoff: string;
+  user_pick: UserPick;
+  analysis: GameAnalysis;
+  recommendation: Recommendation;
+}
+
+export interface LegCompletedPayload {
+  index: number;
+  order: number;
+  match: string;
+  market: string;
+  status: string;
+  verdict: string;
+  cache_status: string;
+  completed: number;
+  total: number;
+  game: GameData;
+  recommended_pick?: RecommendedPick & { match: string; action: string; changed: boolean; included_in_estimate: boolean };
+}
+
+export interface TicketVerdict {
+  title: string;
+  message: string;
+}
+
+export interface TicketSummary {
+  strong: number;
+  playable: number;
+  risky: number;
+  review: number;
+}
+
+export interface TicketOddsInfo {
+  confidence_score: number;
+  label: string;
+  estimated_success_percent: number;
+  summary: TicketSummary;
+}
+
+export interface TicketRecommendedPicks extends TicketOddsInfo {
+  estimated_odds: number;
+  changes: number;
+}
+
+export interface SlipReviewTicket {
+  total_games: number;
+  original_odds: number;
+  user_picks: TicketOddsInfo;
+  recommended_picks: TicketRecommendedPicks;
+  verdict: TicketVerdict;
+}
+
+export interface RecommendedTicket {
+  confidence_score: number;
+  confidence_label: string;
+  estimated_success_percent: number;
+  estimated_odds: number;
+  picks: RecommendedPick[];
+}
+
+export interface SlipReviewPublic {
+  id: number;
+  source: string;
+  status: SlipReviewStatus;
+  created_at: string;
+  updated_at: string;
+  progress: SlipReviewProgress;
+  latest_event_id: number;
+  ticket?: SlipReviewTicket;
+  games: GameData[];
+  recommended_ticket?: RecommendedTicket;
+  disclaimer?: string;
+}
+
 // ============== API ==================================================
 
 export const api = {
@@ -897,6 +1063,37 @@ export const api = {
         }
       };
     });
+  },
+
+  // ============== Slip Review API =====
+
+  /** POST /api/algo/slip-reviews/sportybet/ — Create a new slip review */
+  async createSlipReview(params: { code?: string; url?: string; days?: number }): Promise<SlipReviewQueued> {
+    const body: Record<string, unknown> = {};
+    if (params.code) body.code = params.code;
+    if (params.url) body.url = params.url;
+    if (params.days !== undefined) body.days = params.days;
+    return request<SlipReviewQueued>(ENDPOINTS.slipReviewCreate, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** POST /api/algo/slip-reviews/{id}/stream-token/ — Get websocket stream token */
+  async getSlipReviewStreamToken(reviewId: number): Promise<StreamTokenResponse> {
+    return request<StreamTokenResponse>(ENDPOINTS.slipReviewStreamToken(reviewId), {
+      method: "POST",
+    });
+  },
+
+  /** GET /api/algo/slip-reviews/{id}/?view=public — Get public slip review */
+  async getSlipReviewPublic(reviewId: number): Promise<SlipReviewPublic> {
+    return request<SlipReviewPublic>(ENDPOINTS.slipReviewView(reviewId, "public"));
+  },
+
+  /** GET /api/algo/slip-reviews/{id}/events/ — Get events after a specific ID */
+  async getSlipReviewEvents(reviewId: number, afterId?: number, limit = 100): Promise<SlipReviewEventsResponse> {
+    return request<SlipReviewEventsResponse>(ENDPOINTS.slipReviewEvents(reviewId, afterId, limit));
   },
 };
 

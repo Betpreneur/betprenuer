@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target, ClipboardList } from "lucide-react";
 import { useBackedCount, clearBackedCount } from "@/hooks/useBackedPicks";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
@@ -10,6 +10,7 @@ const navItems = [
   { to: "/top-pick", label: "Top Picks", icon: Trophy },
   { to: "/home", label: "All Games", icon: Home },
   { to: "/my-picks", label: "My Picks", icon: Target },
+  { to: "/slip-review", label: "Slip Review", icon: ClipboardList },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;

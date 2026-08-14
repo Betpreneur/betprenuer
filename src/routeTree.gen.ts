@@ -23,6 +23,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as GamesIdRouteImport } from './routes/games.$id'
+import { Route as SlipReviewRouteImport } from './routes/slip-review'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -94,6 +95,11 @@ const GamesIdRoute = GamesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => GamesRoute,
 } as any)
+const SlipReviewRoute = SlipReviewRouteImport.update({
+  id: '/slip-review',
+  path: '/slip-review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/slip-review': typeof SlipReviewRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/slip-review': typeof SlipReviewRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/slip-review': typeof SlipReviewRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
+    | '/slip-review'
     | '/games/$id'
     | '/match/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
+    | '/slip-review'
     | '/games/$id'
     | '/match/$id'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
+    | '/slip-review'
     | '/games/$id'
     | '/match/$id'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TopPickRoute: typeof TopPickRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  SlipReviewRoute: typeof SlipReviewRoute
   MatchIdRoute: typeof MatchIdRoute
 }
 
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/slip-review': {
+      id: '/slip-review'
+      path: '/slip-review'
+      fullPath: '/slip-review'
+      preLoaderRoute: typeof SlipReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/match/$id': {
       id: '/match/$id'
       path: '/match/$id'
@@ -337,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TopPickRoute: TopPickRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  SlipReviewRoute: SlipReviewRoute,
   MatchIdRoute: MatchIdRoute,
 }
 export const routeTree = rootRouteImport
