@@ -41,6 +41,7 @@ export const ENDPOINTS = {
   algoPublicRecord: "/algo/public/record/",
   algoPublicSummary: "/algo/public/summary/",
   // Slip Reviews
+  slipReviews: (limit = 20) => `/algo/slip-reviews/?limit=${limit}`,
   slipReview: (id: number) => `/algo/slip-reviews/${id}/`,
   slipReviewView: (id: number, view: string) => `/algo/slip-reviews/${id}/?view=${view}`,
   slipReviewStreamToken: (id: number) => `/algo/slip-reviews/${id}/stream-token/`,
@@ -830,6 +831,34 @@ export interface SlipReviewPublic {
   disclaimer?: string;
 }
 
+// Slip Reviews List Types
+export interface SlipReviewPick {
+  match: string;
+  your_pick: {
+    market: string;
+    odds: number;
+    confidence_score: number;
+    verdict: string;
+  };
+  ai_pick: {
+    market: string;
+    confidence_score: number;
+    action: string;
+  };
+}
+
+export interface SlipReviewListItem {
+  id: number;
+  number_of_games: number;
+  status: SlipReviewStatus;
+  picks: SlipReviewPick[];
+}
+
+export interface SlipReviewsResponse {
+  count: number;
+  reviews: SlipReviewListItem[];
+}
+
 // ============== API ==================================================
 
 export const api = {
@@ -1094,6 +1123,11 @@ export const api = {
   /** GET /api/algo/slip-reviews/{id}/events/ — Get events after a specific ID */
   async getSlipReviewEvents(reviewId: number, afterId?: number, limit = 100): Promise<SlipReviewEventsResponse> {
     return request<SlipReviewEventsResponse>(ENDPOINTS.slipReviewEvents(reviewId, afterId, limit));
+  },
+
+  /** GET /api/algo/slip-reviews/ — Get all slip reviews for user */
+  async getSlipReviews(limit = 20): Promise<SlipReviewsResponse> {
+    return request<SlipReviewsResponse>(ENDPOINTS.slipReviews(limit));
   },
 };
 

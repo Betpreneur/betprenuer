@@ -24,6 +24,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as GamesIdRouteImport } from './routes/games.$id'
 import { Route as SlipReviewRouteImport } from './routes/slip-review'
+import { Route as SlipReviewsRouteImport } from './routes/slip-reviews'
+import { Route as SlipReviewIdRouteImport } from './routes/slip-review.$id'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -100,6 +102,16 @@ const SlipReviewRoute = SlipReviewRouteImport.update({
   path: '/slip-review',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlipReviewsRoute = SlipReviewsRouteImport.update({
+  id: '/slip-reviews',
+  path: '/slip-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
+  id: '/slip-review/$id',
+  path: '/slip-review/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,6 +127,8 @@ export interface FileRoutesByFullPath {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/slip-review': typeof SlipReviewRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -132,6 +146,8 @@ export interface FileRoutesByTo {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/slip-review': typeof SlipReviewRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -150,6 +166,8 @@ export interface FileRoutesById {
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
   '/slip-review': typeof SlipReviewRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
 }
@@ -169,6 +187,8 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/slip-review'
+    | '/slip-review/$id'
+    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +206,8 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/slip-review'
+    | '/slip-review/$id'
+    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
   id:
@@ -203,6 +225,8 @@ export interface FileRouteTypes {
     | '/top-pick'
     | '/verify-email'
     | '/slip-review'
+    | '/slip-review/$id'
+    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
   fileRoutesById: FileRoutesById
@@ -221,6 +245,8 @@ export interface RootRouteChildren {
   TopPickRoute: typeof TopPickRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   SlipReviewRoute: typeof SlipReviewRoute
+  SlipReviewIdRoute: typeof SlipReviewIdRoute
+  SlipReviewsRoute: typeof SlipReviewsRoute
   MatchIdRoute: typeof MatchIdRoute
 }
 
@@ -317,6 +343,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlipReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/slip-reviews': {
+      id: '/slip-reviews'
+      path: '/slip-reviews'
+      fullPath: '/slip-reviews'
+      preLoaderRoute: typeof SlipReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/slip-review/$id': {
+      id: '/slip-review/$id'
+      path: '/slip-review/$id'
+      fullPath: '/slip-review/$id'
+      preLoaderRoute: typeof SlipReviewIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/match/$id': {
       id: '/match/$id'
       path: '/match/$id'
@@ -358,6 +398,8 @@ const rootRouteChildren: RootRouteChildren = {
   TopPickRoute: TopPickRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   SlipReviewRoute: SlipReviewRoute,
+  SlipReviewIdRoute: SlipReviewIdRoute,
+  SlipReviewsRoute: SlipReviewsRoute,
   MatchIdRoute: MatchIdRoute,
 }
 export const routeTree = rootRouteImport
