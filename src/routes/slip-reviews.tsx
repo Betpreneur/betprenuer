@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewsResponse, type SlipReviewListItem } from "@/lib/api";
+import { ClipboardList, Plus, ArrowRight, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/slip-reviews")({
   head: () => ({
@@ -13,80 +14,116 @@ export const Route = createFileRoute("/slip-reviews")({
   component: SlipReviewsPage,
 });
 
-function getStatusColor(status: string) {
+function getStatusIcon(status: string) {
   switch (status) {
     case "completed":
-      return "bg-brand-green/20 text-brand-green border-brand-green/40";
+      return <CheckCircle2 className="w-4 h-4 text-win-green" />;
     case "partial":
-      return "bg-amber-500/20 text-amber-400 border-amber-500/40";
+      return <AlertTriangle className="w-4 h-4 text-amber-400" />;
     case "failed":
-      return "bg-red-500/20 text-red-400 border-red-500/40";
-    case "analysing":
-      return "bg-blue-500/20 text-blue-400 border-blue-500/40";
+      return <XCircle className="w-4 h-4 text-danger-red" />;
     default:
-      return "bg-gray-500/20 text-gray-400 border-gray-500/40";
+      return <div className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" />;
   }
 }
 
-function getVerdictColor(verdict: string) {
-  switch (verdict) {
-    case "replace":
-      return "text-amber-400";
-    case "risky":
-      return "text-red-400";
-    case "playable":
-      return "text-brand-green";
-    case "strong":
-      return "text-emerald-400";
+function getStatusStyle(status: string) {
+  switch (status) {
+    case "completed":
+      return "bg-win-green/10 text-win-green border-win-green/30";
+    case "partial":
+      return "bg-amber-500/10 text-amber-400 border-amber-500/30";
+    case "failed":
+      return "bg-danger-red/10 text-danger-red border-danger-red/30";
+    case "analysing":
+      return "bg-info-blue/10 text-info-blue border-info-blue/30";
     default:
-      return "text-gray-400";
+      return "bg-muted text-muted-foreground border-muted";
+  }
+}
+
+function getVerdictStyle(verdict: string, action: string) {
+  if (action === "replace") {
+    return { icon: "🔄", bg: "bg-amber-500/10", text: "text-amber-400", label: "Replace" };
+  }
+  switch (verdict) {
+    case "risky":
+      return { icon: "⚠️", bg: "bg-danger-red/10", text: "text-danger-red", label: "Risky" };
+    case "playable":
+      return { icon: "✅", bg: "bg-win-green/10", text: "text-win-green", label: "Playable" };
+    case "strong":
+      return { icon: "💎", bg: "bg-emerald-500/10", text: "text-emerald-400", label: "Strong" };
+    default:
+      return { icon: "❓", bg: "bg-muted", text: "text-muted-foreground", label: verdict };
   }
 }
 
 function SlipReviewItem({ review }: { review: SlipReviewListItem }) {
+  const changesCount = review.picks.filter(p => p.ai_pick.action === "replace").length;
+  
   return (
     <Link
       to="/slip-review/$id"
       params={{ id: String(review.id) }}
       className="block group"
     >
-      <div className="bg-card border border-border rounded-xl p-4 hover:border-brand-green/40 transition-colors">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
+      <div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border hover:border-brand-green/60 hover:shadow-[0_10px_30px_-12px_rgba(34,197,94,0.35)] hover:-translate-y-0.5 transition-all duration-200">
+        {/* Status strip */}
+        <div className="flex items-center justify-between px-4 pt-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-body-text">#{review.id}</span>
-            <span className="text-xs text-muted-foreground">
-              {review.number_of_games} {review.number_of_games === 1 ? "game" : "games"}
+            {getStatusIcon(review.status)}
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {review.number_of_games} {review.number_of_games === 1 ? "selection" : "selections"}
             </span>
           </div>
-          <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${getStatusColor(review.status)}`}>
+          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${getStatusStyle(review.status)}`}>
             {review.status}
           </span>
         </div>
 
-        {/* Picks Preview */}
-        <div className="space-y-2">
-          {review.picks.slice(0, 3).map((pick, index) => (
-            <div key={index} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground truncate flex-1">{pick.match}</span>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-muted-foreground line-through">{pick.your_pick.market}</span>
-                {pick.ai_pick.action === "replace" && (
-                  <>
-                    <span className="text-brand-green">→</span>
-                    <span className={`font-medium ${getVerdictColor(pick.ai_pick.action)}`}>
-                      {pick.ai_pick.market}
-                    </span>
-                  </>
-                )}
+        {/* Content */}
+        <div className="flex-1 p-4">
+          {/* Picks Preview */}
+          <div className="space-y-3">
+            {review.picks.slice(0, 3).map((pick, index) => {
+              const verdictStyle = getVerdictStyle(pick.your_pick.verdict, pick.ai_pick.action);
+              return (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-[13px] text-foreground truncate flex-1 font-medium">{pick.match}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[12px] text-muted-foreground line-through">{pick.your_pick.market}</span>
+                    {pick.ai_pick.action === "replace" && (
+                      <>
+                        <ArrowRight className="w-3 h-3 text-brand-green" />
+                        <span className="text-[12px] font-semibold text-brand-green">
+                          {pick.ai_pick.market}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {review.picks.length > 3 && (
+              <div className="text-[11px] text-muted-foreground">
+                +{review.picks.length - 3} more selections
+              </div>
+            )}
+          </div>
+
+          {/* Changes indicator */}
+          {changesCount > 0 && (
+            <div className="mt-4 pt-3 border-t border-border/30">
+              <div className="flex items-center gap-2 text-amber-400">
+                <span className="text-xs font-semibold">{changesCount} pick{changesCount > 1 ? "s" : ""} recommended to change</span>
               </div>
             </div>
-          ))}
-          {review.picks.length > 3 && (
-            <div className="text-xs text-muted-foreground">
-              +{review.picks.length - 3} more
-            </div>
           )}
+        </div>
+
+        {/* Arrow indicator */}
+        <div className="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <ArrowRight className="w-5 h-5 text-brand-green" />
         </div>
       </div>
     </Link>
@@ -95,18 +132,9 @@ function SlipReviewItem({ review }: { review: SlipReviewListItem }) {
 
 function SlipReviewsSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-card border border-border rounded-xl p-4 animate-pulse">
-          <div className="flex items-center justify-between mb-3">
-            <div className="h-4 w-20 bg-subtle-bg rounded" />
-            <div className="h-5 w-16 bg-subtle-bg rounded" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-4 w-full bg-subtle-bg rounded" />
-            <div className="h-4 w-3/4 bg-subtle-bg rounded" />
-          </div>
-        </div>
+    <div className="grid gap-4 md:grid-cols-2">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-40 rounded-2xl bg-card border border-border animate-pulse" />
       ))}
     </div>
   );
@@ -153,40 +181,51 @@ function SlipReviewsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-body-text">My Slip Reviews</h1>
-          <p className="text-sm text-muted-foreground">
-            {reviews?.count || 0} slip reviews
-          </p>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-brand-green/10">
+            <ClipboardList className="w-6 h-6 text-brand-green" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Slip Reviews</h1>
+            <p className="text-sm text-muted-foreground">
+              {reviews?.count || 0} slip{reviews?.count !== 1 ? "s" : ""} analyzed
+            </p>
+          </div>
         </div>
         <Link
           to="/slip-review"
-          className="px-4 py-2 rounded-lg bg-brand-green text-primary-foreground text-sm font-medium hover:bg-brand-green/90 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
         >
+          <Plus className="w-4 h-4" />
           New Review
         </Link>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 mb-4">
+        <div className="p-4 rounded-xl bg-danger-red/10 border border-danger-red/30 text-danger-red mb-6">
           {error}
         </div>
       )}
 
       {reviews && reviews.reviews.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border rounded-2xl">
+          <div className="p-4 rounded-full bg-subtle-bg mb-4">
+            <ClipboardList className="w-8 h-8 text-muted-foreground" />
+          </div>
           <p className="text-muted-foreground mb-4">No slip reviews yet</p>
           <Link
             to="/slip-review"
-            className="inline-block px-4 py-2 rounded-lg bg-brand-green text-primary-foreground text-sm font-medium hover:bg-brand-green/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
           >
+            <Plus className="w-4 h-4" />
             Analyze Your First Slip
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {reviews?.reviews.map((review) => (
             <SlipReviewItem key={review.id} review={review} />
           ))}
