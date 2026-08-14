@@ -177,7 +177,7 @@ function HomePage() {
 
   const load = () => {
     setError(false);
-    api.getAlgoGames()
+    api.getAlgoGames(undefined, false, "compact")
       .then(setData)
       .catch((err) => {
         // If 401/unauthorized, session expired - redirect to login

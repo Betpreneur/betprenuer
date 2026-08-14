@@ -1007,18 +1007,26 @@ export const api = {
   },
 
   /** GET /algo/picks/ — Daily picks (optional date) */
-  async getTodayPicks(date?: string): Promise<TodayPicksResponse> {
-    const url = date ? `${ENDPOINTS.algoPicks}?date=${date}` : ENDPOINTS.algoPicks;
-    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}`);
+  async getTodayPicks(date?: string, view?: string): Promise<TodayPicksResponse> {
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (view) params.set("view", view);
+    const queryString = params.toString();
+    const url = queryString ? `${ENDPOINTS.algoPicks}?${queryString}` : ENDPOINTS.algoPicks;
+    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}:${view ?? "full"}`);
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
-  async getAlgoGames(date?: string, bypassCache = false): Promise<AlgoGamesResponse> {
-    const cacheKey = `algo:games:${date ?? "today"}`;
+  async getAlgoGames(date?: string, bypassCache = false, view?: string): Promise<AlgoGamesResponse> {
+    const cacheKey = `algo:games:${date ?? "today"}:${view ?? "full"}`;
     if (bypassCache) {
       clearCache(cacheKey);
     }
-    const url = date ? `${ENDPOINTS.algoGames}?date=${date}` : ENDPOINTS.algoGames;
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (view) params.set("view", view);
+    const queryString = params.toString();
+    const url = queryString ? `${ENDPOINTS.algoGames}?${queryString}` : ENDPOINTS.algoGames;
     return requestCached<AlgoGamesResponse>(url, cacheKey);
   },
 
@@ -1036,12 +1044,16 @@ export const api = {
   },
 
   /** GET /algo/top-pick/ — Top pick of the day */
-  async getTopPick(date?: string, bypassCache = false): Promise<TopPickResponse> {
-    const cacheKey = `algo:top-pick:${date ?? "today"}`;
+  async getTopPick(date?: string, bypassCache = false, view?: string): Promise<TopPickResponse> {
+    const cacheKey = `algo:top-pick:${date ?? "today"}:${view ?? "full"}`;
     if (bypassCache) {
       clearCache(cacheKey);
     }
-    const url = date ? `${ENDPOINTS.algoTopPick}?date=${date}` : ENDPOINTS.algoTopPick;
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (view) params.set("view", view);
+    const queryString = params.toString();
+    const url = queryString ? `${ENDPOINTS.algoTopPick}?${queryString}` : ENDPOINTS.algoTopPick;
     return requestCached<TopPickResponse>(url, cacheKey);
   },
 
