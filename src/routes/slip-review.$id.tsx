@@ -233,7 +233,7 @@ function SlipReviewDetailPage() {
       {/* Actions */}
       <div className="mt-8 flex justify-center">
         <Link
-          to="/slip-review"
+          to="/slip-review/new"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-green text-primary-foreground font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />

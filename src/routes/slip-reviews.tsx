@@ -196,7 +196,7 @@ function SlipReviewsPage() {
           </div>
         </div>
         <Link
-          to="/slip-review"
+          to="/slip-review/new"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />
@@ -217,7 +217,7 @@ function SlipReviewsPage() {
           </div>
           <p className="text-muted-foreground mb-4">No slip reviews yet</p>
           <Link
-            to="/slip-review"
+            to="/slip-review/new"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />

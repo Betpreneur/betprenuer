@@ -103,8 +103,8 @@ const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlipReviewRoute = SlipReviewRouteImport.update({
-  id: '/slip-review',
-  path: '/slip-review',
+  id: '/slip-review/new',
+  path: '/slip-review/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlipReviewsRoute = SlipReviewsRouteImport.update({
@@ -126,8 +126,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review': typeof SlipReviewRoute
   '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-review/new': typeof SlipReviewRoute
   '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
@@ -145,8 +145,8 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review': typeof SlipReviewRoute
   '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-review/new': typeof SlipReviewRoute
   '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
@@ -165,8 +165,8 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review': typeof SlipReviewRoute
   '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-review/new': typeof SlipReviewRoute
   '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
@@ -186,8 +186,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review'
     | '/slip-review/$id'
+    | '/slip-review/new'
     | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
@@ -205,8 +205,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review'
     | '/slip-review/$id'
+    | '/slip-review/new'
     | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
@@ -224,8 +224,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review'
     | '/slip-review/$id'
+    | '/slip-review/new'
     | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
@@ -336,10 +336,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/slip-review': {
-      id: '/slip-review'
-      path: '/slip-review'
-      fullPath: '/slip-review'
+    '/slip-review/new': {
+      id: '/slip-review/new'
+      path: '/slip-review/new'
+      fullPath: '/slip-review/new'
       preLoaderRoute: typeof SlipReviewRouteImport
       parentRoute: typeof rootRouteImport
     }

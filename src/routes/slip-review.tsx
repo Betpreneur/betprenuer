@@ -4,11 +4,11 @@ import { useAuth } from "@/lib/auth";
 import { useSlipReview } from "@/hooks/useSlipReview";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
 
-export const Route = createFileRoute("/slip-review")({
+export const Route = createFileRoute("/slip-review/new")({
   head: () => ({
     meta: [
-      { title: "Slip Review - Betpreneur" },
-      { name: "description", content: "Review your SportyBet slip with AI analysis." },
+      { title: "New Slip Review - Betpreneur" },
+      { name: "description", content: "Analyze your SportyBet slip with AI." },
     ],
   }),
   component: SlipReviewPage,

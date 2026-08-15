@@ -10,7 +10,7 @@ const navItems = [
   { to: "/top-pick", label: "Top Picks", icon: Trophy },
   { to: "/home", label: "All Games", icon: Home },
   { to: "/my-picks", label: "My Picks", icon: Target },
-  { to: "/slip-reviews", label: "Slip Reviews", icon: ClipboardList },
+  { to: "/slip-reviews", label: "My Slip Reviews", icon: ClipboardList },
   { to: "/record", label: "Record", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
