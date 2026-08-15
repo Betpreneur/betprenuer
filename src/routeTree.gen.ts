@@ -97,6 +97,11 @@ const GamesIdRoute = GamesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => GamesRoute,
 } as any)
+const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
+  id: '/slip-review/$id',
+  path: '/slip-review/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SlipReviewRoute = SlipReviewRouteImport.update({
   id: '/slip-review',
   path: '/slip-review',
@@ -105,11 +110,6 @@ const SlipReviewRoute = SlipReviewRouteImport.update({
 const SlipReviewsRoute = SlipReviewsRouteImport.update({
   id: '/slip-reviews',
   path: '/slip-reviews',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
-  id: '/slip-review/$id',
-  path: '/slip-review/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
