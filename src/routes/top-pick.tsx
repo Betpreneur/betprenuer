@@ -103,7 +103,7 @@ function TopPickPage() {
   useEffect(() => {
     if (authLoading || !isAuthed) return;
     setLoading(true);
-    api.getTodayPicks()
+    api.getTodayPicks(undefined, "compact")
       .then(res => {
         // Flatten picks and attach teams data from fixture
         const all = res.fixtures?.flatMap((f: any) => 
