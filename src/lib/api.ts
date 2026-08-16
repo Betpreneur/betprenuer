@@ -1007,13 +1007,13 @@ export const api = {
   },
 
   /** GET /algo/picks/ — Daily picks (optional date) */
-  async getTodayPicks(date?: string, view?: string): Promise<TodayPicksResponse> {
+  async getTodayPicks(date?: string, view = "compact"): Promise<TodayPicksResponse> {
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (view) params.set("view", view);
     const queryString = params.toString();
     const url = queryString ? `${ENDPOINTS.algoPicks}?${queryString}` : ENDPOINTS.algoPicks;
-    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}:${view ?? "full"}`);
+    return requestCached<TodayPicksResponse>(url, `algo:picks:${date ?? "today"}:${view}`);
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
