@@ -14,18 +14,17 @@ function GameAnalysisPage() {
   const [error, setError] = useState(false);
   const [loadingId, setLoadingId] = useState(true);
 
+  const { id } = Route.useParams();
+
   useEffect(() => {
-    // Get ID from URL path: games/1234567 -> 1234567
-    const pathname = window.location.pathname;
-    const match = pathname.match(/\/games\/(\d+)/);
-    const gameId = match ? match[1] : null;
+    const gameId = decodeURIComponent(id || "").trim();
 
     setLoadingId(false);
     if (!gameId) { setError(true); return; }
     if (!isAuthed) return;
 
     api.getGameDetail(gameId).then(setData).catch(() => setError(true));
-  }, [isAuthed]);
+  }, [isAuthed, id]);
 
   if (loading || loadingId) return <div className="p-4">Loading...</div>;
   if (error || !data) return <div className="p-4">Failed load.</div>;

@@ -31,7 +31,7 @@ export const ENDPOINTS = {
   algoTopPick: "/algo/top-pick/",
   algoTodayPicks: "/algo/picks/",
   // Games backed endpoints
-  algoGame: (matchId: string) => `/algo/games/${matchId}/`,
+  algoGame: (matchId: string) => `/algo/games/${encodeURIComponent(matchId)}/`,
   algoBackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
   algoUnbackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
   algoBackedGames: (date?: string) => `/algo/games/backed/${date ? `?date=${date}` : ""}`,
