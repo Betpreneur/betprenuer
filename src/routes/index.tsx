@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type PublicSummary } from "@/lib/api";
-import { TrendingUp, ShieldCheck, Zap, BarChart3, ArrowRight, Trophy, Target, Flame, Zap as Lightning } from "lucide-react";
+import { TrendingUp, ShieldCheck, Zap, BarChart3, ArrowRight, Trophy, Target, Flame, Zap as Lightning, Search, AlertTriangle, Info } from "lucide-react";
 import heroStadium from "@/assets/hero-stadium.jpg";
 import heroAnalytics from "@/assets/hero-analytics.jpg";
 
@@ -254,6 +254,56 @@ function Landing() {
         </ol>
       </section>
 
+      {/* Quick Slip Review Section */}
+      <section className="rounded-2xl border border-brand-border bg-card p-6 md:p-8">
+        <div className="text-center mb-6">
+          <h2 className="text-[20px] md:text-[24px] font-bold">
+            Quick Slip Check
+          </h2>
+          <p className="text-[14px] text-muted-foreground mt-2">
+            Paste your SportyBet slip code for instant AI analysis
+          </p>
+        </div>
+
+        <div className="max-w-md mx-auto">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const input = form.querySelector('input') as HTMLInputElement;
+            if (input?.value.trim()) {
+              window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
+            }
+          }}>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter slip code (e.g., V5AU3U)"
+                className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:border-brand-green"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const input = e.currentTarget;
+                    if (input.value.trim()) {
+                      window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
+                    }
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green/90 text-primary-foreground font-bold px-5 py-3 rounded-lg transition-all hover:scale-105"
+              >
+                <Search className="h-4 w-4" />
+                Analyze
+              </button>
+            </div>
+          </form>
+          <p className="text-[12px] text-muted-foreground text-center mt-3">
+            Works with SportyBet slips • Free while in beta
+          </p>
+        </div>
+      </section>
+
       {/* Final CTA - Dramatic gaming effect */}
       <section className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/20 via-card to-teal-accent/10 p-8 text-center">
         {/* Animated background elements */}
@@ -300,6 +350,37 @@ function Landing() {
               Check record
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Legal Notices */}
+      <section className="space-y-4 pt-8 border-t border-border">
+        {/* Age Restriction Warning */}
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <div className="text-[14px] font-bold text-amber-400">18+ Only</div>
+            <div className="text-[12px] text-muted-foreground mt-1">
+              This service is strictly for users aged 18 and above. Please gamble responsibly.
+            </div>
+          </div>
+        </div>
+
+        {/* Gamble Responsibly */}
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-info-blue/10 border border-info-blue/30">
+          <Info className="w-5 h-5 text-info-blue shrink-0 mt-0.5" />
+          <div>
+            <div className="text-[14px] font-bold text-info-blue">Gamble Responsibly</div>
+            <div className="text-[12px] text-muted-foreground mt-1">
+              Gambling involves risk. Only bet what you can afford to lose. If you need help, contact support@betpreneur.ng or call 0700 222 7777 (Nigeria).
+            </div>
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="text-[11px] text-muted-foreground text-center pt-2">
+          <p>Betpreneur provides statistical analysis only and does not guarantee wins. Past performance does not guarantee future results. All picks are recommendations — always do your own research before betting.</p>
+          <p className="mt-2">© {new Date().getFullYear()} Betpreneur. All rights reserved.</p>
         </div>
       </section>
     </div>

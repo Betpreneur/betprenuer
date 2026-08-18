@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSlipReview } from "@/hooks/useSlipReview";
@@ -17,7 +17,8 @@ export const Route = createFileRoute("/slip-review/new")({
 function SlipReviewPage() {
   const { isAuthed, authLoading } = useAuth();
   const navigate = useNavigate();
-  const [code, setCode] = useState("");
+  const search = useSearch<{ code?: string }>();
+  const [code, setCode] = useState(search.code || "");
   const [days, setDays] = useState(3);
   
   const {
@@ -39,6 +40,13 @@ function SlipReviewPage() {
       navigate({ to: "/login" });
     }
   }, [authLoading, isAuthed, navigate]);
+
+  // Auto-submit when code is provided via URL
+  useEffect(() => {
+    if (code.trim() && isAuthed && !reviewId) {
+      startReview(code.trim(), days);
+    }
+  }, [code, isAuthed, reviewId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
