@@ -22,6 +22,8 @@ function getVerdictStyle(verdict: string) {
   switch (verdict) {
     case "replace":
       return { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", label: "Replace" };
+    case "caution":
+      return { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", label: "Caution" };
     case "risky":
       return { bg: "bg-danger-red/10", border: "border-danger-red/30", text: "text-danger-red", label: "Risky" };
     case "playable":
@@ -35,7 +37,16 @@ function getVerdictStyle(verdict: string) {
 
 export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardProps) {
   const confidenceStyle = getConfidenceStyle(game.user_pick.confidence_label);
-  const verdictStyle = getVerdictStyle(game.user_pick.verdict);
+  
+  // Use recommendation action for verdict badge if available, otherwise fall back to user_pick.verdict
+  const verdictKey = game.recommendation?.action || game.user_pick.verdict;
+  const verdictStyle = getVerdictStyle(verdictKey);
+  
+  // Get recommendation from game data or prop
+  const recommendation = game.recommendation;
+  const hasRecommendation = recommendation?.action === "replace" && recommendation?.pick;
+  const recPick = recommendedPick || (hasRecommendation ? recommendation.pick : undefined);
+  const isChanged = recommendedPick?.changed || hasRecommendation;
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-jet-surface-2 border border-border hover:border-brand-green/40 transition-all hover:-translate-y-0.5">
@@ -76,15 +87,15 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
         </div>
 
         {/* Recommendation */}
-        {recommendedPick && recommendedPick.changed && (
+        {recPick && isChanged && (
           <div className="rounded-xl bg-brand-green/10 border border-brand-green/30 p-3 mb-3">
             <div className="flex items-center gap-1.5 mb-2">
               <TrendingUp className="w-3 h-3 text-brand-green" />
               <span className="text-[10px] font-bold uppercase tracking-wider text-brand-green">Recommended</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-foreground">{recommendedPick.market}</span>
-              <span className="text-sm font-mono text-brand-green">{recommendedPick.confidence_score}%</span>
+              <span className="font-semibold text-foreground">{recPick.market}</span>
+              <span className="text-sm font-mono text-brand-green">{recPick.confidence_score}%</span>
             </div>
           </div>
         )}
