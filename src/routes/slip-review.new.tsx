@@ -46,12 +46,14 @@ function SlipReviewPage() {
     }
   }, [authLoading, isAuthed, navigate]);
 
-  // Auto-submit when code is provided via URL
+  // Auto-submit only when code is provided via URL (not for manual typing)
+  const hasUrlCode = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("code");
+  
   useEffect(() => {
-    if (code.trim() && isAuthed && !reviewId) {
+    if (hasUrlCode && code.trim() && isAuthed && !reviewId) {
       startReview(code.trim(), 3);
     }
-  }, [code, isAuthed, reviewId, startReview]);
+  }, [hasUrlCode, code, isAuthed, reviewId, startReview]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
