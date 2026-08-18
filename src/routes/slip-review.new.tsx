@@ -58,7 +58,7 @@ function SlipReviewPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (code.trim()) {
-      startReview(code.trim(), days);
+      startReview(code.trim(), 3);
     }
   };
 
