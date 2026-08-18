@@ -221,7 +221,7 @@ function SlipReviewDetailPage() {
                 ))
               ) : (
                 <div className="col-span-2 text-center py-8 text-muted-foreground">
-                  No games available
+                  {review.status === "analysing" ? "Analyzing, check back later..." : "No games available"}
                 </div>
               )}
             </div>

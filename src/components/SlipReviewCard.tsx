@@ -31,6 +31,8 @@ function getVerdictStyle(verdict: string) {
       return { bg: "bg-win-green/10", border: "border-win-green/30", text: "text-win-green", label: "Playable" };
     case "strong":
       return { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", label: "Strong" };
+    case "review":
+      return { bg: "bg-info-blue/10", border: "border-info-blue/30", text: "text-info-blue", label: "No Data" };
     default:
       return { bg: "bg-muted", border: "border-border", text: "text-muted-foreground", label: verdict || "Unknown" };
   }
@@ -48,6 +50,9 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
   const hasRecommendation = recommendation?.action === "replace" && recommendation?.pick;
   const recPick = recommendedPick || (hasRecommendation ? recommendation.pick : undefined);
   const isChanged = recommendedPick?.changed || hasRecommendation;
+  
+  // Check if this is a "no data" scenario
+  const isNoData = verdictKey === "review" || game.user_pick.verdict === "review";
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-jet-surface-2 border border-border hover:border-brand-green/40 transition-all hover:-translate-y-0.5">
@@ -65,27 +70,43 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
         <div className="text-xs text-muted-foreground mb-3">{formatKickoff(game.kickoff)}</div>
 
         {/* User Pick */}
-        <div className="rounded-xl bg-subtle-bg p-3 mb-3">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Target className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Pick</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-foreground">{game.user_pick.market}</span>
-            <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds.toFixed(2)}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex-1 h-1.5 bg-background rounded-full overflow-hidden">
-              <div
-                className={`h-full ${confidenceStyle.bar}`}
-                style={{ width: `${Math.min(100, game.user_pick.confidence_score)}%` }}
-              />
+        {isNoData ? (
+          <div className="rounded-xl bg-info-blue/10 border border-info-blue/30 p-3 mb-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Target className="w-3 h-3 text-info-blue" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-info-blue">Your Pick</span>
             </div>
-            <span className={`text-[11px] font-bold ${confidenceStyle.text}`}>
-              {game.user_pick.confidence_score}%
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-foreground">{game.user_pick.market}</span>
+              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds.toFixed(2)}</span>
+            </div>
+            <div className="mt-2 text-xs text-info-blue">
+              {game.user_pick.market} has not been backed by enough reliable match evidence for this league/team yet
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-xl bg-subtle-bg p-3 mb-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Target className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Pick</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-foreground">{game.user_pick.market}</span>
+              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex-1 h-1.5 bg-background rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${confidenceStyle.bar}`}
+                  style={{ width: `${Math.min(100, game.user_pick.confidence_score)}%` }}
+                />
+              </div>
+              <span className={`text-[11px] font-bold ${confidenceStyle.text}`}>
+                {game.user_pick.confidence_score}%
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Recommendation */}
         {recPick && isChanged && (
