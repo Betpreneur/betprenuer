@@ -26,7 +26,8 @@ export function formatKickoff(iso: string | number | null | undefined): string {
     return "–";
   }
   
-  return parsed.tz(TZ).format("HH:mm") + " WAT";
+  // Format: "Tue, 14 Aug · 19:15 WAT"
+  return parsed.tz(TZ).format("ddd, D MMM · HH:mm") + " WAT";
 }
 
 export function formatLongDate(iso: string): string {
