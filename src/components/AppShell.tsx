@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile bottom nav */}
       {isAuthed && (
         <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-[#0D0D0D] border-t border-brand-border">
-          <ul className="grid grid-cols-5">
+          <ul className="grid grid-cols-6">
             {navItems.map((n) => {
               const Icon = n.icon;
               const isActive = path === n.to || (n.to === "/top-pick" && (path === "/" || path === "/home"));
@@ -127,12 +127,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <li key={n.to}>
                   <Link
                     to={n.to}
-                    className={`flex flex-col items-center gap-1 py-3 px-2 text-[10px] ${
+                    className={`flex flex-col items-center gap-0.5 py-2.5 px-1 text-[9px] ${
                       isActive ? "text-brand-green" : "text-muted-foreground"
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
-                    <span>{n.label}</span>
+                    <Icon className="h-4 w-4" />
+                    <span className="truncate w-full text-center">{n.label}</span>
                   </Link>
                 </li>
               );
