@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { formatKickoff } from "@/lib/time";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/games/$id")({
   head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
@@ -36,6 +37,13 @@ function GameAnalysisPage() {
   
   return (
     <div className="space-y-4 p-4">
+      <Link
+        to="/home"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Link>
       <div className="flex items-center gap-2">
         {(g.competition_logo || g.league_logo) && (
           <img 

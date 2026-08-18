@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { formatKickoff } from "@/lib/time";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/games")({
   component: Page,
@@ -25,6 +26,13 @@ function Page() {
   const g = data.game;
   return (
     <div className="p-4">
+      <Link
+        to="/home"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Link>
       <h1>{g.match}</h1>
       <p>{g.league} - {formatKickoff(g.kickoff)}</p>
       <div style={{display:"flex",justifyContent:"center",gap:20,padding:20}}>
