@@ -145,7 +145,10 @@ function SlipReviewDetailPage() {
                   </div>
                 </div>
                 <div className="text-3xl font-black text-foreground mb-1">{review.ticket.user_picks.confidence_score}%</div>
-                <div className="text-sm font-medium text-muted-foreground mb-3">{review.ticket.user_picks.label}</div>
+                <div className="text-sm font-medium text-muted-foreground mb-1">{review.ticket.user_picks.label}</div>
+                <div className="text-xs text-muted-foreground mb-3">
+                  Est. success: {review.ticket.user_picks.estimated_success_percent?.toFixed(1)}%
+                </div>
                 <div className="flex gap-2 flex-wrap">
                   {Object.entries(review.ticket.user_picks.summary).map(([key, val]) => (
                     <span key={key} className="text-[10px] px-2 py-1 rounded bg-subtle-bg text-muted-foreground capitalize">
@@ -165,7 +168,10 @@ function SlipReviewDetailPage() {
                   </div>
                 </div>
                 <div className="text-3xl font-black text-brand-green mb-1">{review.ticket.recommended_picks.confidence_score}%</div>
-                <div className="text-sm font-medium text-muted-foreground mb-3">{review.ticket.recommended_picks.label}</div>
+                <div className="text-sm font-medium text-muted-foreground mb-1">{review.ticket.recommended_picks.label}</div>
+                <div className="text-xs text-muted-foreground mb-3">
+                  Est. success: {review.ticket.recommended_picks.estimated_success_percent?.toFixed(1)}%
+                </div>
                 <div className="flex gap-2 flex-wrap">
                   <span className="text-[10px] px-2 py-1 rounded bg-brand-green/10 text-brand-green">
                     Est. odds: {review.ticket.recommended_picks.estimated_odds}

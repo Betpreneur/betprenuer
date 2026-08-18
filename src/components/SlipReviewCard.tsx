@@ -102,9 +102,23 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
         )}
 
         {/* Analysis Summary */}
-        {game.analysis.conclusion && (
-          <div className="text-xs text-muted-foreground pb-3">
-            {game.analysis.conclusion}
+        {(game.analysis.conclusion || (recommendation?.why?.length > 0)) && (
+          <div className="text-xs text-muted-foreground pb-3 space-y-1">
+            {recommendation?.why?.length > 0 && (
+              <div className="mt-2 pt-2 border-t border-border/30">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-brand-green mb-1">Why this pick?</div>
+                <ul className="space-y-1">
+                  {recommendation.why.slice(0, 3).map((reason, i) => (
+                    <li key={i} className="text-[10px] text-muted-foreground line-clamp-2">
+                      • {reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {game.analysis.conclusion && !recommendation?.why?.length && (
+              <div>{game.analysis.conclusion}</div>
+            )}
           </div>
         )}
       </div>

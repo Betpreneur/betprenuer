@@ -25,7 +25,6 @@ function SlipReviewPage() {
     }
     return "";
   });
-  const [days, setDays] = useState(3);
   
   const {
     reviewId,
@@ -50,9 +49,9 @@ function SlipReviewPage() {
   // Auto-submit when code is provided via URL
   useEffect(() => {
     if (code.trim() && isAuthed && !reviewId) {
-      startReview(code.trim(), days);
+      startReview(code.trim(), 3);
     }
-  }, [code, isAuthed, reviewId, startReview, days]);
+  }, [code, isAuthed, reviewId, startReview]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,24 +100,6 @@ function SlipReviewPage() {
               placeholder="e.g., V5AU3U"
               className="w-full px-4 py-3 rounded-lg border border-border bg-card text-body-text placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:border-brand-green"
             />
-          </div>
-
-          <div>
-            <label htmlFor="days" className="block text-sm font-medium text-body-text mb-1">
-              Days until completion
-            </label>
-            <input
-              id="days"
-              type="number"
-              min="1"
-              max="30"
-              value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-body-text focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:border-brand-green"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Number of days before games in the ticket finish
-            </p>
           </div>
 
           {error && (
