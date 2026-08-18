@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { formatKickoff } from "@/lib/time";
 
 export const Route = createFileRoute("/games")({
   component: Page,
@@ -25,7 +26,7 @@ function Page() {
   return (
     <div className="p-4">
       <h1>{g.match}</h1>
-      <p>{g.league} - {g.kickoff}</p>
+      <p>{g.league} - {formatKickoff(g.kickoff)}</p>
       <div style={{display:"flex",justifyContent:"center",gap:20,padding:20}}>
         <div>{g.home_logo&&<img src={g.home_logo}width={48}/>}<div>{g.home_team}</div></div>
         <strong style={{fontSize:24}}>{g.home_score??0}-{g.away_score??0}</strong>

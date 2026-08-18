@@ -1,4 +1,5 @@
 import type { GameData, UserPick, RecommendedPick } from "../lib/api";
+import { formatKickoff } from "@/lib/time";
 import { ArrowRight, Target, TrendingUp } from "lucide-react";
 
 interface SlipReviewCardProps {
@@ -61,7 +62,7 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
       {/* Match */}
       <div className="px-4">
         <div className="font-bold text-[15px] text-foreground mb-0.5">{game.match}</div>
-        <div className="text-xs text-muted-foreground mb-3">{game.kickoff}</div>
+        <div className="text-xs text-muted-foreground mb-3">{formatKickoff(game.kickoff)}</div>
 
         {/* User Pick */}
         <div className="rounded-xl bg-subtle-bg p-3 mb-3">

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { formatKickoff } from "@/lib/time";
 
 export const Route = createFileRoute("/games/$id")({
   head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
@@ -45,7 +46,7 @@ function GameAnalysisPage() {
         )}
         <div>
           <h1 className="text-xl font-bold">{g.match}</h1>
-          <p className="text-sm text-muted-foreground">{g.league} · {g.kickoff}</p>
+          <p className="text-sm text-muted-foreground">{g.league} · {formatKickoff(g.kickoff)}</p>
         </div>
       </div>
       <div className="flex justify-center items-center gap-8 py-4">
