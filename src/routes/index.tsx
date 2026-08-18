@@ -266,38 +266,60 @@ function Landing() {
         </div>
 
         <div className="max-w-md mx-auto">
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            const input = form.querySelector('input') as HTMLInputElement;
-            if (input?.value.trim()) {
-              window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
-            }
-          }}>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter slip code (e.g., V5AU3U)"
-                className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:border-brand-green"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const input = e.currentTarget;
-                    if (input.value.trim()) {
-                      window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
+          {isAuthed ? (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const input = form.querySelector('input') as HTMLInputElement;
+              if (input?.value.trim()) {
+                window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
+              }
+            }}>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter slip code (e.g., V5AU3U)"
+                  className="flex-1 px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:border-brand-green"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const input = e.currentTarget;
+                      if (input.value.trim()) {
+                        window.location.href = `/slip-review/new?code=${encodeURIComponent(input.value.trim())}`;
+                      }
                     }
-                  }
-                }}
-              />
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green/90 text-primary-foreground font-bold px-5 py-3 rounded-lg transition-all hover:scale-105"
-              >
-                <Search className="h-4 w-4" />
-                Analyze
-              </button>
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green/90 text-primary-foreground font-bold px-5 py-3 rounded-lg transition-all hover:scale-105"
+                >
+                  <Search className="h-4 w-4" />
+                  Analyze
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="text-center space-y-4">
+              <p className="text-[14px] text-muted-foreground">
+                Sign in to analyze your slips
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green/90 text-primary-foreground font-bold px-5 py-3 rounded-lg transition-all hover:scale-105"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-2 border border-border hover:bg-subtle-bg text-foreground font-bold px-5 py-3 rounded-lg transition-all"
+                >
+                  Sign up
+                </Link>
+              </div>
             </div>
-          </form>
+          )}
           <p className="text-[12px] text-muted-foreground text-center mt-3">
             Works with SportyBet slips • Free while in beta
           </p>
