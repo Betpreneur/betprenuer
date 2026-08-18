@@ -9,72 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as TopPickRouteImport } from './routes/top-pick'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RecordRouteImport } from './routes/record'
-import { Route as MyPicksRouteImport } from './routes/my-picks'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as GamesRouteImport } from './routes/games'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MatchIdRouteImport } from './routes/match.$id'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as GamesRouteImport } from './routes/games'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MyPicksRouteImport } from './routes/my-picks'
+import { Route as RecordRouteImport } from './routes/record'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SlipReviewNewRouteImport } from './routes/slip-review.new'
+import { Route as TopPickRouteImport } from './routes/top-pick'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as GamesIdRouteImport } from './routes/games.$id'
-import { Route as SlipReviewRouteImport } from './routes/slip-review'
-import { Route as SlipReviewsRouteImport } from './routes/slip-reviews'
+import { Route as MatchIdRouteImport } from './routes/match.$id'
 import { Route as SlipReviewIdRouteImport } from './routes/slip-review.$id'
 
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TopPickRoute = TopPickRouteImport.update({
-  id: '/top-pick',
-  path: '/top-pick',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecordRoute = RecordRouteImport.update({
-  id: '/record',
-  path: '/record',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyPicksRoute = MyPicksRouteImport.update({
-  id: '/my-picks',
-  path: '/my-picks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GamesRoute = GamesRouteImport.update({
-  id: '/games',
-  path: '/games',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -82,14 +36,59 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const GamesRoute = GamesRouteImport.update({
+  id: '/games',
+  path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MatchIdRoute = MatchIdRouteImport.update({
-  id: '/match/$id',
-  path: '/match/$id',
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyPicksRoute = MyPicksRouteImport.update({
+  id: '/my-picks',
+  path: '/my-picks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecordRoute = RecordRouteImport.update({
+  id: '/record',
+  path: '/record',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlipReviewsRoute = SlipReviewsRouteImport.update({
+  id: '/slip-reviews',
+  path: '/slip-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TopPickRoute = TopPickRouteImport.update({
+  id: '/top-pick',
+  path: '/top-pick',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesIdRoute = GamesIdRouteImport.update({
@@ -97,19 +96,19 @@ const GamesIdRoute = GamesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => GamesRoute,
 } as any)
-const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
-  id: '/slip-review/$id',
-  path: '/slip-review/$id',
+const MatchIdRoute = MatchIdRouteImport.update({
+  id: '/match/$id',
+  path: '/match/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlipReviewRoute = SlipReviewRouteImport.update({
+const SlipReviewNewRoute = SlipReviewNewRouteImport.update({
   id: '/slip-review/new',
   path: '/slip-review/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlipReviewsRoute = SlipReviewsRouteImport.update({
-  id: '/slip-reviews',
-  path: '/slip-reviews',
+const SlipReviewIdRoute = SlipReviewIdRouteImport.update({
+  id: '/slip-review/$id',
+  path: '/slip-review/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -124,13 +123,13 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review/$id': typeof SlipReviewIdRoute
-  '/slip-review/new': typeof SlipReviewRoute
-  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
+  '/slip-review/new': typeof SlipReviewNewRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -143,13 +142,13 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review/$id': typeof SlipReviewIdRoute
-  '/slip-review/new': typeof SlipReviewRoute
-  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
+  '/slip-review/new': typeof SlipReviewNewRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -163,13 +162,13 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/slip-reviews': typeof SlipReviewsRoute
   '/top-pick': typeof TopPickRoute
   '/verify-email': typeof VerifyEmailRoute
-  '/slip-review/$id': typeof SlipReviewIdRoute
-  '/slip-review/new': typeof SlipReviewRoute
-  '/slip-reviews': typeof SlipReviewsRoute
   '/games/$id': typeof GamesIdRoute
   '/match/$id': typeof MatchIdRoute
+  '/slip-review/$id': typeof SlipReviewIdRoute
+  '/slip-review/new': typeof SlipReviewNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -184,13 +183,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/signup'
+    | '/slip-reviews'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review/$id'
-    | '/slip-review/new'
-    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
+    | '/slip-review/$id'
+    | '/slip-review/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -203,13 +202,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/signup'
+    | '/slip-reviews'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review/$id'
-    | '/slip-review/new'
-    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
+    | '/slip-review/$id'
+    | '/slip-review/new'
   id:
     | '__root__'
     | '/'
@@ -222,13 +221,13 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/signup'
+    | '/slip-reviews'
     | '/top-pick'
     | '/verify-email'
-    | '/slip-review/$id'
-    | '/slip-review/new'
-    | '/slip-reviews'
     | '/games/$id'
     | '/match/$id'
+    | '/slip-review/$id'
+    | '/slip-review/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,84 +241,21 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  SlipReviewsRoute: typeof SlipReviewsRoute
   TopPickRoute: typeof TopPickRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
-  SlipReviewRoute: typeof SlipReviewRoute
-  SlipReviewIdRoute: typeof SlipReviewIdRoute
-  SlipReviewsRoute: typeof SlipReviewsRoute
   MatchIdRoute: typeof MatchIdRoute
+  SlipReviewIdRoute: typeof SlipReviewIdRoute
+  SlipReviewNewRoute: typeof SlipReviewNewRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/top-pick': {
-      id: '/top-pick'
-      path: '/top-pick'
-      fullPath: '/top-pick'
-      preLoaderRoute: typeof TopPickRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/record': {
-      id: '/record'
-      path: '/record'
-      fullPath: '/record'
-      preLoaderRoute: typeof RecordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-picks': {
-      id: '/my-picks'
-      path: '/my-picks'
-      fullPath: '/my-picks'
-      preLoaderRoute: typeof MyPicksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/games': {
-      id: '/games'
-      path: '/games'
-      fullPath: '/games'
-      preLoaderRoute: typeof GamesRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -329,18 +265,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/games': {
+      id: '/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/slip-review/new': {
-      id: '/slip-review/new'
-      path: '/slip-review/new'
-      fullPath: '/slip-review/new'
-      preLoaderRoute: typeof SlipReviewRouteImport
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-picks': {
+      id: '/my-picks'
+      path: '/my-picks'
+      fullPath: '/my-picks'
+      preLoaderRoute: typeof MyPicksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/record': {
+      id: '/record'
+      path: '/record'
+      fullPath: '/record'
+      preLoaderRoute: typeof RecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/slip-reviews': {
@@ -350,18 +328,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlipReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/slip-review/$id': {
-      id: '/slip-review/$id'
-      path: '/slip-review/$id'
-      fullPath: '/slip-review/$id'
-      preLoaderRoute: typeof SlipReviewIdRouteImport
+    '/top-pick': {
+      id: '/top-pick'
+      path: '/top-pick'
+      fullPath: '/top-pick'
+      preLoaderRoute: typeof TopPickRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/match/$id': {
-      id: '/match/$id'
-      path: '/match/$id'
-      fullPath: '/match/$id'
-      preLoaderRoute: typeof MatchIdRouteImport
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games/$id': {
@@ -370,6 +348,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/$id'
       preLoaderRoute: typeof GamesIdRouteImport
       parentRoute: typeof GamesRoute
+    }
+    '/match/$id': {
+      id: '/match/$id'
+      path: '/match/$id'
+      fullPath: '/match/$id'
+      preLoaderRoute: typeof MatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/slip-review/$id': {
+      id: '/slip-review/$id'
+      path: '/slip-review/$id'
+      fullPath: '/slip-review/$id'
+      preLoaderRoute: typeof SlipReviewIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/slip-review/new': {
+      id: '/slip-review/new'
+      path: '/slip-review/new'
+      fullPath: '/slip-review/new'
+      preLoaderRoute: typeof SlipReviewNewRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -395,22 +394,13 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  SlipReviewsRoute: SlipReviewsRoute,
   TopPickRoute: TopPickRoute,
   VerifyEmailRoute: VerifyEmailRoute,
-  SlipReviewRoute: SlipReviewRoute,
-  SlipReviewIdRoute: SlipReviewIdRoute,
-  SlipReviewsRoute: SlipReviewsRoute,
   MatchIdRoute: MatchIdRoute,
+  SlipReviewIdRoute: SlipReviewIdRoute,
+  SlipReviewNewRoute: SlipReviewNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
