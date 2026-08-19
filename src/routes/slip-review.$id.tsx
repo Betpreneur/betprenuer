@@ -1,9 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth";
-import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse } from "@/lib/api";
+import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse, type SmartRandomizeResponse } from "@/lib/api";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
-import { ArrowLeft, ClipboardList, Plus, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target } from "lucide-react";
+import { ArrowLeft, ClipboardList, Plus, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target, Sparkles, Loader2 } from "lucide-react";
+
+// Obscure data source names to hide from end users
+const obscureSource = (source: string): string => {
+  const mapping: Record<string, string> = {
+    "Api-Football": "OddsFeed",
+    "Statpal": "ModelScore",
+    "OddsJam": "EdgeCalc",
+  };
+  return mapping[source] || source;
+};
+
+const obscureReason = (reason: string): string => {
+  // Replace source names in reason strings
+  let obscured = reason;
+  const sourceMapping: Record<string, string> = {
+    "Api-Football": "primary feed",
+    "Statpal": "analytics model",
+    "OddsJam": "betting engine",
+  };
+  
+  for (const [original, replacement] of Object.entries(sourceMapping)) {
+    obscured = obscured.replace(new RegExp(original, "gi"), replacement);
+  }
+  return obscured;
+};
 
 export const Route = createFileRoute("/slip-review/$id")({
   head: () => ({
@@ -44,13 +69,15 @@ function getStatusStyle(status: string) {
 }
 
 function SlipReviewDetailPage() {
-  const { isAuthed, authLoading } = useAuth();
+  const { isAuthed, loading: authLoading } = useAuth();
   const params = Route.useParams();
   const reviewId = Number(params.id);
   
   const [review, setReview] = useState<SlipReviewPublic | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [randomizedTicket, setRandomizedTicket] = useState<SmartRandomizeResponse | null>(null);
+  const [randomizing, setRandomizing] = useState(false);
 
   useEffect(() => {
     if (!isAuthed || !reviewId) return;
@@ -58,8 +85,27 @@ function SlipReviewDetailPage() {
     const fetchReview = async () => {
       try {
         setLoading(true);
+        
+        // First get the basic slip review data
         const data = await api.getSlipReviewPublic(reviewId);
-        setReview(data);
+        console.log("Initial review data:", data.status, data.smart_randomize);
+        
+        // If analysis is complete, fetch recommendations to get smart_randomize data
+        if (data.status === "completed") {
+          console.log("Status is completed, calling /recommend/ endpoint...");
+          try {
+            const recommendationData = await api.getSlipReviewRecommendation(reviewId);
+            console.log("Recommendation data:", recommendationData.smart_randomize);
+            setReview(recommendationData);
+          } catch (recErr) {
+            // Fall back to basic data if recommendation fails
+            console.warn("Failed to fetch recommendations:", recErr);
+            setReview(data);
+          }
+        } else {
+          console.log("Status is not completed:", data.status);
+          setReview(data);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load slip review");
       } finally {
@@ -76,6 +122,19 @@ function SlipReviewDetailPage() {
       window.location.href = "/login";
     }
   }, [authLoading, isAuthed]);
+
+  // Handle smart randomize
+  const handleRandomize = async (games: number) => {
+    try {
+      setRandomizing(true);
+      const result = await api.randomizeSlipReview(reviewId, games);
+      setRandomizedTicket(result);
+    } catch (err) {
+      console.error("Failed to randomize:", err);
+    } finally {
+      setRandomizing(false);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -207,7 +266,115 @@ function SlipReviewDetailPage() {
             </div>
           )}
 
+          {/* Smart Randomize Section */}
+          {!randomizedTicket && review.status === "completed" && review.smart_randomize?.available && (
+            <div className="rounded-2xl border border-brand-green/30 bg-brand-green/5 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <Sparkles className="w-5 h-5 text-brand-green" />
+                <h3 className="text-lg font-bold text-foreground">Smart Randomize</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                {review.smart_randomize.message}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {review.smart_randomize.options.map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => handleRandomize(num)}
+                    disabled={randomizing}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-green text-primary-foreground font-semibold hover:bg-brand-green/90 transition-all disabled:opacity-50"
+                  >
+                    {randomizing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4" />
+                    )}
+                    Randomize by {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Randomized Ticket Display */}
+          {randomizedTicket && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-brand-green/30 bg-brand-green/5 p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-5 h-5 text-brand-green" />
+                    <h3 className="text-lg font-bold text-foreground">Randomized Ticket</h3>
+                  </div>
+                  <button
+                    onClick={() => setRandomizedTicket(null)}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Show original
+                  </button>
+                </div>
+                
+                {/* Randomized Ticket Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div>
+                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.total_games}</div>
+                    <div className="text-xs text-muted-foreground">Games</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.confidence_score}%</div>
+                    <div className="text-xs text-muted-foreground">Confidence</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.estimated_odds.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground">Est. Odds</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.estimated_success_percent.toFixed(1)}%</div>
+                    <div className="text-xs text-muted-foreground">Est. Success</div>
+                  </div>
+                </div>
+
+                {/* Randomized Picks */}
+                <div className="space-y-2">
+                  {randomizedTicket.picks.map((pick, index) => (
+                    <div key={pick.id} className="flex items-center justify-between p-3 rounded-lg bg-card border border-border">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground">#{index + 1}</span>
+                        <div>
+                          <div className="font-medium text-foreground">{pick.match}</div>
+                          <div className="text-sm text-muted-foreground">{pick.market}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-brand-green">@{pick.odds}</div>
+                        <div className="text-xs text-muted-foreground">{pick.confidence_score}%</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Excluded picks */}
+                {randomizedTicket.excluded.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="text-sm font-medium text-muted-foreground mb-2">Excluded picks:</div>
+                    {randomizedTicket.excluded.map((ex) => (
+                      <div key={ex.id} className="text-xs text-muted-foreground py-1">
+                        • {ex.match}: {obscureReason(ex.reason)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {randomizedTicket.disclaimer && (
+                  <p className="text-xs text-muted-foreground mt-4 pt-3 border-t border-border">
+                    {randomizedTicket.disclaimer}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Game Cards */}
+          {!randomizedTicket && (
           <div>
             <h2 className="text-lg font-bold text-foreground mb-4">Selections</h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -226,6 +393,7 @@ function SlipReviewDetailPage() {
               )}
             </div>
           </div>
+          )}
 
           {/* Disclaimer */}
           {review.disclaimer && (

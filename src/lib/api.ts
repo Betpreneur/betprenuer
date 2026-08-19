@@ -44,6 +44,8 @@ export const ENDPOINTS = {
   slipReviews: (limit = 20) => `/algo/slip-reviews/?limit=${limit}`,
   slipReview: (id: number) => `/algo/slip-reviews/${id}/`,
   slipReviewView: (id: number, view: string) => `/algo/slip-reviews/${id}/?view=${view}`,
+  slipReviewRandomize: (id: number) => `/algo/slip-reviews/${id}/randomize/`,
+  slipReviewRecommend: (id: number) => `/algo/slip-reviews/${id}/recommend/`,
   slipReviewStreamToken: (id: number) => `/algo/slip-reviews/${id}/stream-token/`,
   slipReviewEvents: (id: number, afterId?: number, limit = 100) => {
     let url = `/algo/slip-reviews/${id}/events/`;
@@ -829,6 +831,51 @@ export interface SlipReviewPublic {
   games: GameData[];
   recommended_ticket?: RecommendedTicket;
   disclaimer?: string;
+  smart_randomize?: SmartRandomize;
+}
+
+export interface SmartRandomize {
+  available: boolean;
+  options: number[];
+  eligible_games: number;
+  min_confidence_score: number;
+  message: string;
+}
+
+export interface SmartRandomizeRequest {
+  games: number;
+}
+
+export interface SmartRandomizeResponse {
+  review_id: number;
+  requested_games: number;
+  available_options: number[];
+  ticket: {
+    total_games: number;
+    confidence_score: number;
+    confidence_label: string;
+    estimated_success_percent: number;
+    estimated_success_display: string;
+    estimated_odds: number;
+    odds_complete: boolean;
+    label: string;
+  };
+  picks: SmartRandomizePick[];
+  excluded: { id: string; match: string; reason: string }[];
+  disclaimer: string;
+}
+
+export interface SmartRandomizePick {
+  id: string;
+  match: string;
+  kickoff: string;
+  market: string;
+  odds: number;
+  source: string;
+  action: string;
+  confidence_score: number;
+  confidence_label: string;
+  changed_from_user_pick: boolean;
 }
 
 // Slip Reviews List Types
@@ -1140,6 +1187,19 @@ export const api = {
   /** GET /api/algo/slip-reviews/ — Get all slip reviews for user */
   async getSlipReviews(limit = 20): Promise<SlipReviewsResponse> {
     return request<SlipReviewsResponse>(ENDPOINTS.slipReviews(limit));
+  },
+
+  /** POST /api/algo/slip-reviews/{id}/randomize/ — Build a randomized ticket */
+  async randomizeSlipReview(reviewId: number, games: number): Promise<SmartRandomizeResponse> {
+    return request<SmartRandomizeResponse>(ENDPOINTS.slipReviewRandomize(reviewId), {
+      method: "POST",
+      body: JSON.stringify({ games }),
+    });
+  },
+
+  /** GET /api/algo/slip-reviews/{id}/recommend/ — Get recommendations after analysis */
+  async getSlipReviewRecommendation(reviewId: number): Promise<SlipReviewPublic> {
+    return request<SlipReviewPublic>(ENDPOINTS.slipReviewRecommend(reviewId));
   },
 };
 

@@ -15,7 +15,7 @@ export const Route = createFileRoute("/slip-review/new")({
 });
 
 function SlipReviewPage() {
-  const { isAuthed, authLoading } = useAuth();
+  const { isAuthed, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   // Get code from URL search params directly
   const [code, setCode] = useState(() => {
