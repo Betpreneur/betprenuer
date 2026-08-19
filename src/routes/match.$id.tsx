@@ -1083,25 +1083,6 @@ function MatchPage() {
 
       {/* Parent flex container for risk flag + verdict */}
       <div className="flex flex-col gap-10 h-auto">
-        {/* Risk flags - now as array */}
-        {(pick as any).risk_flags && (pick as any).risk_flags.length > 0 && (
-          <div className="bg-gradient-to-br from-amber-bg/30 to-jet-surface-2 border border-amber-text/30 rounded-xl p-4">
-            <div className="text-[12px] uppercase tracking-wide text-amber-text font-semibold mb-3 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              Watch Out
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {(pick as any).risk_flags.map((flag: string, i: number) => (
-                <span key={i} className="text-[12px] bg-amber-text/10 text-amber-text px-3 py-1.5 rounded-full font-medium">
-                  {flag.replace(/_/g, " ")}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Model verdict - now properly mapped */}
         {(pick as any).model_verdict && (
           <section className="bg-gradient-to-br from-info-bg/30 to-jet-surface-2 border border-info-blue/30 rounded-xl p-5 hover:border-info-blue/50 transition-colors">
