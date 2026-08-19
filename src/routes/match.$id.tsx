@@ -838,16 +838,6 @@ function MatchPage() {
               </div>
             )}
             
-            {/* Fixture flags */}
-            {(pick as any).fixture_context?.flags?.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {(pick as any).fixture_context.flags.map((flag: string, i: number) => (
-                  <span key={i} className="text-[11px] px-2 py-1 bg-amber-bg text-amber-text rounded">
-                    {flag.replace(/_/g, " ")}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
         </section>
       )}
