@@ -85,8 +85,23 @@ function SlipReviewDetailPage() {
     const fetchReview = async () => {
       try {
         setLoading(true);
+        
+        // First get the basic slip review data
         const data = await api.getSlipReviewPublic(reviewId);
-        setReview(data);
+        
+        // If analysis is complete, fetch recommendations to get smart_randomize data
+        if (data.status === "completed") {
+          try {
+            const recommendationData = await api.getSlipReviewRecommendation(reviewId);
+            setReview(recommendationData);
+          } catch (recErr) {
+            // Fall back to basic data if recommendation fails
+            console.warn("Failed to fetch recommendations:", recErr);
+            setReview(data);
+          }
+        } else {
+          setReview(data);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load slip review");
       } finally {

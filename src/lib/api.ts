@@ -45,6 +45,7 @@ export const ENDPOINTS = {
   slipReview: (id: number) => `/algo/slip-reviews/${id}/`,
   slipReviewView: (id: number, view: string) => `/algo/slip-reviews/${id}/?view=${view}`,
   slipReviewRandomize: (id: number) => `/algo/slip-reviews/${id}/randomize/`,
+  slipReviewRecommend: (id: number) => `/algo/slip-reviews/${id}/recommend/`,
   slipReviewStreamToken: (id: number) => `/algo/slip-reviews/${id}/stream-token/`,
   slipReviewEvents: (id: number, afterId?: number, limit = 100) => {
     let url = `/algo/slip-reviews/${id}/events/`;
@@ -1194,6 +1195,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ games }),
     });
+  },
+
+  /** GET /api/algo/slip-reviews/{id}/recommend/ — Get recommendations after analysis */
+  async getSlipReviewRecommendation(reviewId: number): Promise<SlipReviewPublic> {
+    return request<SlipReviewPublic>(ENDPOINTS.slipReviewRecommend(reviewId));
   },
 };
 
