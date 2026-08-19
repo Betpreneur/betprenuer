@@ -302,11 +302,15 @@ function SlipReviewDetailPage() {
                     <div className="text-xs text-muted-foreground">Confidence</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.estimated_odds.toFixed(2)}</div>
+                    <div className="text-2xl font-black text-brand-green">
+                      {randomizedTicket.ticket.estimated_odds ? randomizedTicket.ticket.estimated_odds.toFixed(2) : '--'}
+                    </div>
                     <div className="text-xs text-muted-foreground">Est. Odds</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.estimated_success_percent.toFixed(1)}%</div>
+                    <div className="text-2xl font-black text-brand-green">
+                      {randomizedTicket.ticket.estimated_success_percent ? randomizedTicket.ticket.estimated_success_percent.toFixed(1) : '--'}%
+                    </div>
                     <div className="text-xs text-muted-foreground">Est. Success</div>
                   </div>
                 </div>
@@ -323,7 +327,7 @@ function SlipReviewDetailPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-brand-green">@{pick.odds}</div>
+                        <div className="font-bold text-brand-green">{pick.odds ? `@${pick.odds}` : '--'}</div>
                         <div className="text-xs text-muted-foreground">{pick.confidence_score}%</div>
                       </div>
                     </div>
