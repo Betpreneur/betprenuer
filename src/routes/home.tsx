@@ -81,7 +81,7 @@ function GameCard({ game }: { game: GameInfo }) {
           )}
         </div>
         {/* Backed count indicator */}
-        {(game.official_pick?.backed_count > 0 || game.official_pick?.backed_by_me) && (
+        {((game.official_pick?.backed_count ?? 0) > 0 || game.official_pick?.backed_by_me) && (
           <div className="px-4 pt-1">
             <span className="inline-flex items-center gap-1 text-[9px] text-muted-foreground">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +177,7 @@ function HomePage() {
 
   const load = () => {
     setError(false);
-    api.getAlgoGames(undefined, false, "compact")
+    api.getAlgoGames()
       .then(setData)
       .catch((err) => {
         // If 401/unauthorized, session expired - redirect to login

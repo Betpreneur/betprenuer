@@ -15,7 +15,7 @@ export const Route = createFileRoute("/slip-review/new")({
 });
 
 function SlipReviewPage() {
-  const { isAuthed, authLoading } = useAuth();
+  const { isAuthed, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [days, setDays] = useState(3);

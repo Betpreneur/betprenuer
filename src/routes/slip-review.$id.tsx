@@ -69,7 +69,7 @@ function getStatusStyle(status: string) {
 }
 
 function SlipReviewDetailPage() {
-  const { isAuthed, authLoading } = useAuth();
+  const { isAuthed, loading: authLoading } = useAuth();
   const params = Route.useParams();
   const reviewId = Number(params.id);
   
@@ -387,6 +387,7 @@ function SlipReviewDetailPage() {
               )}
             </div>
           </div>
+          )}
 
           {/* Disclaimer */}
           {review.disclaimer && (

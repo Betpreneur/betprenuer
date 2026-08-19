@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { formatKickoff } from "@/lib/time";
+import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/games/$id")({
   head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
@@ -14,18 +16,17 @@ function GameAnalysisPage() {
   const [error, setError] = useState(false);
   const [loadingId, setLoadingId] = useState(true);
 
+  const { id } = Route.useParams();
+
   useEffect(() => {
-    // Get ID from URL path: games/1234567 -> 1234567
-    const pathname = window.location.pathname;
-    const match = pathname.match(/\/games\/(\d+)/);
-    const gameId = match ? match[1] : null;
+    const gameId = decodeURIComponent(id || "").trim();
 
     setLoadingId(false);
     if (!gameId) { setError(true); return; }
     if (!isAuthed) return;
 
     api.getGameDetail(gameId).then(setData).catch(() => setError(true));
-  }, [isAuthed]);
+  }, [isAuthed, id]);
 
   if (loading || loadingId) return <div className="p-4">Loading...</div>;
   if (error || !data) return <div className="p-4">Failed load.</div>;
@@ -36,6 +37,13 @@ function GameAnalysisPage() {
   
   return (
     <div className="space-y-4 p-4">
+      <Link
+        to="/home"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Link>
       <div className="flex items-center gap-2">
         {(g.competition_logo || g.league_logo) && (
           <img 
@@ -46,7 +54,7 @@ function GameAnalysisPage() {
         )}
         <div>
           <h1 className="text-xl font-bold">{g.match}</h1>
-          <p className="text-sm text-muted-foreground">{g.league} · {g.kickoff}</p>
+          <p className="text-sm text-muted-foreground">{g.league} · {formatKickoff(g.kickoff)}</p>
         </div>
       </div>
       <div className="flex justify-center items-center gap-8 py-4">
