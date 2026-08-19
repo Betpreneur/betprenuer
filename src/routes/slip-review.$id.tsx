@@ -1,9 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse, type SmartRandomizeResponse } from "@/lib/api";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
 import { ArrowLeft, ClipboardList, Plus, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target, Sparkles, Loader2 } from "lucide-react";
+
+// Obscure data source names to hide from end users
+const obscureSource = (source: string): string => {
+  const mapping: Record<string, string> = {
+    "Api-Football": "OddsFeed",
+    "Statpal": "ModelScore",
+    "OddsJam": "EdgeCalc",
+  };
+  return mapping[source] || source;
+};
+
+const obscureReason = (reason: string): string => {
+  // Replace source names in reason strings
+  let obscured = reason;
+  const sourceMapping: Record<string, string> = {
+    "Api-Football": "primary feed",
+    "Statpal": "analytics model",
+    "OddsJam": "betting engine",
+  };
+  
+  for (const [original, replacement] of Object.entries(sourceMapping)) {
+    obscured = obscured.replace(new RegExp(original, "gi"), replacement);
+  }
+  return obscured;
+};
 
 export const Route = createFileRoute("/slip-review/$id")({
   head: () => ({
@@ -308,7 +333,7 @@ function SlipReviewDetailPage() {
                     <div className="text-sm font-medium text-muted-foreground mb-2">Excluded picks:</div>
                     {randomizedTicket.excluded.map((ex) => (
                       <div key={ex.id} className="text-xs text-muted-foreground py-1">
-                        • {ex.match}: {ex.reason}
+                        • {ex.match}: {obscureReason(ex.reason)}
                       </div>
                     ))}
                   </div>
