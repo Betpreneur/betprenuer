@@ -88,11 +88,14 @@ function SlipReviewDetailPage() {
         
         // First get the basic slip review data
         const data = await api.getSlipReviewPublic(reviewId);
+        console.log("Initial review data:", data.status, data.smart_randomize);
         
         // If analysis is complete, fetch recommendations to get smart_randomize data
         if (data.status === "completed") {
+          console.log("Status is completed, calling /recommend/ endpoint...");
           try {
             const recommendationData = await api.getSlipReviewRecommendation(reviewId);
+            console.log("Recommendation data:", recommendationData.smart_randomize);
             setReview(recommendationData);
           } catch (recErr) {
             // Fall back to basic data if recommendation fails
@@ -100,6 +103,7 @@ function SlipReviewDetailPage() {
             setReview(data);
           }
         } else {
+          console.log("Status is not completed:", data.status);
           setReview(data);
         }
       } catch (err) {
