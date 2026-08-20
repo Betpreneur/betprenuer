@@ -254,17 +254,17 @@ function SlipReviewDetailPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-muted-foreground">#{index + 1}</span>
-                  {game.analysis_status === 'completed' ? (
+                  {index < (liveProgress?.completed || 0) ? (
                     <CheckCircle2 className="w-4 h-4 text-win-green" />
                   ) : (
                     <Loader2 className="w-4 h-4 text-info-blue animate-spin" />
                   )}
                 </div>
                 <div className="font-medium text-foreground text-sm truncate">{game.match}</div>
-                <div className="text-xs text-muted-foreground">{game.market}</div>
-                {game.confidence_score !== undefined && (
+                <div className="text-xs text-muted-foreground">{game.user_pick?.market}</div>
+                {game.user_pick?.confidence_score !== undefined && (
                   <div className="text-xs font-medium text-info-blue mt-1">
-                    Confidence: {game.confidence_score}%
+                    Confidence: {game.user_pick.confidence_score}%
                   </div>
                 )}
               </div>
