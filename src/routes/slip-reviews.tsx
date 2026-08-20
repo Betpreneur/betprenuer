@@ -61,11 +61,19 @@ function getVerdictStyle(verdict: string, action: string) {
 function SlipReviewItem({ review }: { review: SlipReviewListItem }) {
   const changesCount = review.picks.filter(p => p.ai_pick.action === "replace").length;
   
+  // Handle click to persist in-progress reviews
+  const handleClick = (e: React.MouseEvent) => {
+    if (review.status === "analysing" || review.status === "queued") {
+      localStorage.setItem("active_slip_review_id", String(review.id));
+    }
+  };
+  
   return (
     <Link
       to="/slip-review/$id"
       params={{ id: String(review.id) }}
       className="block group"
+      onClick={handleClick}
     >
       <div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-card to-jet-surface-2 border border-brand-border hover:border-brand-green/60 hover:shadow-[0_10px_30px_-12px_rgba(34,197,94,0.35)] hover:-translate-y-0.5 transition-all duration-200">
         {/* Status strip */}
