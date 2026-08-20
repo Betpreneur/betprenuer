@@ -3,7 +3,7 @@ import { todayLagosISO } from "./time";
 
 /**
  * Typed REST client for Betpreneur backend.
- * Base URL: https://api.betpreneur.ng/api/
+ * Base URL: https://api.betpreneur.ng/api/algo
  */
 
 export const API_BASE_URL: string =
