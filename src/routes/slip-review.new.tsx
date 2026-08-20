@@ -39,6 +39,29 @@ function SlipReviewPage() {
     fetchEventsFallback,
   } = useSlipReview();
 
+  // Check for persisted review ID on mount to resume analysis
+  useEffect(() => {
+    if (!authLoading && isAuthed && !reviewId) {
+      const persistedReviewId = localStorage.getItem("active_slip_review_id");
+      if (persistedReviewId) {
+        console.log("Found persisted review ID:", persistedReviewId);
+        // Navigate to the detail page to resume watching
+        navigate({ to: "/slip-review/$id", params: { id: persistedReviewId } });
+      }
+    }
+  }, [authLoading, isAuthed, reviewId, navigate]);
+
+  // Persist review ID when analysis starts
+  useEffect(() => {
+    if (reviewId && (status === "analysing" || status === "queued")) {
+      localStorage.setItem("active_slip_review_id", String(reviewId));
+      console.log("Persisted review ID:", reviewId);
+    } else if (status === "completed" || status === "partial" || status === "failed") {
+      // Clear persisted ID when analysis finishes
+      localStorage.removeItem("active_slip_review_id");
+    }
+  }, [reviewId, status]);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthed) {
