@@ -23,38 +23,38 @@ export const ENDPOINTS = {
   refresh: "/auth/token/refresh/",
   me: "/auth/me/",
   // Picks
-  algoPicks: "/algo/picks/",
-  algoPick: (id: string) => `/algo/picks/${id}/`,
-  algoBackPick: (id: string) => `/algo/picks/${id}/back/`,
-  algoUnbackPick: (id: string) => `/algo/picks/${id}/unback/`,
-  algoBackedPicks: "/algo/picks/backed/",
-  algoTopPick: "/algo/top-pick/",
-  algoTodayPicks: "/algo/picks/",
+  algoPicks: "/picks/",
+  algoPick: (id: string) => `/picks/${id}/`,
+  algoBackPick: (id: string) => `/picks/${id}/back/`,
+  algoUnbackPick: (id: string) => `/picks/${id}/unback/`,
+  algoBackedPicks: "/picks/backed/",
+  algoTopPick: "/top-pick/",
+  algoTodayPicks: "/picks/",
   // Games backed endpoints
-  algoGame: (matchId: string) => `/algo/games/${encodeURIComponent(matchId)}/`,
-  algoBackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
-  algoUnbackGame: (matchId: string) => `/algo/games/${matchId}/backed/`,
-  algoBackedGames: (date?: string) => `/algo/games/backed/${date ? `?date=${date}` : ""}`,
+  algoGame: (matchId: string) => `/games/${encodeURIComponent(matchId)}/`,
+  algoBackGame: (matchId: string) => `/games/${matchId}/backed/`,
+  algoUnbackGame: (matchId: string) => `/games/${matchId}/backed/`,
+  algoBackedGames: (date?: string) => `/games/backed/${date ? `?date=${date}` : ""}`,
   // All games for the matchday
-  algoGames: "/algo/games/",
+  algoGames: "/games/",
   // Public
-  algoPublicRecord: "/algo/public/record/",
-  algoPublicSummary: "/algo/public/summary/",
+  algoPublicRecord: "/public/record/",
+  algoPublicSummary: "/public/summary/",
   // Slip Reviews
-  slipReviews: (limit = 20) => `/algo/slip-reviews/?limit=${limit}`,
-  slipReview: (id: number) => `/algo/slip-reviews/${id}/`,
-  slipReviewView: (id: number, view: string) => `/algo/slip-reviews/${id}/?view=${view}`,
-  slipReviewRandomize: (id: number) => `/algo/slip-reviews/${id}/randomize/`,
-  slipReviewRecommend: (id: number) => `/algo/slip-reviews/${id}/recommend/`,
-  slipReviewStreamToken: (id: number) => `/algo/slip-reviews/${id}/stream-token/`,
+  slipReviews: (limit = 20) => `/slip-reviews/?limit=${limit}`,
+  slipReview: (id: number) => `/slip-reviews/${id}/`,
+  slipReviewView: (id: number, view: string) => `/slip-reviews/${id}/?view=${view}`,
+  slipReviewRandomize: (id: number) => `/slip-reviews/${id}/randomize/`,
+  slipReviewRecommend: (id: number) => `/slip-reviews/${id}/recommend/`,
+  slipReviewStreamToken: (id: number) => `/slip-reviews/${id}/stream-token/`,
   slipReviewEvents: (id: number, afterId?: number, limit = 100) => {
-    let url = `/algo/slip-reviews/${id}/events/`;
+    let url = `/slip-reviews/${id}/events/`;
     const params = new URLSearchParams();
     if (afterId !== undefined) params.set("after_id", String(afterId));
     params.set("limit", String(limit));
     return `${url}?${params.toString()}`;
   },
-  slipReviewCreate: "/algo/slip-reviews/sportybet/",
+  slipReviewCreate: "/slip-reviews/sportybet/",
   // Tokens
   tokens: "/tokens/",
   tokenPackages: "/tokens/packages/",
