@@ -231,12 +231,20 @@ function SlipReviewPage() {
       {status === "failed" && (
         <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
           <p className="text-red-400">{error || "Slip review failed. Please try again."}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-3 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30"
-          >
-            Try Again
-          </button>
+          <div className="flex gap-3 mt-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-sm hover:bg-red-500/30"
+            >
+              Try Again
+            </button>
+            <a
+              href="/tokens"
+              className="px-4 py-2 rounded-lg bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90"
+            >
+              Buy Tokens
+            </a>
+          </div>
         </div>
       )}
 

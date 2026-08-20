@@ -56,14 +56,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Token balance */}
-          {isAuthed && balance && (
+          {/* Token balance - show even when 0 */}
+          {isAuthed && (
             <a
               href="/tokens"
               className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
             >
               <Coins className="w-4 h-4 text-brand-green" />
-              <span className="text-sm font-semibold">{balance.total_tokens}</span>
+              <span className="text-sm font-semibold">{balance?.total_tokens ?? 0}</span>
             </a>
           )}
 
