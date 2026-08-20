@@ -17,7 +17,7 @@ export const Route = createFileRoute("/tokens")({
 function TokensPage() {
   const { isAuthed, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { balance, packages, loading, error, refreshBalance, createPurchase, verifyPurchase } = useWallet();
+  const { balance, packages, purchases, loading, error, refreshBalance, refreshPurchases, createPurchase, verifyPurchase } = useWallet();
   const [purchasing, setPurchasing] = useState(false);
   const [currentPurchase, setCurrentPurchase] = useState<{ id: number; payment: any } | null>(null);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
@@ -279,6 +279,32 @@ function TokensPage() {
           <p className="text-center text-sm text-muted-foreground mt-6">
             Secure payment powered by Payfonte
           </p>
+
+          {/* Purchase History */}
+          {purchases && purchases.purchases && purchases.purchases.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-xl font-bold mb-4">Purchase History</h2>
+              <div className="space-y-3">
+                {purchases.purchases.map((purchase) => (
+                  <div key={purchase.id} className="flex items-center justify-between p-4 bg-card border border-border rounded-xl">
+                    <div>
+                      <p className="font-semibold">{purchase.package?.tokens ?? purchase.tokens} Tokens</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(purchase.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm ${
+                      purchase.status === 'paid' ? 'bg-win-green/20 text-win-green' :
+                      purchase.status === 'pending' ? 'bg-amber-500/20 text-amber-500' :
+                      'bg-danger-red/20 text-danger-red'
+                    }`}>
+                      {purchase.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
