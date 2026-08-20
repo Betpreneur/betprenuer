@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSlipReview } from "@/hooks/useSlipReview";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
+import { InsufficientTokens } from "@/components/InsufficientTokens";
+import { api, type InsufficientTokensError } from "@/lib/api";
 
 export const Route = createFileRoute("/slip-review/new")({
   head: () => ({
@@ -38,6 +40,9 @@ function SlipReviewPage() {
     reconnect,
     fetchEventsFallback,
   } = useSlipReview();
+
+  // State for insufficient tokens error
+  const [tokenError, setTokenError] = useState<InsufficientTokensError | null>(null);
 
   // Check for persisted review ID on mount to resume analysis
   useEffect(() => {
@@ -78,10 +83,19 @@ function SlipReviewPage() {
     }
   }, [hasUrlCode, code, isAuthed, reviewId, startReview]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTokenError(null);
     if (code.trim()) {
-      startReview(code.trim(), 3);
+      try {
+        await startReview(code.trim(), 3);
+      } catch (err: any) {
+        // Check if it's an insufficient tokens error
+        const errorData = err?.response?.data || err;
+        if (errorData.code === "insufficient_tokens") {
+          setTokenError(errorData as InsufficientTokensError);
+        }
+      }
     }
   };
 
@@ -131,6 +145,13 @@ function SlipReviewPage() {
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
               {error}
             </div>
+          )}
+
+          {tokenError && (
+            <InsufficientTokens
+              required={tokenError.required_tokens}
+              available={tokenError.available_tokens}
+            />
           )}
 
           <button

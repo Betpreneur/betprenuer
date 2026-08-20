@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth";
-import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse, type SmartRandomizeResponse } from "@/lib/api";
+import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse, type SmartRandomizeResponse, type InsufficientTokensError } from "@/lib/api";
 import { useSlipReview } from "@/hooks/useSlipReview";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
+import { InsufficientTokens } from "@/components/InsufficientTokens";
 import { ArrowLeft, ClipboardList, Plus, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target, Sparkles, Loader2, Wifi, WifiOff } from "lucide-react";
 
 // Obscure data source names to hide from end users
@@ -79,6 +80,7 @@ function SlipReviewDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [randomizedTicket, setRandomizedTicket] = useState<SmartRandomizeResponse | null>(null);
   const [randomizing, setRandomizing] = useState(false);
+  const [tokenError, setTokenError] = useState<InsufficientTokensError | null>(null);
 
   // Use the slip review hook for live updates when analysis is in progress
   const {
@@ -148,12 +150,18 @@ function SlipReviewDetailPage() {
 
   // Handle smart randomize
   const handleRandomize = async (games: number) => {
+    setTokenError(null);
     try {
       setRandomizing(true);
       const result = await api.randomizeSlipReview(reviewId, games);
       setRandomizedTicket(result);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to randomize:", err);
+      // Check if it's an insufficient tokens error
+      const errorData = err?.response?.data || err;
+      if (errorData.code === "insufficient_tokens") {
+        setTokenError(errorData as InsufficientTokensError);
+      }
     } finally {
       setRandomizing(false);
     }
@@ -360,23 +368,32 @@ function SlipReviewDetailPage() {
               <p className="text-sm text-muted-foreground mb-4">
                 {review.smart_randomize.message}
               </p>
-              <div className="flex flex-wrap gap-2">
-                {review.smart_randomize.options.map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => handleRandomize(num)}
-                    disabled={randomizing}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-green text-primary-foreground font-semibold hover:bg-brand-green/90 transition-all disabled:opacity-50"
-                  >
-                    {randomizing ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-4 h-4" />
-                    )}
-                    Randomize by {num}
-                  </button>
-                ))}
-              </div>
+              
+              {tokenError ? (
+                <InsufficientTokens
+                  required={tokenError.required_tokens}
+                  available={tokenError.available_tokens}
+                  feature="smart_randomize"
+                />
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {review.smart_randomize.options.map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleRandomize(num)}
+                      disabled={randomizing}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-green text-primary-foreground font-semibold hover:bg-brand-green/90 transition-all disabled:opacity-50"
+                    >
+                      {randomizing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4" />
+                      )}
+                      Randomize by {num}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
