@@ -208,7 +208,7 @@ function SlipReviewsPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />
-          New Review
+          New Slip Review
         </Link>
       </div>
 
@@ -229,7 +229,7 @@ function SlipReviewsPage() {
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />
-            Analyze Your First Slip
+            New Slip Review
           </Link>
         </div>
       ) : (
