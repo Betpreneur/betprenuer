@@ -88,6 +88,7 @@ function SlipReviewDetailPage() {
     isConnected,
     error: liveError,
     reconnect,
+    setReviewId,
     fetchEventsFallback,
   } = useSlipReview();
 
@@ -111,8 +112,8 @@ function SlipReviewDetailPage() {
         if (data.status === "analysing" || data.status === "queued") {
           // Persist the review ID so refresh works
           localStorage.setItem("active_slip_review_id", String(reviewId));
-          // Try to reconnect to WebSocket
-          await reconnect();
+          // Connect to WebSocket for live updates
+          await setReviewId(reviewId);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load slip review");
@@ -122,7 +123,7 @@ function SlipReviewDetailPage() {
     };
 
     fetchReview();
-  }, [isAuthed, reviewId, reconnect]);
+  }, [isAuthed, reviewId, setReviewId]);
 
   // Fallback polling if WebSocket fails
   useEffect(() => {

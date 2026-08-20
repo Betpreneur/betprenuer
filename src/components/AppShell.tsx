@@ -1,8 +1,9 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target, ClipboardList } from "lucide-react";
+import { Home, Trophy, BarChart3, Settings as SettingsIcon, Menu, X, LogIn, UserPlus, Target, ClipboardList, Coins } from "lucide-react";
 import { useBackedCount, clearBackedCount } from "@/hooks/useBackedPicks";
+import { useWallet } from "@/hooks/useWallet";
 import type { ReactNode } from "react";
 import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
@@ -21,6 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = location.pathname;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const backedPickCount = useBackedCount();
+  const { balance } = useWallet();
   // Once the user opens My Picks, the picks are already synced to the backend,
   // so the floating badge has served its purpose — clear it.
   useEffect(() => {
@@ -53,6 +55,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               </>
             )}
           </nav>
+
+          {/* Token balance */}
+          {isAuthed && balance && (
+            <a
+              href="/tokens"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+            >
+              <Coins className="w-4 h-4 text-brand-green" />
+              <span className="text-sm font-semibold">{balance.total_tokens}</span>
+            </a>
+          )}
 
           {/* Floating badge - navigates directly to My Picks */}
           {isAuthed && backedPickCount > 0 && path !== "/" && (

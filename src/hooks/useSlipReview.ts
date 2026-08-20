@@ -262,6 +262,16 @@ export function useSlipReview() {
     }
   }, [connectWebSocket, state.reviewId, state.latestEventId]);
 
+  // Set review ID and connect (for resuming analysis on detail page)
+  const setReviewId = useCallback(async (reviewId: number) => {
+    setState((prev) => ({
+      ...prev,
+      reviewId,
+    }));
+    // Try to connect to WebSocket
+    await connectWebSocket(reviewId, 0);
+  }, [connectWebSocket]);
+
   const fetchEventsFallback = useCallback(async () => {
     if (!state.reviewId) return;
     
@@ -301,6 +311,7 @@ export function useSlipReview() {
     ...state,
     startReview,
     reconnect,
+    setReviewId,
     fetchEventsFallback,
     fetchFinalReview,
   };

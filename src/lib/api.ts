@@ -55,6 +55,11 @@ export const ENDPOINTS = {
     return `${url}?${params.toString()}`;
   },
   slipReviewCreate: "/algo/slip-reviews/sportybet/",
+  // Tokens
+  tokens: "/tokens/",
+  tokenPackages: "/tokens/packages/",
+  tokenPurchases: "/tokens/purchases/",
+  tokenPurchaseVerify: (purchaseId: number) => `/tokens/purchases/${purchaseId}/verify/`,
 } as const;
 
 export function apiUrl(path: string): string {
@@ -906,6 +911,110 @@ export interface SlipReviewsResponse {
   reviews: SlipReviewListItem[];
 }
 
+// ============== Token & Payment Types =================================
+
+export interface WalletBalance {
+  free_tokens: number;
+  paid_tokens: number;
+  total_tokens?: number;
+}
+
+export interface WalletResponse {
+  wallet: WalletBalance;
+}
+
+export interface TokenPackage {
+  id: string;
+  tokens: number;
+  amount: number;
+  amount_kobo: number;
+  currency: string;
+  label: string;
+}
+
+export interface TokenPackagesResponse {
+  currency: string;
+  packages: TokenPackage[];
+}
+
+export interface BankAccount {
+  bank_name: string;
+  bank_code: string;
+  account_number: string;
+  account_name: string;
+  expires_at: string;
+}
+
+export interface PurchasePayment {
+  provider: string;
+  provider_reference: string;
+  status: string;
+  amount: number;
+  amount_kobo: number;
+  currency: string;
+  payment_reference: string;
+  bank_account?: BankAccount;
+  instructions?: string;
+}
+
+export interface Purchase {
+  id: number;
+  package_id: string;
+  tokens: number;
+  amount: number;
+  amount_kobo: number;
+  currency: string;
+  status: string;
+  provider: string;
+  provider_reference: string;
+  payment?: PurchasePayment;
+  date?: string;
+}
+
+export interface PurchaseWithPackage {
+  purchase: Purchase;
+  package: TokenPackage;
+}
+
+export interface CreatePurchaseRequest {
+  package_id: string;
+  metadata?: {
+    source?: string;
+  };
+}
+
+export interface VerifyPurchaseResponse {
+  purchase: {
+    id: number;
+    status: string;
+  };
+  wallet?: WalletBalance;
+  transaction?: {
+    id: number;
+    amount: number;
+    paid_tokens_delta: number;
+    reason: string;
+  };
+  idempotent: boolean;
+  payfonte_status: string;
+}
+
+export interface PurchasesResponse {
+  count: number;
+  purchases: Purchase[];
+}
+
+export interface InsufficientTokensError {
+  code: string;
+  message: string;
+  required_tokens: number;
+  available_tokens: number;
+  shortfall: number;
+  wallet: WalletBalance;
+  // For slip review
+  feature?: string;
+}
+
 // ============== API ==================================================
 
 export const api = {
@@ -1200,6 +1309,42 @@ export const api = {
   /** GET /api/algo/slip-reviews/{id}/recommend/ — Get recommendations after analysis */
   async getSlipReviewRecommendation(reviewId: number): Promise<SlipReviewPublic> {
     return request<SlipReviewPublic>(ENDPOINTS.slipReviewRecommend(reviewId));
+  },
+
+  // ============== Token & Payment API =====
+
+  /** GET /tokens/ — Get user's wallet balance */
+  async getWalletBalance(): Promise<WalletResponse> {
+    return request<WalletResponse>(ENDPOINTS.tokens);
+  },
+
+  /** GET /tokens/packages/ — Get available token packages */
+  async getTokenPackages(): Promise<TokenPackagesResponse> {
+    return request<TokenPackagesResponse>(ENDPOINTS.tokenPackages);
+  },
+
+  /** POST /tokens/purchases/ — Create a new token purchase */
+  async createTokenPurchase(packageId: string, metadata?: Record<string, string>): Promise<PurchaseWithPackage> {
+    const body: Record<string, unknown> = { package_id: packageId };
+    if (metadata) body.metadata = metadata;
+    return request<PurchaseWithPackage>(ENDPOINTS.tokenPurchases, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** POST /tokens/purchases/{id}/verify/ — Verify a pending purchase */
+  async verifyTokenPurchase(purchaseId: number): Promise<VerifyPurchaseResponse> {
+    return request<VerifyPurchaseResponse>(ENDPOINTS.tokenPurchaseVerify(purchaseId), {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+  },
+
+  /** GET /tokens/purchases/ — Get purchase history */
+  async getTokenPurchases(limit = 50): Promise<PurchasesResponse> {
+    const url = limit !== 50 ? `${ENDPOINTS.tokenPurchases}?limit=${limit}` : ENDPOINTS.tokenPurchases;
+    return request<PurchasesResponse>(url);
   },
 };
 
