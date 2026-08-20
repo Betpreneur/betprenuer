@@ -64,6 +64,13 @@ export const ENDPOINTS = {
 
 export function apiUrl(path: string): string {
   if (!API_BASE_URL) return path;
+  
+  // Auth endpoints use /api/ (not /api/algo/)
+  if (path.startsWith("/auth/")) {
+    const base = API_BASE_URL.replace("/algo", "");
+    return `${base.replace(/\/$/, "")}${path}`;
+  }
+  
   return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
