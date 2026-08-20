@@ -249,7 +249,7 @@ function TokensPage() {
                   <div>
                     <p className="font-bold text-lg">{pkg.tokens} Tokens</p>
                     <p className="text-sm text-muted-foreground">
-                      {pkg.tokens / 10} tokens per game analysis
+                      For {pkg.tokens} game analyses
                     </p>
                   </div>
                 </div>
