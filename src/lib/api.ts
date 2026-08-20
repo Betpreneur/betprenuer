@@ -9,7 +9,7 @@ import { todayLagosISO } from "./time";
 export const API_BASE_URL: string =
   ((import.meta as { env?: Record<string, string | undefined> }).env
     ?.VITE_API_BASE_URL as string | undefined) ??
-  "https://api.betpreneur.ng/api";
+  "https://api.betpreneur.ng/api/algo";
 
 export const ENDPOINTS = {
   signup: "/auth/signup/",
