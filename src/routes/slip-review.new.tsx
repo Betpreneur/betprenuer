@@ -79,6 +79,18 @@ function SlipReviewPage() {
     }
   }, [reviewId, status]);
 
+  // Refresh token count when analysis completes
+  useEffect(() => {
+    if (status === "completed" || status === "partial" || status === "failed") {
+      console.log("Analysis completed, refreshing token count...");
+      api.getTokens().then((balance) => {
+        console.log("Token balance updated:", balance);
+      }).catch((err) => {
+        console.error("Failed to refresh tokens:", err);
+      });
+    }
+  }, [status]);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthed) {

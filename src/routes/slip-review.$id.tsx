@@ -125,6 +125,18 @@ function SlipReviewDetailPage() {
     fetchReview();
   }, [isAuthed, reviewId, reconnect]);
 
+  // Refresh token count when analysis completes (on detail page load)
+  useEffect(() => {
+    if (review && (review.status === "completed" || review.status === "partial")) {
+      console.log("Analysis completed, refreshing token count...");
+      api.getTokens().then((balance) => {
+        console.log("Token balance updated:", balance);
+      }).catch((err) => {
+        console.error("Failed to refresh tokens:", err);
+      });
+    }
+  }, [review?.status]);
+
   // Fallback polling if WebSocket fails
   useEffect(() => {
     if (!isAuthed || !reviewId) return;
@@ -152,6 +164,11 @@ function SlipReviewDetailPage() {
       setRandomizing(true);
       const result = await api.randomizeSlipReview(reviewId, games);
       setRandomizedTicket(result);
+      
+      // Refresh token count after randomization completes
+      console.log("Randomization completed, refreshing token count...");
+      const balance = await api.getTokens();
+      console.log("Token balance updated:", balance);
     } catch (err) {
       console.error("Failed to randomize:", err);
     } finally {

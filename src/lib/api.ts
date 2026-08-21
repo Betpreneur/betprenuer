@@ -1353,5 +1353,11 @@ export const api = {
     const url = limit !== 50 ? `${ENDPOINTS.tokenPurchases}?limit=${limit}` : ENDPOINTS.tokenPurchases;
     return request<PurchasesResponse>(url);
   },
+
+  /** GET /tokens/ — Get current token balance */
+  async getTokens(): Promise<WalletBalance> {
+    const response = await request<WalletResponse>(ENDPOINTS.tokens);
+    return response.wallet;
+  },
 };
 
