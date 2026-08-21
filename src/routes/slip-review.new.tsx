@@ -45,7 +45,19 @@ function SlipReviewPage() {
   const [tokenError, setTokenError] = useState<InsufficientTokensError | null>(null);
 
   // Check for persisted review ID on mount to resume analysis
+  // Only redirect if we're NOT coming from a navigation that should start fresh
   useEffect(() => {
+    // Check if user explicitly wants to start fresh (via URL param or session flag)
+    const startFresh = sessionStorage.getItem("slip_review_start_fresh");
+    sessionStorage.removeItem("slip_review_start_fresh"); // Clear the flag
+    
+    if (startFresh) {
+      // User explicitly clicked "Analyze New Slip" - clear persisted ID and stay on this page
+      localStorage.removeItem("active_slip_review_id");
+      console.log("Starting fresh - cleared persisted review ID");
+      return;
+    }
+
     if (!authLoading && isAuthed && !reviewId) {
       const persistedReviewId = localStorage.getItem("active_slip_review_id");
       if (persistedReviewId) {

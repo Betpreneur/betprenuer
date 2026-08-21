@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewsResponse, type SlipReviewListItem } from "@/lib/api";
@@ -150,6 +150,7 @@ function SlipReviewsSkeleton() {
 
 function SlipReviewsPage() {
   const { isAuthed, authLoading } = useAuth();
+  const navigate = useNavigate();
   const [reviews, setReviews] = useState<SlipReviewsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,13 +204,16 @@ function SlipReviewsPage() {
             </p>
           </div>
         </div>
-        <Link
-          to="/slip-review/new"
+        <button
+          onClick={() => {
+            sessionStorage.setItem("slip_review_start_fresh", "true");
+            navigate({ to: "/slip-review/new" });
+          }}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />
           New Slip Review
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -224,13 +228,16 @@ function SlipReviewsPage() {
             <ClipboardList className="w-8 h-8 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground mb-4">No slip reviews yet</p>
-          <Link
-            to="/slip-review/new"
+          <button
+            onClick={() => {
+              sessionStorage.setItem("slip_review_start_fresh", "true");
+              navigate({ to: "/slip-review/new" });
+            }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-green text-primary-foreground text-sm font-semibold hover:bg-brand-green/90 transition-all hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />
             New Slip Review
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
