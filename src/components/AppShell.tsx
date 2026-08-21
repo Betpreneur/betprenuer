@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {isAuthed && (
             <a
               href="/tokens"
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
             >
               <Coins className="w-4 h-4 text-brand-green" />
               <span className="text-sm font-semibold">{balance?.total_tokens ?? 0}</span>
@@ -96,6 +96,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               </button>
             </div>
             <nav className="flex flex-col gap-2">
+              {/* Token balance in mobile menu */}
+              {isAuthed && (
+                <a
+                  href="/tokens"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-[15px] bg-white/5"
+                >
+                  <Coins className="h-5 w-5 text-brand-green" />
+                  <span className="font-semibold">{balance?.total_tokens ?? 0}</span>
+                  <span className="text-muted-foreground">tokens</span>
+                </a>
+              )}
               {isAuthed ? (
                 navItems.map((n) => {
                   const Icon = n.icon;
