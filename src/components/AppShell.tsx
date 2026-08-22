@@ -9,7 +9,7 @@ import logoHorizontal from "@/assets/betpreneur-logo-horizontal.png";
 
 const navItems = [
   { to: "/top-pick", label: "Top Picks", icon: Trophy },
-  { to: "/home", label: "All Games", icon: Home },
+  { to: "/games", label: "All Games", icon: Home },
   { to: "/my-picks", label: "My Picks", icon: Target },
   { to: "/slip-reviews", label: "My Slip Reviews", icon: ClipboardList },
   { to: "/record", label: "Record", icon: BarChart3 },
