@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewPublic, type SlipReviewListItem, type SlipReviewsResponse, type SmartRandomizeResponse } from "@/lib/api";
 import { useSlipReview } from "@/hooks/useSlipReview";
+import { triggerWalletRefresh } from "@/hooks/useWallet";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
 import { ArrowLeft, ClipboardList, Plus, CheckCircle2, AlertTriangle, XCircle, TrendingUp, Target, Sparkles, Loader2, Wifi, WifiOff } from "lucide-react";
 
@@ -129,11 +130,7 @@ function SlipReviewDetailPage() {
   useEffect(() => {
     if (review && (review.status === "completed" || review.status === "partial")) {
       console.log("Analysis completed, refreshing token count...");
-      api.getTokens().then((balance) => {
-        console.log("Token balance updated:", balance);
-      }).catch((err) => {
-        console.error("Failed to refresh tokens:", err);
-      });
+      triggerWalletRefresh();
     }
   }, [review?.status]);
 
@@ -167,8 +164,7 @@ function SlipReviewDetailPage() {
       
       // Refresh token count after randomization completes
       console.log("Randomization completed, refreshing token count...");
-      const balance = await api.getTokens();
-      console.log("Token balance updated:", balance);
+      triggerWalletRefresh();
     } catch (err) {
       console.error("Failed to randomize:", err);
     } finally {

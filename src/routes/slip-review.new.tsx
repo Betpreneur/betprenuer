@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSlipReview } from "@/hooks/useSlipReview";
+import { triggerWalletRefresh } from "@/hooks/useWallet";
 import { SlipReviewCard } from "@/components/SlipReviewCard";
 import { InsufficientTokens } from "@/components/InsufficientTokens";
 import { api, type InsufficientTokensError } from "@/lib/api";
@@ -83,11 +84,7 @@ function SlipReviewPage() {
   useEffect(() => {
     if (status === "completed" || status === "partial" || status === "failed") {
       console.log("Analysis completed, refreshing token count...");
-      api.getTokens().then((balance) => {
-        console.log("Token balance updated:", balance);
-      }).catch((err) => {
-        console.error("Failed to refresh tokens:", err);
-      });
+      triggerWalletRefresh();
     }
   }, [status]);
 
