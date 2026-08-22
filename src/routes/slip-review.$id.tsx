@@ -17,21 +17,6 @@ const obscureSource = (source: string): string => {
   return mapping[source] || source;
 };
 
-const obscureReason = (reason: string): string => {
-  // Replace source names in reason strings
-  let obscured = reason;
-  const sourceMapping: Record<string, string> = {
-    "Api-Football": "primary feed",
-    "Statpal": "analytics model",
-    "OddsJam": "betting engine",
-  };
-  
-  for (const [original, replacement] of Object.entries(sourceMapping)) {
-    obscured = obscured.replace(new RegExp(original, "gi"), replacement);
-  }
-  return obscured;
-};
-
 export const Route = createFileRoute("/slip-review/$id")({
   head: () => ({
     meta: [
@@ -452,18 +437,6 @@ function SlipReviewDetailPage() {
                     </div>
                   ))}
                 </div>
-
-                {/* Excluded picks */}
-                {randomizedTicket.excluded.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <div className="text-sm font-medium text-muted-foreground mb-2">Excluded picks:</div>
-                    {randomizedTicket.excluded.map((ex) => (
-                      <div key={ex.id} className="text-xs text-muted-foreground py-1">
-                        • {ex.match}: {obscureReason(ex.reason)}
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 {randomizedTicket.disclaimer && (
                   <p className="text-xs text-muted-foreground mt-4 pt-3 border-t border-border">
