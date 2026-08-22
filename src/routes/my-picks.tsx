@@ -356,7 +356,7 @@ function MyPicksPage() {
         <div className="text-center text-[13px] text-muted-foreground">{shareMsg}</div>
       )}
 
-      <Link to="/home" className="block text-center text-info-blue text-[14px]">
+      <Link to="/games" className="block text-center text-info-blue text-[14px]">
         ← Back to Dashboard
       </Link>
 

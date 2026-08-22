@@ -112,7 +112,7 @@ function Landing() {
           <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3">
             {isAuthed ? (
               <Link
-                to="/home"
+                to="/games"
                 className="group relative inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-bold text-[16px] px-6 py-3.5 rounded-md hover:opacity-90 transition-all hover:shadow-[0_0_20px_rgba(232,25,44,0.4)] hover:scale-105"
               >
                 <Lightning className="h-4 w-4 group-hover:animate-pulse" />

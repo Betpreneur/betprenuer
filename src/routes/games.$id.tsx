@@ -38,7 +38,7 @@ function GameAnalysisPage() {
   return (
     <div className="space-y-4 p-4">
       <Link
-        to="/home"
+        to="/games"
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="w-4 h-4" />

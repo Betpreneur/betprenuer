@@ -145,7 +145,7 @@ function TopPickPage() {
         <div className="mt-6">
           <p className="text-sm font-medium mb-2">Want more games?</p>
           <Link
-            to="/home"
+            to="/games"
             className="inline-flex items-center gap-2 px-4 py-2 bg-brand-green hover:bg-brand-green/90 text-background font-medium rounded-xl transition-colors"
           >
             Check All Games
