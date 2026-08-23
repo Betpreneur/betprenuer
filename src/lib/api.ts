@@ -1180,8 +1180,8 @@ export const api = {
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
-  async getAlgoGames(date?: string, bypassCache = false, view?: string): Promise<AlgoGamesResponse> {
-    const cacheKey = `algo:games:${date ?? "today"}:${view ?? "full"}`;
+  async getAlgoGames(date?: string, bypassCache = false, view = "compact"): Promise<AlgoGamesResponse> {
+    const cacheKey = `algo:games:${date ?? "today"}:${view}`;
     if (bypassCache) {
       clearCache(cacheKey);
     }
@@ -1360,4 +1360,3 @@ export const api = {
     return response.wallet;
   },
 };
-
