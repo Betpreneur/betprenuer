@@ -189,6 +189,118 @@ function GameAnalysisPage() {
               <p className="text-xs text-muted-foreground whitespace-pre-wrap">{g.top_market.reasoning || g.top_market.model_verdict}</p>
             </div>
           )}
+
+          {/* Council Review Section */}
+          {g.top_market.council_review && (
+            <div className="border rounded-lg p-4 bg-purple-50">
+              <div className="flex items-center gap-2 mb-3">
+                <Award className="w-4 h-4 text-purple-600" />
+                <h2 className="font-semibold">Council Review</h2>
+                {g.top_market.council_review.tier && (
+                  <span className="ml-auto text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                    Tier: {g.top_market.council_review.tier}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm space-y-2">
+                {g.top_market.council_review.decision && (
+                  <p><span className="font-medium">Decision:</span> {g.top_market.council_review.decision}</p>
+                )}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {g.top_market.council_review.raw_confidence != null && (
+                    <div className="bg-white rounded p-2">
+                      <p className="text-muted-foreground">Raw Confidence</p>
+                      <p className="font-bold">{g.top_market.council_review.raw_confidence}%</p>
+                    </div>
+                  )}
+                  {g.top_market.council_review.final_confidence != null && (
+                    <div className="bg-white rounded p-2">
+                      <p className="text-muted-foreground">Final Confidence</p>
+                      <p className="font-bold">{g.top_market.council_review.final_confidence}%</p>
+                    </div>
+                  )}
+                  {g.top_market.council_review.consensus_score != null && (
+                    <div className="bg-white rounded p-2">
+                      <p className="text-muted-foreground">Consensus</p>
+                      <p className="font-bold">{g.top_market.council_review.consensus_score}</p>
+                    </div>
+                  )}
+                  {g.top_market.council_review.disagreement_score != null && (
+                    <div className="bg-white rounded p-2">
+                      <p className="text-muted-foreground">Disagreement</p>
+                      <p className="font-bold">{g.top_market.council_review.disagreement_score}</p>
+                    </div>
+                  )}
+                </div>
+                {g.top_market.council_review.reasons && g.top_market.council_review.reasons.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-1">Reasons:</p>
+                    <ul className="text-xs text-muted-foreground space-y-0.5">
+                      {g.top_market.council_review.reasons.map((reason, i) => (
+                        <li key={i}>• {reason}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {g.top_market.council_review.reviewers && g.top_market.council_review.reviewers.length > 0 && (
+                  <p className="text-xs text-muted-foreground">Reviewers: {g.top_market.council_review.reviewers.join(', ')}</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Insights Section */}
+      {(g.top_market?.insights || g.insights) && (
+        <div className="border rounded-lg p-4 bg-green-50">
+          <div className="flex items-center gap-2 mb-3">
+            <Lightbulb className="w-4 h-4 text-green-600" />
+            <h2 className="font-semibold">Model Insights</h2>
+            {(g.top_market?.insights?.model || g.insights?.model) && (
+              <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                {(g.top_market?.insights?.model || g.insights?.model)}
+              </span>
+            )}
+          </div>
+          <div className="text-sm space-y-2">
+            {(g.top_market?.insights?.summary || g.insights?.summary) && (
+              <p className="text-xs text-muted-foreground">{g.top_market?.insights?.summary || g.insights?.summary}</p>
+            )}
+            {(g.top_market?.insights?.fair_odds != null || g.insights?.fair_odds != null) && (
+              <p className="text-xs"><span className="font-medium">Fair Odds:</span> @{g.top_market?.insights?.fair_odds || g.insights?.fair_odds}</p>
+            )}
+            {(g.top_market?.insights?.conclusion || g.insights?.conclusion) && (
+              <p className="text-xs"><span className="font-medium">Conclusion:</span> {g.top_market?.insights?.conclusion || g.insights?.conclusion}</p>
+            )}
+            {/* Evidence - Positive */}
+            {((g.top_market?.insights?.evidence?.positive && g.top_market.insights.evidence.positive.length > 0) || (g.insights?.evidence?.positive && g.insights.evidence.positive.length > 0)) && (
+              <div>
+                <p className="text-xs font-medium text-green-700 mb-1">✓ Positive Evidence</p>
+                <ul className="text-xs text-muted-foreground space-y-0.5">
+                  {(g.top_market?.insights?.evidence?.positive || g.insights?.evidence?.positive || []).map((item, i) => (
+                    <li key={i}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Evidence - Risk */}
+            {((g.top_market?.insights?.evidence?.risk && g.top_market.insights.evidence.risk.length > 0) || (g.insights?.evidence?.risk && g.insights.evidence.risk.length > 0)) && (
+              <div>
+                <p className="text-xs font-medium text-amber-700 mb-1">⚠ Risk Evidence</p>
+                <ul className="text-xs text-muted-foreground space-y-0.5">
+                  {(g.top_market?.insights?.evidence?.risk || g.insights?.evidence?.risk || []).map((item, i) => (
+                    <li key={i}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {((g.top_market?.insights?.data_quality || g.insights?.data_quality) || (g.top_market?.insights?.data_status || g.insights?.data_status)) && (
+              <p className="text-xs text-muted-foreground">
+                Data Quality: {g.top_market?.insights?.data_quality || g.insights?.data_quality || 'N/A'} · Status: {g.top_market?.insights?.data_status || g.insights?.data_status || 'N/A'}
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -252,6 +364,11 @@ function GameAnalysisPage() {
                     <>
                       <p>W: {(g.home_recent_form?.wins ?? g.home_form?.wins) || 0} | D: {(g.home_recent_form?.draws ?? g.home_form?.draws) || 0} | L: {(g.home_recent_form?.losses ?? g.home_form?.losses) || 0}</p>
                       <p>Goals: {(g.home_recent_form?.avg_scored ?? g.home_form?.avg_scored)?.toFixed(2) || '0'} scored · {(g.home_recent_form?.avg_conceded ?? g.home_form?.avg_conceded)?.toFixed(2) || '0'} conceded</p>
+                      {(g.home_recent_form?.scope || g.home_recent_form?.source || g.home_recent_form?.data_quality) && (
+                        <p className="text-muted-foreground">
+                          Scope: {g.home_recent_form?.scope || 'N/A'} · Source: {g.home_recent_form?.source || 'N/A'} · Quality: {g.home_recent_form?.data_quality || 'N/A'}
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
@@ -308,6 +425,11 @@ function GameAnalysisPage() {
                     <>
                       <p>W: {(g.away_recent_form?.wins ?? g.away_form?.wins) || 0} | D: {(g.away_recent_form?.draws ?? g.away_form?.draws) || 0} | L: {(g.away_recent_form?.losses ?? g.away_form?.losses) || 0}</p>
                       <p>Goals: {(g.away_recent_form?.avg_scored ?? g.away_form?.avg_scored)?.toFixed(2) || '0'} scored · {(g.away_recent_form?.avg_conceded ?? g.away_form?.avg_conceded)?.toFixed(2) || '0'} conceded</p>
+                      {(g.away_recent_form?.scope || g.away_recent_form?.source || g.away_recent_form?.data_quality) && (
+                        <p className="text-muted-foreground">
+                          Scope: {g.away_recent_form?.scope || 'N/A'} · Source: {g.away_recent_form?.source || 'N/A'} · Quality: {g.away_recent_form?.data_quality || 'N/A'}
+                        </p>
+                      )}
                     </>
                   )}
                 </div>
