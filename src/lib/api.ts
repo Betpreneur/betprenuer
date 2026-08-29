@@ -611,6 +611,9 @@ export interface MarketInfo {
   proven: boolean;
   meaning: string;
   label: string;
+  confidence?: number;
+  reasoning?: string;
+  model_verdict?: string;
 }
 
 // Game detail response - full context for one game
@@ -676,7 +679,7 @@ export interface GameFullContext {
   };
   official_pick?: Pick;
   official_picks?: Pick[];
-  top_market?: Pick;
+  top_market?: TopMarketInfo;
   market_count?: number;
   markets_70_plus?: number;
   markets_65_plus?: number;
@@ -685,6 +688,84 @@ export interface GameFullContext {
     home?: { injuries?: number; suspended?: number };
     away?: { injuries?: number; suspended?: number };
   };
+  // Additional fields from API - using exact JSON field names
+  coach_home?: string | null;
+  coach_away?: string | null;
+  manager_home?: string | null;
+  manager_away?: string | null;
+  venue?: string | null;
+  venue_name?: string | null;
+  venue_location?: string | null;
+  stadium?: string | null;
+  home_xg?: number | null;
+  away_xg?: number | null;
+  xg_home?: number | null;
+  xg_away?: number | null;
+  projected_total?: number | null;
+  ev_home?: number | null;
+  ev_away?: number | null;
+  ev_draw?: number | null;
+  expected_goals_home?: number | null;
+  expected_goals_away?: number | null;
+  form_home?: string | null;
+  form_away?: string | null;
+  recent_form_home?: string | null;
+  recent_form_away?: string | null;
+  home_standings?: { rank?: number; points?: number } | null;
+  away_standings?: { rank?: number; points?: number } | null;
+  standing?: { home_rank?: number; away_rank?: number; home_points?: number; away_points?: number } | null;
+  // Additional variations for form (string vs object)
+  form?: string | null;
+  recent_form?: string | null;
+  // Team news variations
+  team_news_home?: string | null;
+  team_news_away?: string | null;
+  news_home?: string | null;
+  news_away?: string | null;
+  // Corner stats variations - flat fields
+  corners_home_avg?: number | null;
+  corners_away_avg?: number | null;
+  corners_total_avg?: number | null;
+  corners_expected?: number | null;
+  // Insights variations
+  model_insights?: string | null;
+  analysis?: string | null;
+  reasoning?: string | null;
+  model_reasoning?: string | null;
+  // Match context flat fields
+  home_rank?: number | null;
+  away_rank?: number | null;
+  home_points?: number | null;
+  away_points?: number | null;
+  rest_days_home?: number | null;
+  rest_days_away?: number | null;
+  // Win odds
+  home_odds?: number | null;
+  away_odds?: number | null;
+  draw_odds?: number | null;
+  // Half time scores
+  half_time_home?: number | null;
+  half_time_away?: number | null;
+  // Live match stats
+  possession_home?: number | null;
+  possession_away?: number | null;
+  shots_on_target_home?: number | null;
+  shots_on_target_away?: number | null;
+  shots_home?: number | null;
+  shots_away?: number | null;
+  // Match info
+  referee?: string | null;
+  weather?: string | null;
+  attendance?: number | null;
+  // Additional stats
+  league_strength?: number | null;
+  draw_confidence?: number | null;
+  // Time info
+  elapsed?: number | null;
+  venue_timezone?: string | null;
+  // More form variations
+  home_form_last5?: string | null;
+  away_form_last5?: string | null;
 }
 
 // Team form stats
