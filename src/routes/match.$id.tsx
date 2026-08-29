@@ -1151,7 +1151,7 @@ function MatchPage() {
       {/* All Picks */}
       {(pick as any).all_picks?.length > 0 && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">All Picks ({((pick as any).all_picks?.length})</h2>
+          <h2 className="mb-3">All Picks ({((pick as any).all_picks?.length)})</h2>
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {((pick as any).all_picks as any[]).map((p: any, i: number) => (
               <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
