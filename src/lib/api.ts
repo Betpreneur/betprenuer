@@ -648,6 +648,43 @@ export interface GameFullContext {
   competition: string | null;
   country_flag: string | null;
   competition_info: CompetitionInfo | null;
+  // Additional fields returned by the API
+  fixture_context?: {
+    home_standing?: { rank?: number; points?: number };
+    away_standing?: { rank?: number; points?: number };
+    home_rest_days?: number;
+    away_rest_days?: number;
+    league_strength?: number;
+    goal_model?: {
+      expected_total?: number;
+      over15_margin?: number;
+      over25_margin?: number;
+      draw_confidence?: number;
+    };
+    h2h?: {
+      games?: number;
+      t1w?: number;
+      t2w?: number;
+      draws?: number;
+      avg_goals?: number;
+    };
+  };
+  corner_profile?: {
+    home?: { avg_for?: number; avg_against?: number; avg_total?: number };
+    away?: { avg_for?: number; avg_against?: number; avg_total?: number };
+    expected_total?: number;
+  };
+  official_pick?: Pick;
+  official_picks?: Pick[];
+  top_market?: Pick;
+  market_count?: number;
+  markets_70_plus?: number;
+  markets_65_plus?: number;
+  official_pick_count?: number;
+  team_news?: {
+    home?: { injuries?: number; suspended?: number };
+    away?: { injuries?: number; suspended?: number };
+  };
 }
 
 // Team form stats

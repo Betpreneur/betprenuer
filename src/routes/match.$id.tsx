@@ -32,6 +32,9 @@ interface GameDetails {
   corner_profile: any;
   insights: any;
   markets: any[];
+  competition_info: any;
+  prediction: any;
+  all_picks: any[];
 }
 
 export const Route = createFileRoute("/match/$id")({
@@ -161,9 +164,9 @@ function MatchPage() {
         
         setPick({
           ...effectivePick,
-          id: effectivePick?.id || Number(g.match_id) || 0,
-          match: g.fixture,
-          fixture: g.fixture,
+          id: effectivePick?.id || Number(g.id) || 0,
+          match: g.match,
+          fixture: g.match,
           kickoff: g.kickoff,
           kickoff_wat: g.kickoff || "",
           market_plain: effectivePick?.market || effectivePick?.selection || "",
@@ -180,8 +183,8 @@ function MatchPage() {
           league: g.league,
           competition_logo: g.competition_logo,
           country_flag: g.country_flag,
-          form_home: g.home_recent_form,
-          form_away: g.away_recent_form,
+          form_home: g.home_form,
+          form_away: g.away_form,
           goals_profile: effectivePick?.selection_profile ? effectivePick.selection_profile.split("\n").filter(Boolean) : [],
           risk_flags: Array.isArray(effectivePick?.risk_flags) ? effectivePick.risk_flags : [],
           risk_level: effectivePick?.risk_level || "",
@@ -209,6 +212,9 @@ function MatchPage() {
           official_pick: g.official_pick,
           official_picks: g.official_picks,
           markets: g.markets,
+          all_picks: g.picks,
+          competition_info: g.competition_info,
+          prediction: g.prediction,
           home_standing: g.fixture_context?.home_standing,
           away_standing: g.fixture_context?.away_standing,
           home_rest_days: g.fixture_context?.home_rest_days,
@@ -1064,6 +1070,118 @@ function MatchPage() {
                 </div>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* Match Prediction */}
+      {(pick as any).prediction && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Match Prediction</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
+            <div className="bg-win-green/10 rounded-lg p-3">
+              <div className="text-2xl font-black text-win-green">{(pick as any).prediction.home_win?.toFixed(1)}%</div>
+              <div className="text-xs text-muted-foreground">{pick.home_team} win</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3">
+              <div className="text-2xl font-black">{(pick as any).prediction.draw?.toFixed(1)}%</div>
+              <div className="text-xs text-muted-foreground">Draw</div>
+            </div>
+            <div className="bg-danger-red/10 rounded-lg p-3">
+              <div className="text-2xl font-black text-danger-red">{(pick as any).prediction.away_win?.toFixed(1)}%</div>
+              <div className="text-xs text-muted-foreground">{pick.away_team} win</div>
+            </div>
+            <div className="bg-info-blue/10 rounded-lg p-3">
+              <div className="text-2xl font-black text-info-blue">{(pick as any).prediction.btts?.toFixed(1)}%</div>
+              <div className="text-xs text-muted-foreground">BTTS</div>
+            </div>
+            <div className="bg-teal-accent/10 rounded-lg p-3">
+              <div className="text-2xl font-black text-teal-accent">{(pick as any).prediction.over_25?.toFixed(1)}%</div>
+              <div className="text-xs text-muted-foreground">Over 2.5</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Competition Info */}
+      {(pick as any).competition_info && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">Competition Info</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-[13px]">
+            {(pick as any).competition_info?.name && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Name</div>
+                <div className="font-medium">{(pick as any).competition_info.name}</div>
+              </div>
+            )}
+            {(pick as any).competition_info?.country && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Country</div>
+                <div className="font-medium">{(pick as any).competition_info.country}</div>
+              </div>
+            )}
+            {(pick as any).competition_info?.tier && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Tier</div>
+                <div className="font-medium">{(pick as any).competition_info.tier}</div>
+              </div>
+            )}
+            {(pick as any).competition_info?.season && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Season</div>
+                <div className="font-medium">{(pick as any).competition_info.season}</div>
+              </div>
+            )}
+            {(pick as any).competition_info?.total_teams && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Teams</div>
+                <div className="font-medium">{(pick as any).competition_info.total_teams}</div>
+              </div>
+            )}
+            {(pick as any).competition_info?.avg_goals && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px]">Avg Goals</div>
+                <div className="font-medium">{(pick as any).competition_info.avg_goals}</div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* All Picks */}
+      {(pick as any).all_picks?.length > 0 && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <h2 className="mb-3">All Picks ({((pick as any).all_picks?.length})</h2>
+          <div className="space-y-2 max-h-80 overflow-y-auto">
+            {((pick as any).all_picks as any[]).map((p: any, i: number) => (
+              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium truncate">{p.market}</span>
+                    {p.tier && (
+                      <TierBadge tier={p.tier} />
+                    )}
+                  </div>
+                  {p.selection && (
+                    <div className="text-muted-foreground text-[12px] truncate">{p.selection}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-2">
+                  {p.odds && (
+                    <span className="font-semibold text-brand-green">@{Number(p.odds).toFixed(2)}</span>
+                  )}
+                  {p.confidence && (
+                    <span className={`text-[11px] px-1.5 py-0.5 rounded ${
+                      p.confidence >= 70 ? 'bg-win-green/20 text-win-green' :
+                      p.confidence >= 65 ? 'bg-teal-accent/20 text-teal-accent' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {p.confidence}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}
