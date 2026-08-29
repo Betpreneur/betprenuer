@@ -113,22 +113,22 @@ function GameAnalysisPage() {
             <div className="mt-2 pt-2 border-t border-blue-100">
               <p className="text-xs font-medium text-blue-800 mb-1">Odds Comparison</p>
               <div className="grid grid-cols-4 gap-1 text-xs">
-                {g.top_market.odds_meta.best_odds != null && (
+                {g.top_market.odds_meta.best != null && (
                   <div className="text-center">
                     <p className="text-muted-foreground">Best</p>
-                    <p className="font-medium text-green-600">@{g.top_market.odds_meta.best_odds}</p>
+                    <p className="font-medium text-green-600">@{g.top_market.odds_meta.best}</p>
                   </div>
                 )}
-                {g.top_market.odds_meta.worst_odds != null && (
+                {g.top_market.odds_meta.worst != null && (
                   <div className="text-center">
                     <p className="text-muted-foreground">Worst</p>
-                    <p className="font-medium text-red-600">@{g.top_market.odds_meta.worst_odds}</p>
+                    <p className="font-medium text-red-600">@{g.top_market.odds_meta.worst}</p>
                   </div>
                 )}
-                {g.top_market.odds_meta.avg_odds != null && (
+                {g.top_market.odds_meta.average != null && (
                   <div className="text-center">
                     <p className="text-muted-foreground">Avg</p>
-                    <p className="font-medium">@{g.top_market.odds_meta.avg_odds}</p>
+                    <p className="font-medium">@{g.top_market.odds_meta.average}</p>
                   </div>
                 )}
                 {g.top_market.odds_meta.bookmaker_count != null && (
@@ -138,6 +138,11 @@ function GameAnalysisPage() {
                   </div>
                 )}
               </div>
+              {g.top_market.odds_meta.spread_pct != null && (
+                <p className="text-xs text-muted-foreground mt-1 text-center">
+                  Spread: {g.top_market.odds_meta.spread_pct}% · Best vs Avg: {g.top_market.odds_meta.best_vs_average_pct ?? 'N/A'}%
+                </p>
+              )}
             </div>
           )}
           {/* Analysis Summary */}

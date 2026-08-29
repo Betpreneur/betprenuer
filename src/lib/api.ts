@@ -606,13 +606,49 @@ export interface TopMarketInfo {
   display_score?: number | null;
   analysis_summary?: string | null;
   odds_meta?: {
-    best_odds?: number | null;
-    worst_odds?: number | null;
-    avg_odds?: number | null;
+    best?: number | null;
+    worst?: number | null;
+    average?: number | null;
+    source?: string | null;
+    spread_pct?: number | null;
     bookmaker_count?: number | null;
+    best_vs_average_pct?: number | null;
   } | null;
   positive_evidence?: string[] | null;
   risk_evidence?: string[] | null;
+  council_review?: {
+    decision?: string | null;
+    tier?: string | null;
+    raw_confidence?: number | null;
+    final_confidence?: number | null;
+    consensus_score?: number | null;
+    disagreement_score?: number | null;
+    reasons?: string[] | null;
+    reviewers?: string[] | null;
+  } | null;
+  insights?: {
+    model?: string | null;
+    summary?: string | null;
+    evidence?: {
+      risk?: string[] | null;
+      positive?: string[] | null;
+      model_sources?: string[] | null;
+    } | null;
+    fair_odds?: number | null;
+    conclusion?: string | null;
+    bettor_view?: string | null;
+    data_status?: string | null;
+    data_quality?: string | null;
+    value_engine?: string | null;
+    market_family?: string | null;
+    model_sources?: string[] | null;
+    risk_evidence?: string[] | null;
+    council_review?: any;
+    assessment_type?: string | null;
+    market_category?: string | null;
+    market_identity?: any;
+    raw_probability?: number | null;
+  } | null;
 }
 
 // Market info within game detail
@@ -790,13 +826,49 @@ export interface GameFullContext {
   display_score?: number | null;
   analysis_summary?: string | null;
   odds_meta?: {
-    best_odds?: number | null;
-    worst_odds?: number | null;
-    avg_odds?: number | null;
+    best?: number | null;
+    worst?: number | null;
+    average?: number | null;
+    source?: string | null;
+    spread_pct?: number | null;
     bookmaker_count?: number | null;
+    best_vs_average_pct?: number | null;
   } | null;
   positive_evidence?: string[] | null;
   risk_evidence?: string[] | null;
+  council_review?: {
+    decision?: string | null;
+    tier?: string | null;
+    raw_confidence?: number | null;
+    final_confidence?: number | null;
+    consensus_score?: number | null;
+    disagreement_score?: number | null;
+    reasons?: string[] | null;
+    reviewers?: string[] | null;
+  } | null;
+  insights?: {
+    model?: string | null;
+    summary?: string | null;
+    evidence?: {
+      risk?: string[] | null;
+      positive?: string[] | null;
+      model_sources?: string[] | null;
+    } | null;
+    fair_odds?: number | null;
+    conclusion?: string | null;
+    bettor_view?: string | null;
+    data_status?: string | null;
+    data_quality?: string | null;
+    value_engine?: string | null;
+    market_family?: string | null;
+    model_sources?: string[] | null;
+    risk_evidence?: string[] | null;
+    council_review?: any;
+    assessment_type?: string | null;
+    market_category?: string | null;
+    market_identity?: any;
+    raw_probability?: number | null;
+  } | null;
 }
 
 // Team form stats - form can be string or array from API
