@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api, type GameDetailResponse, type GameFullContext, type MarketInfo, type Pick, type TopMarketInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { formatKickoff } from "@/lib/time";
-import { ArrowLeft, TrendingUp, Users, Target, Lightbulb, BarChart3, Award, CircleDot, Info, Trophy, MapPin, User, CloudSun, Whistle, Eye } from "lucide-react";
+import { ArrowLeft, TrendingUp, Users, Target, Lightbulb, BarChart3, Award, CircleDot, Info, Trophy, MapPin, User, CloudSun, PenLine } from "lucide-react";
 
 export const Route = createFileRoute("/games/$id")({
   head: () => ({ meta: [{ title: "Game Analysis - Betpreneur" }] }),
@@ -669,7 +669,7 @@ function GameAnalysisPage() {
           <div className="space-y-2 text-xs">
             {g.referee && (
               <div className="flex items-center gap-2">
-                <Whistle className="w-4 h-4 text-muted-foreground" />
+                <PenLine className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Referee:</span>
                 <span>{g.referee}</span>
               </div>
