@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { api, type GameDetailResponse, type GameFullContext, type MarketInfo, type Pick } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { formatKickoff } from "@/lib/time";
 import { ArrowLeft } from "lucide-react";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/games/$id")({
 
 function GameAnalysisPage() {
   const { isAuthed, loading } = useAuth();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<GameDetailResponse | null>(null);
   const [error, setError] = useState(false);
   const [loadingId, setLoadingId] = useState(true);
 
@@ -31,9 +31,9 @@ function GameAnalysisPage() {
   if (loading || loadingId) return <div className="p-4">Loading...</div>;
   if (error || !data) return <div className="p-4">Failed load.</div>;
 
-  const g = data.game;
+  const g: GameFullContext = data.game;
   const hasPick = g.picks && g.picks.length > 0;
-  const displayMarkets = hasPick ? g.picks : g.markets;
+  const displayMarkets: (MarketInfo | Pick)[] = hasPick ? g.picks : g.markets;
   
   return (
     <div className="space-y-4 p-4">
@@ -63,14 +63,25 @@ function GameAnalysisPage() {
         <div className="center">{g.away_logo && <img src={g.away_logo} className="w-12 h-12"/>}<div>{g.away_team}</div></div>
       </div>
       {!hasPick && <div className="text-xs text-muted-foreground mb-2">Available Markets</div>}
-      {displayMarkets?.map((p: any, i: number) => (
-        <div key={i} className="p-2 border my-1">
-          <div className="font-medium">{p.market}</div>
-          <div className="text-sm text-muted-foreground">
-            @{p.odds} {p.confidence ? `${p.confidence}% confidence` : null}
+      {displayMarkets?.map((p: MarketInfo | Pick, i: number) => {
+        // MarketInfo has: label, odds, meaning, ev, proven
+        // Pick has: market, odds, confidence
+        const marketLabel = 'label' in p ? p.label : p.market;
+        const marketOdds = p.odds;
+        const marketMeaning = 'meaning' in p ? p.meaning : null;
+        const marketConfidence = 'confidence' in p ? p.confidence : null;
+        
+        return (
+          <div key={i} className="p-2 border my-1">
+            <div className="font-medium">{marketLabel}</div>
+            <div className="text-sm text-muted-foreground">
+              @{marketOdds}
+              {marketMeaning && <span className="ml-2">{marketMeaning}</span>}
+              {marketConfidence ? ` ${marketConfidence}% confidence` : null}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
