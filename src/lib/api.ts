@@ -601,6 +601,18 @@ export interface TopMarketInfo {
   meaning: string;
   confidence: number;
   risk_flags: string[];
+  reasoning?: string;
+  model_verdict?: string;
+  display_score?: number | null;
+  analysis_summary?: string | null;
+  odds_meta?: {
+    best_odds?: number | null;
+    worst_odds?: number | null;
+    avg_odds?: number | null;
+    bookmaker_count?: number | null;
+  } | null;
+  positive_evidence?: string[] | null;
+  risk_evidence?: string[] | null;
 }
 
 // Market info within game detail
@@ -766,21 +778,43 @@ export interface GameFullContext {
   // More form variations
   home_form_last5?: string | null;
   away_form_last5?: string | null;
+  // Recent form - exact field names from API
+  home_recent_form?: RecentFormStats | null;
+  away_recent_form?: RecentFormStats | null;
+  // Insights - reasoning text from top_market
+  top_market_reasoning?: string | null;
+  top_market_model_verdict?: string | null;
+  // Additional fields from API
+  round?: number | string | null;
+  country?: string | null;
+  display_score?: number | null;
+  analysis_summary?: string | null;
+  odds_meta?: {
+    best_odds?: number | null;
+    worst_odds?: number | null;
+    avg_odds?: number | null;
+    bookmaker_count?: number | null;
+  } | null;
+  positive_evidence?: string[] | null;
+  risk_evidence?: string[] | null;
 }
 
-// Team form stats
+// Team form stats - form can be string or array from API
 export interface RecentFormStats {
-  form: string;
+  form: string | string[];
   wins: number;
   draws: number;
   losses: number;
   games: number;
   avg_scored: number;
   avg_conceded: number;
-  clean_sheets: number;
-  btts_rate: number;
-  over25_rate: number;
-  streak: number;
+  clean_sheets?: number;
+  btts_rate?: number;
+  over25_rate?: number;
+  streak?: number;
+  data_quality?: string;
+  scope?: string;
+  source?: string;
 }
 
 // Prediction context

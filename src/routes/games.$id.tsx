@@ -54,7 +54,9 @@ function GameAnalysisPage() {
         )}
         <div>
           <h1 className="text-xl font-bold">{g.match}</h1>
-          <p className="text-sm text-muted-foreground">{g.league} · {formatKickoff(g.kickoff)}</p>
+          <p className="text-sm text-muted-foreground">
+            {g.league}{g.round ? ` · Round ${g.round}` : ''}{g.country ? ` · ${g.country}` : ''} · {formatKickoff(g.kickoff)}
+          </p>
         </div>
       </div>
       <div className="flex justify-center items-center gap-8 py-4">
@@ -89,6 +91,11 @@ function GameAnalysisPage() {
           <div className="flex items-center gap-2 mb-3">
             <Award className="w-4 h-4 text-blue-600" />
             <h2 className="font-semibold">Top Market</h2>
+            {g.top_market.display_score != null && (
+              <span className="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                Score: {g.top_market.display_score}
+              </span>
+            )}
           </div>
           <div className="text-sm">
             <p className="font-medium">{g.top_market.market}</p>
@@ -101,36 +108,132 @@ function GameAnalysisPage() {
               <p className="text-xs text-muted-foreground mt-1">{g.top_market.meaning}</p>
             )}
           </div>
-          {/* Model Verdict / Reasoning from Top Market - show insights if available */}
-          {g.insights && (
+          {/* Odds Meta - Best/Worst/Avg */}
+          {g.top_market.odds_meta && (
+            <div className="mt-2 pt-2 border-t border-blue-100">
+              <p className="text-xs font-medium text-blue-800 mb-1">Odds Comparison</p>
+              <div className="grid grid-cols-4 gap-1 text-xs">
+                {g.top_market.odds_meta.best_odds != null && (
+                  <div className="text-center">
+                    <p className="text-muted-foreground">Best</p>
+                    <p className="font-medium text-green-600">@{g.top_market.odds_meta.best_odds}</p>
+                  </div>
+                )}
+                {g.top_market.odds_meta.worst_odds != null && (
+                  <div className="text-center">
+                    <p className="text-muted-foreground">Worst</p>
+                    <p className="font-medium text-red-600">@{g.top_market.odds_meta.worst_odds}</p>
+                  </div>
+                )}
+                {g.top_market.odds_meta.avg_odds != null && (
+                  <div className="text-center">
+                    <p className="text-muted-foreground">Avg</p>
+                    <p className="font-medium">@{g.top_market.odds_meta.avg_odds}</p>
+                  </div>
+                )}
+                {g.top_market.odds_meta.bookmaker_count != null && (
+                  <div className="text-center">
+                    <p className="text-muted-foreground">Books</p>
+                    <p className="font-medium">{g.top_market.odds_meta.bookmaker_count}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {/* Analysis Summary */}
+          {g.top_market.analysis_summary && (
+            <div className="mt-2 pt-2 border-t border-blue-100">
+              <p className="text-xs font-medium text-blue-800 mb-1">Analysis</p>
+              <p className="text-xs text-muted-foreground">{g.top_market.analysis_summary}</p>
+            </div>
+          )}
+          {/* Positive Evidence */}
+          {g.top_market.positive_evidence && g.top_market.positive_evidence.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-blue-100">
+              <p className="text-xs font-medium text-green-700 mb-1">✓ Positive Factors</p>
+              <ul className="text-xs text-muted-foreground space-y-0.5">
+                {g.top_market.positive_evidence.map((evidence, i) => (
+                  <li key={i}>• {evidence}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Risk Evidence */}
+          {g.top_market.risk_evidence && g.top_market.risk_evidence.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-blue-100">
+              <p className="text-xs font-medium text-amber-700 mb-1">⚠ Risk Factors</p>
+              <ul className="text-xs text-muted-foreground space-y-0.5">
+                {g.top_market.risk_evidence.map((evidence, i) => (
+                  <li key={i}>• {evidence}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Risk Flags */}
+          {g.top_market.risk_flags && g.top_market.risk_flags.length > 0 && (
+            <div className="mt-2">
+              <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                Risk: {g.top_market.risk_flags.join(', ')}
+              </span>
+            </div>
+          )}
+          {/* Model Verdict / Reasoning from Top Market */}
+          {(g.top_market.reasoning || g.top_market.model_verdict) && (
             <div className="mt-3 pt-3 border-t border-blue-100">
               <p className="text-xs font-medium text-blue-800 mb-1">Why this pick?</p>
-              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{g.insights}</p>
+              <p className="text-xs text-muted-foreground whitespace-pre-wrap">{g.top_market.reasoning || g.top_market.model_verdict}</p>
             </div>
           )}
         </div>
       )}
 
-      {/* Recent Form Section - handles multiple field name variations */}
-      {((g.home_form || g.away_form) || (g.form_home || g.form_away) || (g.recent_form_home || g.recent_form_away) || (g.form)) && (
+      {/* Recent Form Section - uses home_recent_form and away_recent_form */}
+      {((g.home_recent_form || g.away_recent_form) || (g.home_form || g.away_form) || (g.form_home || g.form_away) || (g.recent_form_home || g.recent_form_away) || (g.form) || (g.home_form_last5 || g.away_form_last5)) && (
         <div className="border rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="w-4 h-4" />
             <h2 className="font-semibold">Recent Form</h2>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {(g.home_form || g.form_home || g.recent_form_home) && (
+            {(g.home_recent_form || g.home_form || g.form_home || g.recent_form_home) && (
               <div>
                 <h3 className="text-sm font-medium mb-2">{g.home_team}</h3>
                 <div className="text-xs space-y-1">
-                  {/* Handle different field name variations - string or object */}
+                  {/* Handle form array from API */}
                   {(() => {
-                    const formData = g.home_form || g.form_home || g.recent_form_home;
-                    const formStr = typeof formData === 'string' ? formData : formData?.form;
-                    if (formStr) {
+                    const formData = g.home_recent_form || g.home_form || g.form_home || g.recent_form_home;
+                    // Check if formData is an object (RecentFormStats) with form property
+                    if (formData && typeof formData === 'object' && 'form' in formData) {
+                      const formArray = (formData as any).form;
+                      if (Array.isArray(formArray)) {
+                        return (
+                          <div className="flex gap-1">
+                            {formArray.slice(0, 10).map((char, i) => (
+                              <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
+                                char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                              }`}>{char}</span>
+                            ))}
+                          </div>
+                        );
+                      }
+                      // Handle string form property
+                      if (typeof formArray === 'string') {
+                        return (
+                          <div className="flex gap-1">
+                            {formArray.split('').slice(0, 10).map((char, i) => (
+                              <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
+                                char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                              }`}>{char}</span>
+                            ))}
+                          </div>
+                        );
+                      }
+                    }
+                    // Handle plain string form
+                    if (typeof formData === 'string') {
                       return (
                         <div className="flex gap-1">
-                          {formStr.split('').map((char, i) => (
+                          {formData.split('').slice(0, 10).map((char, i) => (
                             <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
                               char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
                             }`}>{char}</span>
@@ -140,27 +243,53 @@ function GameAnalysisPage() {
                     }
                     return null;
                   })()}
-                  {g.home_form && (
+                  {(g.home_recent_form || g.home_form) && (
                     <>
-                      <p>W: {g.home_form.wins} | D: {g.home_form.draws} | L: {g.home_form.losses}</p>
-                      <p>Goals: {g.home_form.avg_scored} scored · {g.home_form.avg_conceded} conceded</p>
-                      <p>Clean sheets: {g.home_form.clean_sheets} · BTTS: {g.home_form.btts_rate}%</p>
+                      <p>W: {(g.home_recent_form?.wins ?? g.home_form?.wins) || 0} | D: {(g.home_recent_form?.draws ?? g.home_form?.draws) || 0} | L: {(g.home_recent_form?.losses ?? g.home_form?.losses) || 0}</p>
+                      <p>Goals: {(g.home_recent_form?.avg_scored ?? g.home_form?.avg_scored)?.toFixed(2) || '0'} scored · {(g.home_recent_form?.avg_conceded ?? g.home_form?.avg_conceded)?.toFixed(2) || '0'} conceded</p>
                     </>
                   )}
                 </div>
               </div>
             )}
-            {(g.away_form || g.form_away || g.recent_form_away) && (
+            {(g.away_recent_form || g.away_form || g.form_away || g.recent_form_away) && (
               <div>
                 <h3 className="text-sm font-medium mb-2">{g.away_team}</h3>
                 <div className="text-xs space-y-1">
                   {(() => {
-                    const formData = g.away_form || g.form_away || g.recent_form_away;
-                    const formStr = typeof formData === 'string' ? formData : formData?.form;
-                    if (formStr) {
+                    const formData = g.away_recent_form || g.away_form || g.form_away || g.recent_form_away;
+                    // Check if formData is an object (RecentFormStats) with form property
+                    if (formData && typeof formData === 'object' && 'form' in formData) {
+                      const formArray = (formData as any).form;
+                      if (Array.isArray(formArray)) {
+                        return (
+                          <div className="flex gap-1">
+                            {formArray.slice(0, 10).map((char, i) => (
+                              <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
+                                char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                              }`}>{char}</span>
+                            ))}
+                          </div>
+                        );
+                      }
+                      // Handle string form property
+                      if (typeof formArray === 'string') {
+                        return (
+                          <div className="flex gap-1">
+                            {formArray.split('').slice(0, 10).map((char, i) => (
+                              <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
+                                char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                              }`}>{char}</span>
+                            ))}
+                          </div>
+                        );
+                      }
+                    }
+                    // Handle plain string form
+                    if (typeof formData === 'string') {
                       return (
                         <div className="flex gap-1">
-                          {formStr.split('').map((char, i) => (
+                          {formData.split('').slice(0, 10).map((char, i) => (
                             <span key={i} className={`w-5 h-5 flex items-center justify-center rounded text-xs font-medium ${
                               char === 'W' ? 'bg-green-100 text-green-700' : char === 'D' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
                             }`}>{char}</span>
@@ -170,11 +299,10 @@ function GameAnalysisPage() {
                     }
                     return null;
                   })()}
-                  {g.away_form && (
+                  {(g.away_recent_form || g.away_form) && (
                     <>
-                      <p>W: {g.away_form.wins} | D: {g.away_form.draws} | L: {g.away_form.losses}</p>
-                      <p>Goals: {g.away_form.avg_scored} scored · {g.away_form.avg_conceded} conceded</p>
-                      <p>Clean sheets: {g.away_form.clean_sheets} · BTTS: {g.away_form.btts_rate}%</p>
+                      <p>W: {(g.away_recent_form?.wins ?? g.away_form?.wins) || 0} | D: {(g.away_recent_form?.draws ?? g.away_form?.draws) || 0} | L: {(g.away_recent_form?.losses ?? g.away_form?.losses) || 0}</p>
+                      <p>Goals: {(g.away_recent_form?.avg_scored ?? g.away_form?.avg_scored)?.toFixed(2) || '0'} scored · {(g.away_recent_form?.avg_conceded ?? g.away_form?.avg_conceded)?.toFixed(2) || '0'} conceded</p>
                     </>
                   )}
                 </div>
@@ -228,14 +356,37 @@ function GameAnalysisPage() {
             )}
             {g.fixture_context?.h2h && (
               <div className="col-span-2 mt-2 pt-2 border-t">
-                <p className="font-medium mb-1">Head-to-Head</p>
-                <p className="text-muted-foreground">
-                  Games: {g.fixture_context.h2h.games} · 
-                  {g.home_team} W: {g.fixture_context.h2h.t1w} · 
-                  {g.away_team} W: {g.fixture_context.h2h.t2w} · 
-                  Draws: {g.fixture_context.h2h.draws} · 
-                  Avg Goals: {g.fixture_context.h2h.avg_goals}
-                </p>
+                <p className="font-medium mb-2">Head-to-Head</p>
+                <div className="grid grid-cols-5 gap-1 text-center text-xs mb-2">
+                  <div className="bg-gray-50 rounded p-2">
+                    <p className="text-muted-foreground">Games</p>
+                    <p className="font-bold">{g.fixture_context.h2h.games}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded p-2">
+                    <p className="text-muted-foreground">{g.home_team}</p>
+                    <p className="font-bold text-blue-600">{g.fixture_context.h2h.t1w}W</p>
+                  </div>
+                  <div className="bg-gray-50 rounded p-2">
+                    <p className="text-muted-foreground">Draws</p>
+                    <p className="font-bold">{g.fixture_context.h2h.draws}</p>
+                  </div>
+                  <div className="bg-red-50 rounded p-2">
+                    <p className="text-muted-foreground">{g.away_team}</p>
+                    <p className="font-bold text-red-600">{g.fixture_context.h2h.t2w}W</p>
+                  </div>
+                  <div className="bg-green-50 rounded p-2">
+                    <p className="text-muted-foreground">Avg Goals</p>
+                    <p className="font-bold text-green-600">{g.fixture_context.h2h.avg_goals}</p>
+                  </div>
+                </div>
+                {/* Show H2H win percentages */}
+                {g.fixture_context.h2h.games && g.fixture_context.h2h.games > 0 && (
+                  <div className="flex justify-between items-center gap-2 text-xs">
+                    <span className="w-1/3 text-blue-600">{g.home_team} {((g.fixture_context.h2h.t1w / g.fixture_context.h2h.games) * 100).toFixed(0)}%</span>
+                    <span className="w-1/3 text-center text-muted-foreground">win rate</span>
+                    <span className="w-1/3 text-right text-red-600">{g.away_team} {((g.fixture_context.h2h.t2w / g.fixture_context.h2h.games) * 100).toFixed(0)}%</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -313,14 +464,14 @@ function GameAnalysisPage() {
         </div>
       )}
 
-      {/* Key Insights Section - handles multiple field name variations */}
-      {(g.insights || g.model_insights || g.analysis || g.reasoning || g.model_reasoning) && (
+      {/* Key Insights Section - from top_market reasoning */}
+      {((g.top_market?.reasoning || g.top_market?.model_verdict) || g.model_insights || g.analysis || g.reasoning || g.model_reasoning) && (
         <div className="border rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="w-4 h-4" />
             <h2 className="font-semibold">Key Insights</h2>
           </div>
-          <p className="text-sm whitespace-pre-wrap">{g.insights || g.model_insights || g.analysis || g.reasoning || g.model_reasoning}</p>
+          <p className="text-sm whitespace-pre-wrap">{g.top_market?.reasoning || g.top_market?.model_verdict || g.model_insights || g.analysis || g.reasoning || g.model_reasoning}</p>
         </div>
       )}
 
@@ -527,14 +678,14 @@ function GameAnalysisPage() {
       )}
 
       {/* EV (Expected Value) Section */}
-      {(g.ev_home !== undefined || g.ev_away !== undefined || g.ev_draw !== undefined) && (
+      {(g.ev_home != null || g.ev_away != null || g.ev_draw != null) && (
         <div className="border rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <BarChart3 className="w-4 h-4" />
             <h2 className="font-semibold">Expected Value</h2>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            {g.ev_home !== undefined && (
+            {g.ev_home != null && (
               <div className="bg-blue-50 rounded p-2">
                 <p className="text-muted-foreground">{g.home_team}</p>
                 <p className={`font-bold ${g.ev_home >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -542,7 +693,7 @@ function GameAnalysisPage() {
                 </p>
               </div>
             )}
-            {g.ev_draw !== undefined && (
+            {g.ev_draw != null && (
               <div className="bg-gray-50 rounded p-2">
                 <p className="text-muted-foreground">Draw</p>
                 <p className={`font-bold ${g.ev_draw >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -550,7 +701,7 @@ function GameAnalysisPage() {
                 </p>
               </div>
             )}
-            {g.ev_away !== undefined && (
+            {g.ev_away != null && (
               <div className="bg-red-50 rounded p-2">
                 <p className="text-muted-foreground">{g.away_team}</p>
                 <p className={`font-bold ${g.ev_away >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -681,11 +832,11 @@ function GameAnalysisPage() {
                 <span>{g.weather}</span>
               </div>
             )}
-            {g.attendance !== undefined && (
+            {g.attendance != null && (
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Attendance:</span>
-                <span>{g.attendance.toLocaleString()}</span>
+                <span>{g.attendance?.toLocaleString()}</span>
               </div>
             )}
           </div>
@@ -693,7 +844,7 @@ function GameAnalysisPage() {
       )}
 
       {/* League Strength */}
-      {g.league_strength !== undefined && (
+      {g.league_strength != null && (
         <div className="border rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="w-4 h-4" />
@@ -702,7 +853,7 @@ function GameAnalysisPage() {
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
               className="bg-green-500 h-full rounded-full" 
-              style={{ width: `${Math.min(g.league_strength * 10, 100)}%` }}
+              style={{ width: `${Math.min((g.league_strength ?? 0) * 10, 100)}%` }}
             />
           </div>
           <p className="text-xs text-muted-foreground mt-1">{g.league_strength}/10</p>
