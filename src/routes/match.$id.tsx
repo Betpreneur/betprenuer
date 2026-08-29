@@ -99,6 +99,13 @@ function getPickTierKey(tier?: string | null): "banker" | "gem" | "wildcard" | n
   return null;
 }
 
+// Safe helper to extract home/away team from match string
+function getTeamFromMatch(matchStr: string | undefined, isAway: boolean): string {
+  if (!matchStr || !matchStr.includes(" vs ")) return "";
+  const parts = matchStr.split(" vs ");
+  return isAway ? parts[1] : parts[0];
+}
+
 function pickCardLabel(pick: PickDetail): string {
   const tierKey = getPickTierKey((pick as any).tier);
   return tierKey ? tierLabel(tierKey) : "Top Market";
@@ -699,7 +706,7 @@ function MatchPage() {
             {pick.form_home && (pick.form_home.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="font-semibold text-win-green">{pick.match.split(" vs ")[0]}</div>
+                  <div className="font-semibold text-win-green">{getTeamFromMatch(pick.match, false)}</div>
                   <FormChips form={pick.form_home.form as string} />
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -720,7 +727,7 @@ function MatchPage() {
             {pick.form_away && (pick.form_away.games ?? 0) > 0 && (
               <div className="bg-muted/30 rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="font-semibold text-danger-red">{pick.match.split(" vs ")[1]}</div>
+                  <div className="font-semibold text-danger-red">{getTeamFromMatch(pick.match, true)}</div>
                   <FormChips form={pick.form_away.form as string} />
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -778,7 +785,7 @@ function MatchPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div>
                     <div className="font-bold text-win-green">{(pick as any).fixture_context.h2h.t1w ?? 0}</div>
-                    <div className="text-[10px] text-muted-foreground">{pick.match.split(" vs ")[0].split(" ")[0]} wins</div>
+                    <div className="text-[10px] text-muted-foreground">{getTeamFromMatch(pick.match, false).split(" ")[0]} wins</div>
                   </div>
                   <div>
                     <div className="font-bold text-muted-foreground">{(pick as any).fixture_context.h2h.draws ?? 0}</div>
@@ -786,7 +793,7 @@ function MatchPage() {
                   </div>
                   <div>
                     <div className="font-bold text-danger-red">{(pick as any).fixture_context.h2h.t2w ?? 0}</div>
-                    <div className="text-[10px] text-muted-foreground">{pick.match.split(" vs ")[1].split(" ")[0]} wins</div>
+                    <div className="text-[10px] text-muted-foreground">{getTeamFromMatch(pick.match, true).split(" ")[0]} wins</div>
                   </div>
                   <div>
                     <div className="font-bold">{(pick as any).fixture_context.h2h.avg_goals ?? "-"}</div>
@@ -809,7 +816,7 @@ function MatchPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(pick as any).home_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} position</div>
+                    <div className="text-muted-foreground text-[11px] mb-1">{getTeamFromMatch(pick.match, false)} position</div>
                     <div className="font-bold text-win-green">
                       #{(pick as any).home_standing?.rank} ┬╖ {(pick as any).home_standing?.points} pts
                     </div>
@@ -817,7 +824,7 @@ function MatchPage() {
                 )}
                 {(pick as any).away_standing?.rank && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} position</div>
+                    <div className="text-muted-foreground text-[11px] mb-1">{getTeamFromMatch(pick.match, true)} position</div>
                     <div className="font-bold text-danger-red">
                       #{(pick as any).away_standing?.rank} ┬╖ {(pick as any).away_standing?.points} pts
                     </div>
@@ -831,13 +838,13 @@ function MatchPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(pick as any).home_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[0]} rest</div>
+                    <div className="text-muted-foreground text-[11px] mb-1">{getTeamFromMatch(pick.match, false)} rest</div>
                     <div className="font-medium">{(pick as any).home_rest_days} days</div>
                   </div>
                 )}
                 {(pick as any).away_rest_days && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="text-muted-foreground text-[11px] mb-1">{pick.match.split(" vs ")[1]} rest</div>
+                    <div className="text-muted-foreground text-[11px] mb-1">{getTeamFromMatch(pick.match, true)} rest</div>
                     <div className="font-medium">{(pick as any).away_rest_days} days</div>
                   </div>
                 )}
@@ -858,13 +865,13 @@ function MatchPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {(pick as any).home_news && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                    <div className="font-semibold text-win-green mb-2">{getTeamFromMatch(pick.match, false)}</div>
                     <p className="text-muted-foreground text-xs whitespace-pre-line">{(pick as any).home_news}</p>
                   </div>
                 )}
                 {(pick as any).away_news && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                    <div className="font-semibold text-danger-red mb-2">{getTeamFromMatch(pick.match, true)}</div>
                     <p className="text-muted-foreground text-xs whitespace-pre-line">{(pick as any).away_news}</p>
                   </div>
                 )}
@@ -875,7 +882,7 @@ function MatchPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {(pick as any).team_news?.home && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                    <div className="font-semibold text-win-green mb-2">{getTeamFromMatch(pick.match, false)}</div>
                     <div className="grid grid-cols-2 gap-2">
                       <span className="text-muted-foreground">Injuries</span>
                       <span className="font-medium">{(pick as any).team_news.home.injuries ?? 0}</span>
@@ -890,7 +897,7 @@ function MatchPage() {
                 )}
                 {(pick as any).team_news?.away && (
                   <div className="bg-muted/30 rounded-lg p-3">
-                    <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                    <div className="font-semibold text-danger-red mb-2">{getTeamFromMatch(pick.match, true)}</div>
                     <div className="grid grid-cols-2 gap-2">
                       <span className="text-muted-foreground">Injuries</span>
                       <span className="font-medium">{(pick as any).team_news.away.injuries ?? 0}</span>
@@ -921,7 +928,7 @@ function MatchPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
             {(pick as any).corner_profile?.home && (
               <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-win-green mb-2">{pick.match.split(" vs ")[0]}</div>
+                <div className="font-semibold text-win-green mb-2">{getTeamFromMatch(pick.match, false)}</div>
                 <div className="grid grid-cols-2 gap-1">
                   <span className="text-muted-foreground">Avg For</span>
                   <span className="font-medium">{(pick as any).corner_profile.home.avg_for ?? "-"}</span>
@@ -934,7 +941,7 @@ function MatchPage() {
             )}
             {(pick as any).corner_profile?.away && (
               <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-danger-red mb-2">{pick.match.split(" vs ")[1]}</div>
+                <div className="font-semibold text-danger-red mb-2">{getTeamFromMatch(pick.match, true)}</div>
                 <div className="grid grid-cols-2 gap-1">
                   <span className="text-muted-foreground">Avg For</span>
                   <span className="font-medium">{(pick as any).corner_profile.away.avg_for ?? "-"}</span>
