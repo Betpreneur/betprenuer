@@ -21,6 +21,7 @@ interface GameDetails {
   official_pick: any;
   official_picks: any[];
   top_market: any;
+  best_market: any;
   market_count: number;
   eligible_market_count: number;
   markets_70_plus: number;
@@ -35,6 +36,12 @@ interface GameDetails {
   competition_info: any;
   prediction: any;
   all_picks: any[];
+  // Nested fields from top_market/best_market
+  council_review: any;
+  odds_meta: any;
+  bettor_view: any;
+  // StatPal data
+  statpal: any;
 }
 
 export const Route = createFileRoute("/match/$id")({
@@ -227,6 +234,12 @@ function MatchPage() {
           home_rest_days: g.fixture_context?.home_rest_days,
           away_rest_days: g.fixture_context?.away_rest_days,
           league_strength: g.fixture_context?.league_strength,
+          // New nested fields from top_market/best_market
+          council_review: effectivePick?.council_review || g.top_market?.council_review || g.best_market?.council_review,
+          odds_meta: effectivePick?.odds_meta || g.top_market?.odds_meta || g.best_market?.odds_meta,
+          bettor_view: effectivePick?.bettor_view || g.top_market?.bettor_view || g.best_market?.bettor_view,
+          // StatPal data from fixture_context
+          statpal: g.fixture_context?.statpal,
         });
       })
       .catch((err) => {
@@ -987,6 +1000,375 @@ function MatchPage() {
                 <div className="text-muted-foreground text-[11px]">Strategy</div>
                 <div className="text-foreground italic">{(pick as any).insights.pre_match_strategy}</div>
               </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Council Review - AI tier decision reasoning */}
+      {(pick as any).council_review && (
+        <section className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/30 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Council Review</h2>
+          </div>
+          <div className="space-y-3 text-[13px]">
+            {/* Tier decision */}
+            {(pick as any).council_review?.tier && (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Tier:</span>
+                <TierBadge tier={(pick as any).council_review.tier} />
+              </div>
+            )}
+            {/* Consensus score */}
+            {(pick as any).council_review?.final_confidence !== undefined && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <div className="text-xl font-bold text-purple-500">{(pick as any).council_review.final_confidence?.toFixed(1)}%</div>
+                  <div className="text-[10px] text-muted-foreground">Final Confidence</div>
+                </div>
+                {(pick as any).council_review?.consensus_score !== undefined && (
+                  <div className="bg-muted/30 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold">{(pick as any).council_review.consensus_score?.toFixed(1)}</div>
+                    <div className="text-[10px] text-muted-foreground">Consensus</div>
+                  </div>
+                )}
+                {(pick as any).council_review?.disagreement_score !== undefined && (
+                  <div className="bg-muted/30 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold">{(pick as any).council_review.disagreement_score?.toFixed(1)}</div>
+                    <div className="text-[10px] text-muted-foreground">Disagreement</div>
+                  </div>
+                )}
+                {(pick as any).council_review?.raw_confidence !== undefined && (
+                  <div className="bg-muted/30 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-muted-foreground">{(pick as any).council_review.raw_confidence?.toFixed(1)}%</div>
+                    <div className="text-[10px] text-muted-foreground">Raw Confidence</div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Reasons */}
+            {(pick as any).council_review?.reasons?.length > 0 && (
+              <div className="space-y-1">
+                <div className="text-muted-foreground text-[11px]">Reviewer Reasons</div>
+                {(pick as any).council_review.reasons.map((reason: string, i: number) => (
+                  <div key={i} className="text-foreground">• {reason}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Odds Meta - Best/Worst/Average odds comparison */}
+      {(pick as any).odds_meta && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Odds Analysis</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[13px]">
+            {(pick as any).odds_meta?.best !== undefined && (
+              <div className="bg-win-green/10 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-win-green">@{Number((pick as any).odds_meta.best).toFixed(2)}</div>
+                <div className="text-[10px] text-muted-foreground">Best Odds</div>
+              </div>
+            )}
+            {(pick as any).odds_meta?.worst !== undefined && (
+              <div className="bg-danger-red/10 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-danger-red">@{Number((pick as any).odds_meta.worst).toFixed(2)}</div>
+                <div className="text-[10px] text-muted-foreground">Worst Odds</div>
+              </div>
+            )}
+            {(pick as any).odds_meta?.average !== undefined && (
+              <div className="bg-muted/30 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold">@{Number((pick as any).odds_meta.average).toFixed(2)}</div>
+                <div className="text-[10px] text-muted-foreground">Average</div>
+              </div>
+            )}
+            {(pick as any).odds_meta?.bookmaker_count !== undefined && (
+              <div className="bg-info-blue/10 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-info-blue">{(pick as any).odds_meta.bookmaker_count}</div>
+                <div className="text-[10px] text-muted-foreground">Bookmakers</div>
+              </div>
+            )}
+          </div>
+          {(pick as any).odds_meta?.spread_pct !== undefined && (pick as any).odds_meta?.best_vs_average_pct !== undefined && (
+            <div className="mt-3 grid grid-cols-2 gap-3 text-[12px]">
+              <div className="bg-muted/30 rounded-lg p-2 text-center">
+                <span className="text-muted-foreground">Spread: </span>
+                <span className="font-medium">{(pick as any).odds_meta.spread_pct?.toFixed(1)}%</span>
+              </div>
+              <div className="bg-muted/30 rounded-lg p-2 text-center">
+                <span className="text-muted-foreground">Best vs Avg: </span>
+                <span className="font-medium text-win-green">{(pick as any).odds_meta.best_vs_average_pct?.toFixed(1)}%</span>
+              </div>
+            </div>
+          )}
+          {(pick as any).odds_meta?.source && (
+            <div className="mt-3 text-center text-[11px] text-muted-foreground">
+              Source: {(pick as any).odds_meta.source}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Bettor View - User perspective */}
+      {(pick as any).bettor_view && (
+        <section className="bg-gradient-to-br from-teal-500/10 to-teal-500/5 border border-teal-500/30 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Bettor View</h2>
+          </div>
+          <div className="space-y-3 text-[13px]">
+            {(pick as any).bettor_view?.tier && (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Recommended Tier:</span>
+                <TierBadge tier={(pick as any).bettor_view.tier} />
+              </div>
+            )}
+            {(pick as any).bettor_view?.summary && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-1">Summary</div>
+                <div className="text-foreground">{(pick as any).bettor_view.summary}</div>
+              </div>
+            )}
+            {(pick as any).bettor_view?.conclusion && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-1">Conclusion</div>
+                <div className="text-foreground">{(pick as any).bettor_view.conclusion}</div>
+              </div>
+            )}
+            {(pick as any).bettor_view?.pricing_warning && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                <div className="flex items-center gap-2 text-amber-500">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span className="font-medium">Pricing Warning</span>
+                </div>
+                <p className="text-muted-foreground text-[12px] mt-1">{(pick as any).bettor_view.pricing_warning}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Detailed Analysis Evidence - from top_market */}
+      {(pick as any).top_market && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-brand-green/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Analysis Details</h2>
+          </div>
+          <div className="space-y-3 text-[13px]">
+            {/* Analysis Summary */}
+            {((pick as any).top_market?.analysis_summary || (pick as any).top_market?.analysis_conclusion) && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-1">
+                  {((pick as any).top_market?.analysis_summary) ? "Analysis Summary" : "Conclusion"}
+                </div>
+                <p className="text-foreground">{(pick as any).top_market?.analysis_summary || (pick as any).top_market?.analysis_conclusion}</p>
+              </div>
+            )}
+
+            {/* Positive Evidence */}
+            {((pick as any).top_market?.positive_evidence?.length > 0 || (pick as any).top_market?.insights?.positive_evidence?.length > 0) && (
+              <div className="bg-win-green/10 rounded-lg p-3">
+                <div className="text-win-green text-[11px] font-semibold mb-2">✓ Positive Evidence</div>
+                <div className="space-y-1">
+                  {((pick as any).top_market?.positive_evidence || (pick as any).top_market?.insights?.positive_evidence || []).map((evidence: string, i: number) => (
+                    <div key={i} className="text-foreground text-[12px]">• {evidence}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Risk Evidence */}
+            {((pick as any).top_market?.risk_evidence?.length > 0 || (pick as any).top_market?.insights?.risk_evidence?.length > 0) && (
+              <div className="bg-danger-red/10 rounded-lg p-3">
+                <div className="text-danger-red text-[11px] font-semibold mb-2">⚠ Risk Evidence</div>
+                <div className="space-y-1">
+                  {((pick as any).top_market?.risk_evidence || (pick as any).top_market?.insights?.risk_evidence || []).map((evidence: string, i: number) => (
+                    <div key={i} className="text-foreground text-[12px]">• {evidence}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Risk Flags */}
+            {((pick as any).top_market?.risk_flags?.length > 0 || (pick as any).pick?.risk_flags?.length > 0) && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                <div className="text-amber-500 text-[11px] font-semibold mb-2">Risk Flags</div>
+                <div className="flex flex-wrap gap-2">
+                  {((pick as any).top_market?.risk_flags || (pick as any).pick?.risk_flags || []).map((flag: string, i: number) => (
+                    <span key={i} className="text-[11px] px-2 py-1 bg-amber-500/20 text-amber-500 rounded">
+                      {flag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Fair Odds */}
+            {((pick as any).top_market?.insights?.fair_odds || (pick as any).top_market?.insights?.conclusion) && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="text-muted-foreground text-[11px] mb-1">Fair Odds Assessment</div>
+                <p className="text-foreground text-[12px]">{(pick as any).top_market?.insights?.fair_odds || (pick as any).top_market?.insights?.conclusion}</p>
+              </div>
+            )}
+
+            {/* Display Score */}
+            {((pick as any).top_market?.display_score !== undefined && (pick as any).top_market?.display_score !== null) && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                  <div className="text-lg font-bold text-brand-green">{(pick as any).top_market?.display_score?.toFixed(1)}</div>
+                  <div className="text-[10px] text-muted-foreground">Display Score</div>
+                </div>
+                {((pick as any).top_market?.raw_probability !== undefined) && (
+                  <div className="bg-muted/30 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold">{(pick as any).top_market?.raw_probability?.toFixed(1)}%</div>
+                    <div className="text-[10px] text-muted-foreground">Raw Probability</div>
+                  </div>
+                )}
+                {((pick as any).top_market?.calibrated_probability !== undefined) && (
+                  <div className="bg-muted/30 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold">{(pick as any).top_market?.calibrated_probability?.toFixed(1)}%</div>
+                    <div className="text-[10px] text-muted-foreground">Calibrated</div>
+                  </div>
+                )}
+                {((pick as any).top_market?.recommendation_score !== undefined) && (
+                  <div className="bg-muted/30 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold text-info-blue">{(pick as any).top_market?.recommendation_score?.toFixed(1)}</div>
+                    <div className="text-[10px] text-muted-foreground">Rec Score</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* StatPal Lineups & Team Stats */}
+      {(pick as any).statpal && (
+        <section className="bg-card border border-brand-border rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-info-blue/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Lineups & Squad</h2>
+          </div>
+          
+          {/* Lineups Summary */}
+          {(pick as any).statpal?.snapshots?.lineups?.summary && (
+            <div className="mb-4">
+              <div className="text-muted-foreground text-[11px] mb-2"> formations</div>
+              <div className="grid grid-cols-2 gap-3 text-[13px]">
+                {(pick as any).statpal.snapshots.lineups.summary.home_formation && (
+                  <div className="bg-win-green/10 rounded-lg p-3">
+                    <div className="font-semibold text-win-green">{pick.home_team}</div>
+                    <div className="text-lg font-bold">{(pick as any).statpal.snapshots.lineups.summary.home_formation}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      Confidence: {(pick as any).statpal.snapshots.lineups.summary.home_confidence ?? "-"}%
+                    </div>
+                  </div>
+                )}
+                {(pick as any).statpal.snapshots.lineups.summary.away_formation && (
+                  <div className="bg-danger-red/10 rounded-lg p-3">
+                    <div className="font-semibold text-danger-red">{pick.away_team}</div>
+                    <div className="text-lg font-bold">{(pick as any).statpal.snapshots.lineups.summary.away_formation}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      Confidence: {(pick as any).statpal.snapshots.lineups.summary.away_confidence ?? "-"}%
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Starting XI Count */}
+          {(pick as any).statpal?.snapshots?.lineups?.summary && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px] mb-4">
+              {(pick as any).statpal.snapshots.lineups.summary.starting_count !== undefined && (
+                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                  <div className="font-bold">{(pick as any).statpal.snapshots.lineups.summary.starting_count}</div>
+                  <div className="text-[10px] text-muted-foreground">Starting</div>
+                </div>
+              )}
+              {(pick as any).statpal.snapshots.lineups.summary.bench_count !== undefined && (
+                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                  <div className="font-bold">{(pick as any).statpal.snapshots.lineups.summary.bench_count}</div>
+                  <div className="text-[10px] text-muted-foreground">Bench</div>
+                </div>
+              )}
+              {(pick as any).statpal.snapshots.lineups.summary.sidelined_count !== undefined && (
+                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                  <div className="font-bold text-danger-red">{(pick as any).statpal.snapshots.lineups.summary.sidelined_count}</div>
+                  <div className="text-[10px] text-muted-foreground">Sidelined</div>
+                </div>
+              )}
+              {(pick as any).statpal.snapshots.lineups.summary.lineup_status && (
+                <div className="bg-muted/30 rounded-lg p-2 text-center">
+                  <div className="font-bold">{(pick as any).statpal.snapshots.lineups.summary.lineup_status}</div>
+                  <div className="text-[10px] text-muted-foreground">Status</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Team Stats Overview */}
+          {(pick as any).statpal?.snapshots?.team_stats?.payload?.teams && (
+            <div className="space-y-3">
+              <div className="text-muted-foreground text-[11px]">Team Statistics</div>
+              {((pick as any).statpal.snapshots.team_stats.payload.teams as any[]).slice(0, 2).map((team: any, i: number) => (
+                <div key={i} className="bg-muted/30 rounded-lg p-3">
+                  <div className="font-semibold mb-2">{team.name}</div>
+                  {team.squad && team.squad.length > 0 && (
+                    <div className="space-y-1 text-[12px]">
+                      <div className="text-muted-foreground text-[10px]">Key Players</div>
+                      {team.squad.slice(0, 5).map((player: any, pi: number) => (
+                        <div key={pi} className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            {player.is_captain && <span className="text-amber-500 text-[10px]">★</span>}
+                            <span className="truncate">{player.player_name}</span>
+                            {player.injured && <span className="text-danger-red text-[10px]">⚠</span>}
+                          </div>
+                          <div className="flex gap-2 text-[10px] text-muted-foreground">
+                            {player.rating && <span>★{player.rating}</span>}
+                            {player.appearances && <span>{player.appearances} apps</span>}
+                            {player.goals && <span>{player.goals} goals</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Data availability status */}
+          <div className="mt-3 text-[10px] text-muted-foreground text-center">
+            {(pick as any).statpal?.available !== undefined && (
+              <span>StatPal Data: {(pick as any).statpal.available ? "Available" : "Not Available"}</span>
             )}
           </div>
         </section>
