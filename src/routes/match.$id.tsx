@@ -212,87 +212,74 @@ function MatchPage() {
           setError(true);
           return;
         }
+        
         const g = res.game as any;
+        const fixture = g.fixture || {};
+        const rm = g.recommended_market || {};
+        const analysis = g.analysis || {};
+        const recentForm = g.recent_form || {};
+        const lineups = g.lineups || {};
+        const marketSummary = g.market_summary || {};
         
-        // Extract from new JSON structure
-        const rm = g.recommended_market; // Recommended Market
-        const analysis = g.analysis; // Analysis
-        const recentForm = g.recent_form; // Recent Form
-        const lineups = g.lineups; // Lineups
-        const marketSummary = g.market_summary; // Market Summary
-        const fixture = g.fixture; // Fixture details
-        
-        console.log("[MatchPage] Got game from API:", g.id);
-        console.log("[MatchPage] recommended_market:", rm);
-        console.log("[MatchPage] analysis:", analysis);
-        console.log("[MatchPage] recent_form:", recentForm);
-        console.log("[MatchPage] lineups:", lineups);
-        console.log("[MatchPage] market_summary:", marketSummary);
-        console.log("[MatchPage] fixture:", fixture);
-        
-        // Store full game details for additional display
+        // Store full game details
         setGameDetails(g as GameDetails);
         
-        // Use recommended_market as the pick
-        const effectivePick = rm;
-        
         setPick({
-          ...effectivePick,
-          id: effectivePick?.id || Number(g.id) || 0,
-          match: fixture?.name || g.match_id || "",
-          fixture: fixture?.name || g.match_id || "",
-          kickoff: fixture?.kickoff || "",
-          kickoff_wat: fixture?.kickoff || "",
-          market_plain: effectivePick?.market || "",
-          meaning: effectivePick?.meaning || undefined,
-          one_line_reason: effectivePick?.summary || effectivePick?.verdict || "",
-          model_verdict: effectivePick?.verdict || undefined,
-          home_team: fixture?.home_team?.name || "",
-          away_team: fixture?.away_team?.name || "",
-          home_logo: fixture?.home_team?.logo || "",
-          away_logo: fixture?.away_team?.logo || "",
+          id: Number(g.id) || 0,
+          match: fixture.name || g.match_id || "",
+          fixture: fixture.name || g.match_id || "",
+          kickoff: fixture.kickoff || "",
+          kickoff_wat: fixture.kickoff || "",
+          market_plain: rm.market || "",
+          meaning: rm.meaning || undefined,
+          one_line_reason: rm.summary || "",
+          model_verdict: rm.verdict || undefined,
+          home_team: fixture.home_team?.name || "",
+          away_team: fixture.away_team?.name || "",
+          home_logo: fixture.home_team?.logo || "",
+          away_logo: fixture.away_team?.logo || "",
           home_score: g.home_score,
           away_score: g.away_score,
           status: g.status,
-          league: fixture?.competition?.name || "",
-          competition_logo: fixture?.competition?.logo || "",
-          country_flag: fixture?.competition?.country_flag || "",
-          form_home: recentForm?.home,
-          form_away: recentForm?.away,
-          goals_profile: effectivePick?.positive_evidence || [],
-          risk_flags: effectivePick?.risk_evidence || [],
+          league: fixture.competition?.name || "",
+          competition_logo: fixture.competition?.logo || "",
+          country_flag: fixture.competition?.country_flag || "",
+          form_home: recentForm.home ? { ...recentForm.home, form: Array.isArray(recentForm.home.form) ? recentForm.home.form.join("") : recentForm.home.form } : null,
+          form_away: recentForm.away ? { ...recentForm.away, form: Array.isArray(recentForm.away.form) ? recentForm.away.form.join("") : recentForm.away.form } : null,
+          goals_profile: rm.positive_evidence || [],
+          risk_flags: rm.risk_evidence || [],
           risk_level: "",
           user_backed: g.backed_by_me || false,
           backed_count: g.backed_count || 0,
-          reasoning: effectivePick?.summary || "",
+          reasoning: rm.summary || "",
           insights: analysis,
           team_news: null,
           home_news: null,
           away_news: null,
-          market: effectivePick?.market || "",
-          odds: effectivePick?.odds || "",
-          confidence: effectivePick?.confidence_score || 0,
-          tier: effectivePick?.confidence_label || "",
+          market: rm.market || "",
+          odds: rm.odds || "",
+          confidence: rm.confidence_score || 0,
+          tier: rm.confidence_label || "",
           stake: "",
-          ev: effectivePick?.fair_odds ? (effectivePick.odds - effectivePick.fair_odds) / effectivePick.fair_odds : 0,
+          ev: rm.fair_odds && rm.odds ? (rm.odds - rm.fair_odds) / rm.fair_odds : 0,
           // Map new fields
-          market_count: marketSummary?.analysed || 0,
-          markets_70_plus: marketSummary?.strong_markets || 0,
-          markets_65_plus: marketSummary?.markets_65_plus || 0,
-          official_pick_count: g.official_pick_count || 1,
-          official_pick: effectivePick,
-          official_picks: [effectivePick],
+          market_count: marketSummary.analysed || 0,
+          markets_70_plus: marketSummary.strong_markets || 0,
+          markets_65_plus: marketSummary.markets_65_plus || 0,
+          official_pick_count: g.official_pick_count || 0,
+          official_pick: rm,
+          official_picks: [rm],
           markets: [],
           all_picks: [],
-          competition_info: fixture?.competition,
+          competition_info: fixture.competition,
           prediction: null,
-          // Store new structures for UI rendering
+          // Store structures for UI rendering
           insights: analysis,
-          fixture_context: {
-            statpal: lineups,
-          },
+          fixture_context: { statpal: lineups },
           lineups: lineups,
           market_summary: marketSummary,
+          top_market: rm,
+          corner_profile: null,
         });
       })
       .catch((err) => {
