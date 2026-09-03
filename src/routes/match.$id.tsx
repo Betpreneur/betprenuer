@@ -208,21 +208,44 @@ function MatchPage() {
     clearGameCache(id);
     api.getGameDetail(id, true)
       .then((res) => {
+        console.log("[MatchPage] API Response:", res);
+        
         if (!res?.game) {
+          console.log("[MatchPage] No game in response");
           setError(true);
           return;
         }
         
         const g = res.game as any;
+        console.log("[MatchPage] Game:", g);
+        
         const fixture = g.fixture || {};
-        const rm = g.recommended_market || {};
-        const analysis = g.analysis || {};
+        const rm = g.recommended_market || null;
+        const analysis = g.analysis || null;
         const recentForm = g.recent_form || {};
-        const lineups = g.lineups || {};
-        const marketSummary = g.market_summary || {};
+        const lineups = g.lineups || null;
+        const marketSummary = g.market_summary || null;
+        
+        console.log("[MatchPage] recommended_market:", rm);
+        
+        // If no recommended_market, show error (no pick available)
+        if (!rm || !rm.market) {
+          console.log("[MatchPage] No recommended market");
+          setError(true);
+          return;
+        }
         
         // Store full game details
         setGameDetails(g as GameDetails);
+        
+        // Convert form array to string if needed
+        const formatForm = (formData: any) => {
+          if (!formData) return null;
+          return {
+            ...formData,
+            form: Array.isArray(formData.form) ? formData.form.join("") : (formData.form || ""),
+          };
+        };
         
         setPick({
           id: Number(g.id) || 0,
@@ -230,10 +253,10 @@ function MatchPage() {
           fixture: fixture.name || g.match_id || "",
           kickoff: fixture.kickoff || "",
           kickoff_wat: fixture.kickoff || "",
-          market_plain: rm.market || "",
-          meaning: rm.meaning || undefined,
-          one_line_reason: rm.summary || "",
-          model_verdict: rm.verdict || undefined,
+          market_plain: rm?.market || "",
+          meaning: rm?.meaning || undefined,
+          one_line_reason: rm?.summary || "",
+          model_verdict: rm?.verdict || undefined,
           home_team: fixture.home_team?.name || "",
           away_team: fixture.away_team?.name || "",
           home_logo: fixture.home_team?.logo || "",
@@ -244,31 +267,31 @@ function MatchPage() {
           league: fixture.competition?.name || "",
           competition_logo: fixture.competition?.logo || "",
           country_flag: fixture.competition?.country_flag || "",
-          form_home: recentForm.home ? { ...recentForm.home, form: Array.isArray(recentForm.home.form) ? recentForm.home.form.join("") : recentForm.home.form } : null,
-          form_away: recentForm.away ? { ...recentForm.away, form: Array.isArray(recentForm.away.form) ? recentForm.away.form.join("") : recentForm.away.form } : null,
-          goals_profile: rm.positive_evidence || [],
-          risk_flags: rm.risk_evidence || [],
+          form_home: formatForm(recentForm.home),
+          form_away: formatForm(recentForm.away),
+          goals_profile: rm?.positive_evidence || [],
+          risk_flags: rm?.risk_evidence || [],
           risk_level: "",
           user_backed: g.backed_by_me || false,
           backed_count: g.backed_count || 0,
-          reasoning: rm.summary || "",
+          reasoning: rm?.summary || "",
           insights: analysis,
           team_news: null,
           home_news: null,
           away_news: null,
-          market: rm.market || "",
-          odds: rm.odds || "",
-          confidence: rm.confidence_score || 0,
-          tier: rm.confidence_label || "",
+          market: rm?.market || "",
+          odds: rm?.odds || "",
+          confidence: rm?.confidence_score || 0,
+          tier: rm?.confidence_label || "",
           stake: "",
-          ev: rm.fair_odds && rm.odds ? (rm.odds - rm.fair_odds) / rm.fair_odds : 0,
+          ev: (rm?.fair_odds && rm?.odds) ? (rm.odds - rm.fair_odds) / rm.fair_odds : 0,
           // Map new fields
-          market_count: marketSummary.analysed || 0,
-          markets_70_plus: marketSummary.strong_markets || 0,
-          markets_65_plus: marketSummary.markets_65_plus || 0,
+          market_count: marketSummary?.analysed || 0,
+          markets_70_plus: marketSummary?.strong_markets || 0,
+          markets_65_plus: marketSummary?.markets_65_plus || 0,
           official_pick_count: g.official_pick_count || 0,
           official_pick: rm,
-          official_picks: [rm],
+          official_picks: rm ? [rm] : [],
           markets: [],
           all_picks: [],
           competition_info: fixture.competition,
