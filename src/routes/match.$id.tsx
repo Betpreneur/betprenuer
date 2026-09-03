@@ -815,6 +815,78 @@ function MatchPage() {
         </div>
       )}
 
+      {/* Positive Evidence */}
+      {(pick as any).official_pick?.positive_evidence?.length > 0 && (
+        <section className="bg-win-green-bg/30 border border-win-green/20 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 className="!text-base font-bold text-win-green">Positive Evidence</h2>
+          </div>
+          <ul className="space-y-2 text-sm">
+            {((pick as any).official_pick?.positive_evidence || []).map((evidence: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-win-green">•</span>
+                <span>{evidence}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Risk Evidence */}
+      {(pick as any).official_pick?.risk_evidence?.length > 0 && (
+        <section className="bg-danger-bg/30 border border-danger-red/20 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-5 h-5 text-danger-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h2 className="!text-base font-bold text-danger-red">Risk Evidence</h2>
+          </div>
+          <ul className="space-y-2 text-sm">
+            {((pick as any).official_pick?.risk_evidence || []).map((evidence: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-danger-red">•</span>
+                <span>{evidence}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Market Summary */}
+      {(pick as any).market_summary && (
+        <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-info-blue/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a6 6 0 00-6-6H4a6 6 0 00-6 6v6a6 6 0 006 6h6a6 6 0 006-6v-6m3-3a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Markets Analysis</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[13px]">
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-info-blue">{(pick as any).market_summary?.analysed || 0}</div>
+              <div className="text-muted-foreground text-[11px]">Markets Analysed</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-win-green">{(pick as any).market_summary?.eligible || 0}</div>
+              <div className="text-muted-foreground text-[11px]">Eligible Markets</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-teal-accent">{(pick as any).market_summary?.strong_markets || 0}</div>
+              <div className="text-muted-foreground text-[11px]">Strong Markets</div>
+            </div>
+            <div className="bg-muted/30 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-amber-text">{(pick as any).market_summary?.markets_65_plus || 0}</div>
+              <div className="text-muted-foreground text-[11px]">65%+ Confidence</div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Recent form - full team stats */}
       <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
