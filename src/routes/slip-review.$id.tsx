@@ -88,10 +88,11 @@ function SlipReviewDetailPage() {
     const fetchReview = async () => {
       try {
         setLoading(true);
+        setError(null);
         
         // Get the slip review data - public view includes smart_randomize when available
         const data = await api.getSlipReviewPublic(reviewId);
-        console.log("Review data:", data.status, data.smart_randomize);
+        console.log("Review data:", data.status, data.smart_randomize, "games:", data.games?.length);
         setReview(data);
 
         // If analysis is in progress, connect to live updates
@@ -102,7 +103,9 @@ function SlipReviewDetailPage() {
           await reconnect();
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load slip review");
+        console.error("Failed to load slip review:", err);
+        const errorMessage = err instanceof Error ? err.message : "Failed to load slip review";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
