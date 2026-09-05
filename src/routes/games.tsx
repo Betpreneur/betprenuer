@@ -177,10 +177,15 @@ function GamesPage() {
   const [loadingPage, setLoadingPage] = useState(false);
   const pageSize = 20;
 
+  const totalGames = data?.pagination?.count || data?.games?.length || 0;
+  const totalPages = data?.pagination?.total_pages || 1;
+  const hasPagination = totalPages > 1;
+
   const load = useCallback((page = 1) => {
     setError(false);
-    setLoadingPage(page > 1);
-    api.getAlgoGames(undefined, page > 1, "compact", page, pageSize)
+    const isPageLoad = page > 1;
+    setLoadingPage(isPageLoad);
+    api.getAlgoGames(undefined, isPageLoad, "compact", page, pageSize)
       .then((res) => {
         setData(res);
         setCurrentPage(page);
@@ -193,7 +198,7 @@ function GamesPage() {
         }
       })
       .finally(() => setLoadingPage(false));
-  }, []);
+  }, [pageSize]);
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -290,7 +295,7 @@ function GamesPage() {
           </div>
           <div className="flex flex-col items-end gap-1.5">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full bg-brand-green/15 text-brand-green border border-brand-green/30">
-              🎯 {data?.pagination?.count || games.length} matches
+              🎯 {totalGames} matches
             </span>
             {liveCount > 0 && (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full bg-danger-red/15 text-danger-red border border-danger-red/30">
@@ -303,23 +308,25 @@ function GamesPage() {
 
       <div className="flex items-center justify-between gap-2">
         {/* Pagination Controls */}
-        {data?.pagination && data.pagination.total_pages > 1 && (
-          <div className="flex items-center gap-1">
+        {hasPagination && (
+          <div className="flex items-center gap-2">
             <button
               onClick={() => load(currentPage - 1)}
-              disabled={!data.pagination.has_prev || loadingPage}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage <= 1 || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
+              Prev
             </button>
-            <span className="text-xs font-medium px-2 text-muted-foreground">
-              {data.pagination.page} / {data.pagination.total_pages}
+            <span className="text-xs font-medium px-2 text-muted-foreground min-w-[60px] text-center">
+              {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => load(currentPage + 1)}
-              disabled={!data.pagination.has_next || loadingPage}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={currentPage >= totalPages || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
+              Next
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -495,11 +502,11 @@ function GamesPage() {
         )}
       </div>
 
-      {/* Pagination indicator at bottom */}
-      {data?.pagination && data.pagination.total_pages > 1 && (
+      {/* Page indicator at bottom */}
+      {hasPagination && (
         <div className="flex items-center justify-center pt-4 border-t border-border">
           <span className="text-sm text-muted-foreground">
-            Page {data.pagination.page} of {data.pagination.total_pages}
+            Page {currentPage} of {totalPages}
           </span>
         </div>
       )}
