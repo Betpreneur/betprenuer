@@ -301,6 +301,40 @@ function GamesPage() {
         </div>
       </header>
 
+      {/* Pagination Controls - Top */}
+      {data?.pagination && (
+        <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-card border border-brand-border">
+          <div className="text-sm text-muted-foreground">
+            Viewing page <span className="font-semibold text-foreground">{data.pagination.page}</span> with{" "}
+            <span className="font-semibold text-foreground">{data.games.length}</span> games out of{" "}
+            <span className="font-semibold text-brand-green">{data.pagination.count}</span> total
+          </div>
+          {data.pagination.total_pages > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => load(currentPage - 1)}
+                disabled={!data.pagination.has_prev || loadingPage}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+              <span className="text-sm text-muted-foreground px-2">
+                {data.pagination.page} / {data.pagination.total_pages}
+              </span>
+              <button
+                onClick={() => load(currentPage + 1)}
+                disabled={!data.pagination.has_next || loadingPage}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-2">
         <Popover.Root>
           <Popover.Trigger asChild>
@@ -473,31 +507,12 @@ function GamesPage() {
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination indicator at bottom */}
       {data?.pagination && data.pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between pt-6 border-t border-border">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-center pt-4 border-t border-border">
+          <span className="text-sm text-muted-foreground">
             Page {data.pagination.page} of {data.pagination.total_pages}
-            <span className="ml-2">({data.pagination.count} total games)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => load(currentPage - 1)}
-              disabled={!data.pagination.has_prev || loadingPage}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous
-            </button>
-            <button
-              onClick={() => load(currentPage + 1)}
-              disabled={!data.pagination.has_next || loadingPage}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          </span>
         </div>
       )}
     </div>
