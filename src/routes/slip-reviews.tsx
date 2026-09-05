@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewsResponse, type SlipReviewListItem } from "@/lib/api";
-import { ClipboardList, Plus, ArrowRight, CheckCircle2, AlertTriangle, XCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ClipboardList, Plus, ArrowRight, CheckCircle2, AlertTriangle, XCircle, ChevronLeft, ChevronRight, Loader2, Keyboard } from "lucide-react";
 
 export const Route = createFileRoute("/slip-reviews")({
   head: () => ({
@@ -153,35 +153,38 @@ function SlipReviewsPage() {
   const navigate = useNavigate();
   const [reviews, setReviews] = useState<SlipReviewsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
 
+  // Calculate total pages based on count and pageSize
+  const totalReviews = reviews?.count || 0;
+  const totalPages = Math.ceil(totalReviews / pageSize);
+  const hasPagination = totalPages > 1;
+
   const fetchReviews = useCallback(async (page = 1) => {
     try {
-      if (page === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+      setError(null);
+      const isPageLoad = page > 1;
+      setLoadingPage(isPageLoad);
+      if (page === 1) setLoading(true);
+      
       const offset = (page - 1) * pageSize;
       const data = await api.getSlipReviews(pageSize, offset);
+      
       if (page === 1) {
         setReviews(data);
       } else {
-        // Append new reviews to existing ones
-        setReviews(prev => prev ? {
-          ...data,
-          reviews: [...prev.reviews, ...data.reviews]
-        } : data);
+        // Replace reviews with new page (or append if you prefer)
+        setReviews(data);
       }
       setCurrentPage(page);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load slip reviews");
     } finally {
       setLoading(false);
-      setLoadingMore(false);
+      setLoadingPage(false);
     }
   }, [pageSize]);
 
@@ -259,7 +262,7 @@ function SlipReviewsPage() {
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {loadingMore ? (
+            {loadingPage ? (
               <div className="col-span-full flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-brand-green" />
               </div>
@@ -270,33 +273,33 @@ function SlipReviewsPage() {
             )}
           </div>
 
-          {/* Load More Button */}
-          {reviews && reviews.reviews.length < reviews.count && (
-            <div className="flex justify-center pt-6">
-              <button
-                onClick={() => fetchReviews(currentPage + 1)}
-                disabled={loadingMore}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {loadingMore ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  <>
-                    Load More
-                    <ChevronRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Pagination Info */}
-          {reviews && reviews.count > pageSize && (
-            <div className="text-center text-sm text-muted-foreground pt-4">
-              Showing {reviews.reviews.length} of {reviews.count} slip reviews
+          {/* Pagination Controls */}
+          {hasPagination && (
+            <div className="flex items-center justify-between pt-6 border-t border-border">
+              <div className="text-sm text-muted-foreground">
+                Showing {reviews?.reviews.length || 0} of {totalReviews} reviews
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fetchReviews(currentPage - 1)}
+                  disabled={currentPage <= 1 || loadingPage}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Prev
+                </button>
+                <span className="text-sm font-medium px-3 text-muted-foreground">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => fetchReviews(currentPage + 1)}
+                  disabled={currentPage >= totalPages || loadingPage}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </>
