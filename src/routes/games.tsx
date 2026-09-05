@@ -177,8 +177,11 @@ function GamesPage() {
   const [loadingPage, setLoadingPage] = useState(false);
   const pageSize = 20;
 
-  const totalGames = data?.pagination?.count || data?.games?.length || 0;
+  // API returns: total_items, total_pages, has_next, has_previous
+  const totalGames = data?.pagination?.total_items || data?.summary?.game_count || data?.games?.length || 0;
   const totalPages = data?.pagination?.total_pages || 1;
+  const hasNext = data?.pagination?.has_next ?? false;
+  const hasPrev = data?.pagination?.has_previous ?? false;
   const hasPagination = totalPages > 1;
 
   const load = useCallback((page = 1) => {
@@ -312,7 +315,7 @@ function GamesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => load(currentPage - 1)}
-              disabled={currentPage <= 1 || loadingPage}
+              disabled={!hasPrev || loadingPage}
               className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
@@ -323,7 +326,7 @@ function GamesPage() {
             </span>
             <button
               onClick={() => load(currentPage + 1)}
-              disabled={currentPage >= totalPages || loadingPage}
+              disabled={!hasNext || loadingPage}
               className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
