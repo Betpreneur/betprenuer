@@ -697,8 +697,27 @@ function MatchPage() {
         </div>
       )}
 
+      {/* Key Analysis Points */}
+      {(pick as any).insights?.key_points?.length > 0 && (
+        <section className="bg-win-green-bg/30 border border-win-green/20 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 className="!text-base font-bold text-win-green">Key Analysis Points</h2>
+          </div>
+          <ul className="space-y-2 text-sm">
+            {((pick as any).insights?.key_points || []).map((point: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-win-green">•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
-            {/* Lineups with Injuries/Suspensions */}
+      {/* Lineups with Injuries/Suspensions */}
       {(pick as any).lineups && (
         <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -1137,66 +1156,6 @@ function MatchPage() {
               </div>
             )}
           </div>
-        </section>
-      )}
-
-      {/* Lineups - from game.lineups */}
-      {(pick as any).lineups && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-8 h-8 rounded-lg bg-info-blue/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </span>
-            <h2 className="!text-base font-bold">Lineups</h2>
-          </div>
-          
-          {/* Formations */}
-          <div className="grid grid-cols-2 gap-3 text-[13px] mb-4">
-            {(pick as any).lineups?.home?.formation && (
-              <div className="bg-win-green/10 rounded-lg p-3">
-                <div className="font-semibold text-win-green">{pick.home_team}</div>
-                <div className="text-lg font-bold">{(pick as any).lineups.home.formation}</div>
-              </div>
-            )}
-            {(pick as any).lineups?.away?.formation && (
-              <div className="bg-danger-red/10 rounded-lg p-3">
-                <div className="font-semibold text-danger-red">{pick.away_team}</div>
-                <div className="text-lg font-bold">{(pick as any).lineups.away.formation}</div>
-              </div>
-            )}
-          </div>
-
-          {/* Missing Players */}
-          {((pick as any).lineups?.home?.missing_players?.length > 0 || (pick as any).lineups?.away?.missing_players?.length > 0) && (
-            <div className="space-y-3">
-              {(pick as any).lineups?.home?.missing_players?.length > 0 && (
-                <div className="bg-muted/30 rounded-lg p-3">
-                  <div className="text-muted-foreground text-[11px] mb-2">{pick.home_team} - Missing Players</div>
-                  <div className="flex flex-wrap gap-2">
-                    {((pick as any).lineups.home.missing_players as string[]).map((player: string, i: number) => (
-                      <span key={i} className="text-xs px-2 py-1 bg-danger-red/20 text-danger-red rounded">
-                        {player}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {(pick as any).lineups?.away?.missing_players?.length > 0 && (
-                <div className="bg-muted/30 rounded-lg p-3">
-                  <div className="text-muted-foreground text-[11px] mb-2">{pick.away_team} - Missing Players</div>
-                  <div className="flex flex-wrap gap-2">
-                    {((pick as any).lineups.away.missing_players as string[]).map((player: string, i: number) => (
-                      <span key={i} className="text-xs px-2 py-1 bg-danger-red/20 text-danger-red rounded">
-                        {player}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </section>
       )}
 
