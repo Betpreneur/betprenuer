@@ -160,8 +160,9 @@ function SlipReviewsPage() {
 
   // Calculate total pages based on count and pageSize
   const totalReviews = reviews?.count || 0;
-  const totalPages = Math.ceil(totalReviews / pageSize);
-  const hasPagination = totalPages > 1;
+  const totalPages = Math.ceil(totalReviews / pageSize) || 1;
+  // Show pagination if there are more than pageSize reviews, OR always show for testing
+  const hasPagination = totalReviews > pageSize || totalReviews > 0;
 
   const fetchReviews = useCallback(async (page = 1) => {
     try {
