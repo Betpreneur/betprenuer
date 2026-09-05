@@ -290,7 +290,7 @@ function GamesPage() {
           </div>
           <div className="flex flex-col items-end gap-1.5">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full bg-brand-green/15 text-brand-green border border-brand-green/30">
-              🎯 {games.length} matches
+              🎯 {data?.pagination?.count || games.length} matches
             </span>
             {liveCount > 0 && (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full bg-danger-red/15 text-danger-red border border-danger-red/30">
@@ -301,41 +301,29 @@ function GamesPage() {
         </div>
       </header>
 
-      {/* Pagination Controls - Top */}
-      {data?.pagination && (
-        <div className="flex items-center justify-between py-3 px-4 rounded-xl bg-card border border-brand-border">
-          <div className="text-sm text-muted-foreground">
-            Viewing page <span className="font-semibold text-foreground">{data.pagination.page}</span> with{" "}
-            <span className="font-semibold text-foreground">{data.games.length}</span> games out of{" "}
-            <span className="font-semibold text-brand-green">{data.pagination.count}</span> total
+      <div className="flex items-center justify-between gap-2">
+        {/* Pagination Controls */}
+        {data?.pagination && data.pagination.total_pages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => load(currentPage - 1)}
+              disabled={!data.pagination.has_prev || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-xs font-medium px-2 text-muted-foreground">
+              {data.pagination.page} / {data.pagination.total_pages}
+            </span>
+            <button
+              onClick={() => load(currentPage + 1)}
+              disabled={!data.pagination.has_next || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
-          {data.pagination.total_pages > 1 && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => load(currentPage - 1)}
-                disabled={!data.pagination.has_prev || loadingPage}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </button>
-              <span className="text-sm text-muted-foreground px-2">
-                {data.pagination.page} / {data.pagination.total_pages}
-              </span>
-              <button
-                onClick={() => load(currentPage + 1)}
-                disabled={!data.pagination.has_next || loadingPage}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="flex items-center gap-2">
+        )}
         <Popover.Root>
           <Popover.Trigger asChild>
             <button className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold bg-card border border-brand-border text-foreground hover:border-brand-green/50 transition-colors">
