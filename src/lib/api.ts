@@ -1417,10 +1417,14 @@ export const api = {
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
   async getAlgoGames(date?: string, bypassCache = false, view = "compact", page = 1, pageSize = 20): Promise<AlgoGamesResponse> {
-    const cacheKey = `algo:games:${date ?? "today"}:${view}:p${page}:s${pageSize}`;
+    // For paginated requests, don't use cache to ensure fresh data
+    const useCache = page === 1 && !bypassCache;
+    const cacheKey = `algo:games:${date ?? "today"}:${view}`;
+    
     if (bypassCache) {
       clearCache(cacheKey);
     }
+    
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (view) params.set("view", view);
@@ -1428,7 +1432,12 @@ export const api = {
     params.set("page_size", String(pageSize));
     const queryString = params.toString();
     const url = `${ENDPOINTS.algoGames}?${queryString}`;
-    return requestCached<AlgoGamesResponse>(url, cacheKey);
+    
+    // Only use cache for first page without bypass
+    if (useCache) {
+      return requestCached<AlgoGamesResponse>(url, cacheKey);
+    }
+    return request<AlgoGamesResponse>(url);
   },
 
   /** GET /algo/games/:matchId/ — Full game detail context */
