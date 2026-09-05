@@ -605,57 +605,6 @@ function MatchPage() {
         </div>
       </header>
 
-      {/* Recommended Market Details */}
-      {(pick as any).official_pick && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Recommended Market</h2>
-          <div className="space-y-3 text-[13px]">
-            {/* Meaning */}
-            {pick.meaning && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="text-muted-foreground text-[11px] mb-1">What does this mean?</div>
-                <p className="text-foreground">{pick.meaning}</p>
-              </div>
-            )}
-            
-            {/* Verdict */}
-            {((pick as any).official_pick?.verdict || pick.one_line_reason) && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="text-muted-foreground text-[11px] mb-1">Verdict</div>
-                <p className="text-foreground">{pick.one_line_reason || (pick as any).official_pick?.verdict}</p>
-              </div>
-            )}
-            
-            {/* Fair Odds vs Actual Odds */}
-            {((pick as any).official_pick?.fair_odds !== undefined && (pick as any).official_pick?.odds) && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-win-green/10 rounded-lg p-3 text-center">
-                  <div className="text-xl font-bold text-brand-green">@{(pick as any).official_pick?.odds}</div>
-                  <div className="text-[10px] text-muted-foreground">Current Odds</div>
-                </div>
-                <div className="bg-info-blue/10 rounded-lg p-3 text-center">
-                  <div className="text-xl font-bold text-info-blue">@{(pick as any).official_pick?.fair_odds?.toFixed(2)}</div>
-                  <div className="text-[10px] text-muted-foreground">Fair Odds</div>
-                </div>
-              </div>
-            )}
-            
-            {/* Confidence Label */}
-            {((pick as any).official_pick?.confidence_label) && (
-              <div className="text-center">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                  (pick as any).official_pick?.confidence_label === 'high' ? 'bg-win-green/20 text-win-green' :
-                  (pick as any).official_pick?.confidence_label === 'medium' ? 'bg-amber-500/20 text-amber-500' :
-                  'bg-muted text-muted-foreground'
-                }`}>
-                  {(pick as any).official_pick?.confidence_label?.toUpperCase()} CONFIDENCE
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* Action buttons - visible before collapsible */}
       {pick.status !== "settled" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -748,47 +697,8 @@ function MatchPage() {
         </div>
       )}
 
-      {/* Key Points / Analysis */}
-      {(pick as any).insights?.key_points?.length > 0 && (
-        <section className="bg-win-green-bg/30 border border-win-green/20 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 className="!text-base font-bold text-win-green">Key Analysis Points</h2>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {((pick as any).insights?.key_points || []).map((point: string, i: number) => (
-              <li key={i} className="flex gap-2">
-                <span className="text-win-green">•</span>
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
-      {/* Risks */}
-      {(pick as any).insights?.risks?.length > 0 && (
-        <section className="bg-danger-bg/30 border border-danger-red/20 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <svg className="w-5 h-5 text-danger-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h2 className="!text-base font-bold text-danger-red">Risks</h2>
-          </div>
-          <ul className="space-y-2 text-sm">
-            {((pick as any).insights?.risks || []).map((risk: string, i: number) => (
-              <li key={i} className="flex gap-2">
-                <span className="text-danger-red">•</span>
-                <span>{risk}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Lineups with Injuries/Suspensions */}
+            {/* Lineups with Injuries/Suspensions */}
       {(pick as any).lineups && (
         <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -799,17 +709,6 @@ function MatchPage() {
             </span>
             <h2 className="!text-base font-bold">Lineups</h2>
           </div>
-          
-          {/* Status */}
-          {(pick as any).lineups?.status && (
-            <div className="mb-4 text-center">
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                (pick as any).lineups.status === 'available' ? 'bg-win-green/20 text-win-green' : 'bg-amber-500/20 text-amber-500'
-              }`}>
-                Status: {(pick as any).lineups.status}
-              </span>
-            </div>
-          )}
           
           <div className="grid grid-cols-2 gap-4">
             {/* Home Team */}
@@ -1241,118 +1140,6 @@ function MatchPage() {
         </section>
       )}
 
-      {/* Corner Profile */}
-      {(pick as any).corner_profile && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Corner Stats</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
-            {(pick as any).corner_profile?.home && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-win-green mb-2">{getTeamFromMatch(pick.match, false)}</div>
-                <div className="grid grid-cols-2 gap-1">
-                  <span className="text-muted-foreground">Avg For</span>
-                  <span className="font-medium">{(pick as any).corner_profile.home.avg_for ?? "-"}</span>
-                  <span className="text-muted-foreground">Avg Against</span>
-                  <span className="font-medium">{(pick as any).corner_profile.home.avg_against ?? "-"}</span>
-                  <span className="text-muted-foreground">Avg Total</span>
-                  <span className="font-medium">{(pick as any).corner_profile.home.avg_total ?? "-"}</span>
-                </div>
-              </div>
-            )}
-            {(pick as any).corner_profile?.away && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="font-semibold text-danger-red mb-2">{getTeamFromMatch(pick.match, true)}</div>
-                <div className="grid grid-cols-2 gap-1">
-                  <span className="text-muted-foreground">Avg For</span>
-                  <span className="font-medium">{(pick as any).corner_profile.away.avg_for ?? "-"}</span>
-                  <span className="text-muted-foreground">Avg Against</span>
-                  <span className="font-medium">{(pick as any).corner_profile.away.avg_against ?? "-"}</span>
-                  <span className="text-muted-foreground">Avg Total</span>
-                  <span className="font-medium">{(pick as any).corner_profile.away.avg_total ?? "-"}</span>
-                </div>
-              </div>
-            )}
-          </div>
-          {(pick as any).corner_profile?.expected_total && (
-            <div className="mt-3 text-center text-muted-foreground text-[12px]">
-              Expected total corners: <span className="font-medium">{(pick as any).corner_profile.expected_total?.toFixed(1)}</span>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Analysis - from game.analysis */}
-      {(pick as any).insights && (
-        <section className="bg-card border border-brand-border rounded-lg p-5">
-          <h2 className="mb-3">Analysis</h2>
-          <div className="space-y-3 text-[13px]">
-            {/* Status and Quality */}
-            {((pick as any).insights?.status || (pick as any).insights?.data_quality) && (
-              <div className="grid grid-cols-2 gap-2">
-                {(pick as any).insights?.status && (
-                  <div className="bg-muted/30 rounded-lg p-2">
-                    <span className="text-muted-foreground text-[10px]">Status</span>
-                    <div className="font-medium">{(pick as any).insights.status}</div>
-                  </div>
-                )}
-                {(pick as any).insights?.data_quality && (
-                  <div className="bg-muted/30 rounded-lg p-2">
-                    <span className="text-muted-foreground text-[10px]">Data Quality</span>
-                    <div className="font-medium">{(pick as any).insights.data_quality}</div>
-                  </div>
-                )}
-                {(pick as any).insights?.data_confidence_score !== undefined && (
-                  <div className="bg-muted/30 rounded-lg p-2">
-                    <span className="text-muted-foreground text-[10px]">Confidence Score</span>
-                    <div className="font-medium text-brand-green">{(pick as any).insights.data_confidence_score?.toFixed(1)}%</div>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* Summary */}
-            {(pick as any).insights?.summary && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="text-muted-foreground text-[11px] mb-1">Summary</div>
-                <p className="text-foreground">{(pick as any).insights.summary}</p>
-              </div>
-            )}
-            
-            {/* Conclusion */}
-            {(pick as any).insights?.conclusion && (
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="text-muted-foreground text-[11px] mb-1">Conclusion</div>
-                <p className="text-foreground">{(pick as any).insights.conclusion}</p>
-              </div>
-            )}
-
-            {/* Positive Evidence */}
-            {(pick as any).insights?.positive_evidence?.length > 0 && (
-              <div className="bg-win-green/10 rounded-lg p-3">
-                <div className="text-win-green text-[11px] font-semibold mb-2">✓ Positive Evidence</div>
-                <div className="space-y-1">
-                  {(pick as any).insights.positive_evidence.map((evidence: string, i: number) => (
-                    <div key={i} className="text-foreground text-[12px]">• {evidence}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Risk Evidence */}
-            {(pick as any).insights?.risk_evidence?.length > 0 && (
-              <div className="bg-danger-red/10 rounded-lg p-3">
-                <div className="text-danger-red text-[11px] font-semibold mb-2">⚠ Risk Evidence</div>
-                <div className="space-y-1">
-                  {(pick as any).insights.risk_evidence.map((evidence: string, i: number) => (
-                    <div key={i} className="text-foreground text-[12px]">• {evidence}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
       {/* Lineups - from game.lineups */}
       {(pick as any).lineups && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
@@ -1364,15 +1151,6 @@ function MatchPage() {
             </span>
             <h2 className="!text-base font-bold">Lineups</h2>
           </div>
-          
-          {/* Lineup Status */}
-          {(pick as any).lineups?.status && (
-            <div className="mb-4 text-center">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-info-blue/20 text-info-blue">
-                Status: {(pick as any).lineups.status}
-              </span>
-            </div>
-          )}
           
           {/* Formations */}
           <div className="grid grid-cols-2 gap-3 text-[13px] mb-4">
@@ -1622,35 +1400,6 @@ function MatchPage() {
           </div>
         </section>
       )}
-
-      {/* Goals profile */}
-      <section className="bg-card border border-brand-border rounded-lg p-5">
-        <h2 className="mb-3">Why this pick</h2>
-        <ul className="space-y-2 text-[14px] text-foreground/90">
-          {pick.goals_profile?.map((g, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="text-win-green mt-0.5">•</span>
-              <span>{g}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Parent flex container for risk flag + verdict */}
-      <div className="flex flex-col gap-10 h-auto">
-        {/* Model verdict - now properly mapped */}
-        {(pick as any).model_verdict && (
-          <section className="bg-gradient-to-br from-info-bg/30 to-jet-surface-2 border border-info-blue/30 rounded-xl p-5 hover:border-info-blue/50 transition-colors">
-            <h2 className="text-[15px] font-semibold mb-3 !text-info-blue flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-              Model Verdict
-            </h2>
-            <p className="italic text-[14px] text-info-blue leading-relaxed">{(pick as any).model_verdict}</p>
-          </section>
-        )}
-      </div>
 
       {/* Stake guide */}
       <StakeGuide odds={pick.odds} highlight={pick.tier} />
