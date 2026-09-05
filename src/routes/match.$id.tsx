@@ -217,6 +217,7 @@ function MatchPage() {
         }
         
         const g = res.game as any;
+        console.log("[MatchPage] Game keys:", Object.keys(g));
         console.log("[MatchPage] Game:", g);
         
         const fixture = g.fixture || {};
@@ -225,6 +226,14 @@ function MatchPage() {
         const recentForm = g.recent_form || {};
         const lineups = g.lineups || null;
         const marketSummary = g.market_summary || null;
+        
+        // Look for markets array - check various possible field names
+        const markets = g.markets || g.all_markets || g.analysed_markets || g.markets_list || [];
+        
+        // Look for markets array - check various possible field names
+        const markets = g.markets || g.all_markets || g.analysed_markets || g.markets_list || [];
+        console.log("[MatchPage] markets found:", markets.length, "items");
+        console.log("[MatchPage] markets sample:", markets.slice(0, 3));
         
         console.log("[MatchPage] recommended_market:", rm);
         
@@ -292,8 +301,8 @@ function MatchPage() {
           official_pick_count: g.official_pick_count || 0,
           official_pick: rm,
           official_picks: rm ? [rm] : [],
-          markets: [],
-          all_picks: [],
+          markets: markets,
+          all_picks: markets,
           competition_info: fixture.competition,
           prediction: null,
           // Store structures for UI rendering
@@ -883,6 +892,46 @@ function MatchPage() {
               <div className="text-2xl font-bold text-amber-text">{(pick as any).market_summary?.markets_65_plus || 0}</div>
               <div className="text-muted-foreground text-[11px]">65%+ Confidence</div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* All Analyzed Markets */}
+      {(pick as any).markets?.length > 0 && (
+        <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">All Analyzed Markets</h2>
+          </div>
+          <div className="max-h-96 overflow-y-auto space-y-2">
+            {((pick as any).markets as any[]).map((market: any, i: number) => (
+              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{market.market || market.name}</div>
+                  {market.selection && (
+                    <div className="text-muted-foreground text-[12px] truncate">{market.selection}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-2">
+                  {market.odds && (
+                    <span className="font-semibold text-brand-green">@{typeof market.odds === 'number' ? market.odds.toFixed(2) : market.odds}</span>
+                  )}
+                  {(market.confidence || market.confidence_score) && (
+                    <span className={`text-[11px] px-1.5 py-0.5 rounded ${
+                      (market.confidence || market.confidence_score) >= 70 ? 'bg-win-green/20 text-win-green' :
+                      (market.confidence || market.confidence_score) >= 65 ? 'bg-teal-accent/20 text-teal-accent' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {market.confidence || market.confidence_score}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
       )}

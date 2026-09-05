@@ -552,6 +552,16 @@ export interface TopPickResponse {
   pick: Pick | null;
 }
 
+// Pagination info for list responses
+export interface PaginationInfo {
+  count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
 // Algo Games response - all covered games for a matchday
 export interface AlgoGamesResponse {
   date: string;
@@ -560,6 +570,7 @@ export interface AlgoGamesResponse {
   posted_at: string | null;
   summary: string | null;
   games: GameInfo[];
+  pagination?: PaginationInfo;
 }
 
 // Competition info from API
@@ -1140,6 +1151,7 @@ export interface SlipReviewListItem {
 export interface SlipReviewsResponse {
   count: number;
   reviews: SlipReviewListItem[];
+  pagination?: PaginationInfo;
 }
 
 // ============== Token & Payment Types =================================
@@ -1404,16 +1416,18 @@ export const api = {
   },
 
   /** GET /algo/games/ — All covered games for a matchday (new Home page) */
-  async getAlgoGames(date?: string, bypassCache = false, view = "compact"): Promise<AlgoGamesResponse> {
-    const cacheKey = `algo:games:${date ?? "today"}:${view}`;
+  async getAlgoGames(date?: string, bypassCache = false, view = "compact", page = 1, pageSize = 20): Promise<AlgoGamesResponse> {
+    const cacheKey = `algo:games:${date ?? "today"}:${view}:p${page}:s${pageSize}`;
     if (bypassCache) {
       clearCache(cacheKey);
     }
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (view) params.set("view", view);
+    params.set("page", String(page));
+    params.set("page_size", String(pageSize));
     const queryString = params.toString();
-    const url = queryString ? `${ENDPOINTS.algoGames}?${queryString}` : ENDPOINTS.algoGames;
+    const url = `${ENDPOINTS.algoGames}?${queryString}`;
     return requestCached<AlgoGamesResponse>(url, cacheKey);
   },
 
@@ -1525,8 +1539,11 @@ export const api = {
   },
 
   /** GET /api/algo/slip-reviews/ — Get all slip reviews for user */
-  async getSlipReviews(limit = 20): Promise<SlipReviewsResponse> {
-    return request<SlipReviewsResponse>(ENDPOINTS.slipReviews(limit));
+  async getSlipReviews(limit = 20, offset = 0): Promise<SlipReviewsResponse> {
+    const params = new URLSearchParams();
+    params.set("limit", String(limit));
+    params.set("offset", String(offset));
+    return request<SlipReviewsResponse>(`/slip-reviews/?${params.toString()}`);
   },
 
   /** POST /api/algo/slip-reviews/{id}/randomize/ — Build a randomized ticket */

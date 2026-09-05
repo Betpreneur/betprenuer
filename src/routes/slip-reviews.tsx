@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { api, type SlipReviewsResponse, type SlipReviewListItem } from "@/lib/api";
-import { ClipboardList, Plus, ArrowRight, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { ClipboardList, Plus, ArrowRight, CheckCircle2, AlertTriangle, XCircle, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/slip-reviews")({
   head: () => ({
@@ -153,25 +153,42 @@ function SlipReviewsPage() {
   const navigate = useNavigate();
   const [reviews, setReviews] = useState<SlipReviewsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+
+  const fetchReviews = useCallback(async (page = 1) => {
+    try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      const offset = (page - 1) * pageSize;
+      const data = await api.getSlipReviews(pageSize, offset);
+      if (page === 1) {
+        setReviews(data);
+      } else {
+        // Append new reviews to existing ones
+        setReviews(prev => prev ? {
+          ...data,
+          reviews: [...prev.reviews, ...data.reviews]
+        } : data);
+      }
+      setCurrentPage(page);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load slip reviews");
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [pageSize]);
 
   useEffect(() => {
     if (!isAuthed) return;
-
-    const fetchReviews = async () => {
-      try {
-        setLoading(true);
-        const data = await api.getSlipReviews();
-        setReviews(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load slip reviews");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, [isAuthed]);
+    fetchReviews(1);
+  }, [isAuthed, fetchReviews]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -240,11 +257,49 @@ function SlipReviewsPage() {
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {reviews?.reviews.map((review) => (
-            <SlipReviewItem key={review.id} review={review} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {loadingMore ? (
+              <div className="col-span-full flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-brand-green" />
+              </div>
+            ) : (
+              reviews?.reviews.map((review) => (
+                <SlipReviewItem key={review.id} review={review} />
+              ))
+            )}
+          </div>
+
+          {/* Load More Button */}
+          {reviews && reviews.reviews.length < reviews.count && (
+            <div className="flex justify-center pt-6">
+              <button
+                onClick={() => fetchReviews(currentPage + 1)}
+                disabled={loadingMore}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Pagination Info */}
+          {reviews && reviews.count > pageSize && (
+            <div className="text-center text-sm text-muted-foreground pt-4">
+              Showing {reviews.reviews.length} of {reviews.count} slip reviews
+            </div>
+          )}
+        </>
       )}
     </div>
   );

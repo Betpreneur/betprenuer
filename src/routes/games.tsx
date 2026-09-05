@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api, type AlgoGamesResponse, type GameInfo } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { todayLagos } from "@/lib/time";
 import { HomePageSkeleton } from "@/components/skeletons";
 import * as Popover from "@radix-ui/react-popover";
-import { Check, ChevronDown, Filter } from "lucide-react";
+import { Check, ChevronDown, Filter, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/games")({
@@ -173,30 +173,38 @@ function GamesPage() {
   const [authError, setAuthError] = useState(false);
   const [filterType, setFilterType] = useState<FilterType>("league");
   const [filterValue, setFilterValue] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loadingPage, setLoadingPage] = useState(false);
+  const pageSize = 20;
 
-  const load = () => {
+  const load = useCallback((page = 1) => {
     setError(false);
-    api.getAlgoGames()
-      .then(setData)
+    setLoadingPage(page > 1);
+    api.getAlgoGames(undefined, page > 1, "compact", page, pageSize)
+      .then((res) => {
+        setData(res);
+        setCurrentPage(page);
+      })
       .catch((err) => {
         if (err instanceof Error && (err.message.includes("401") || err.message.includes("Unauthorized") || err.message.includes("auth"))) {
           setAuthError(true);
         } else {
           setError(true);
         }
-      });
-  };
+      })
+      .finally(() => setLoadingPage(false));
+  }, []);
 
   useEffect(() => {
     if (!isAuthed) return;
-    load();
-  }, [isAuthed]);
+    load(1);
+  }, [isAuthed, load]);
 
   useEffect(() => {
     if (!data?.published) return;
-    const id = setInterval(load, 60000);
+    const id = setInterval(() => load(currentPage), 60000);
     return () => clearInterval(id);
-  }, [data?.published]);
+  }, [data?.published, currentPage, load]);
 
   if (authError) {
     window.location.href = "/login";
@@ -454,10 +462,44 @@ function GamesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredGames.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
+        {loadingPage ? (
+          <div className="col-span-full flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-green" />
+          </div>
+        ) : (
+          filteredGames.map((game) => (
+            <GameCard key={game.id} game={game} />
+          ))
+        )}
       </div>
+
+      {/* Pagination Controls */}
+      {data?.pagination && data.pagination.total_pages > 1 && (
+        <div className="flex items-center justify-between pt-6 border-t border-border">
+          <div className="text-sm text-muted-foreground">
+            Page {data.pagination.page} of {data.pagination.total_pages}
+            <span className="ml-2">({data.pagination.count} total games)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => load(currentPage - 1)}
+              disabled={!data.pagination.has_prev || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </button>
+            <button
+              onClick={() => load(currentPage + 1)}
+              disabled={!data.pagination.has_next || loadingPage}
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-card border border-brand-border hover:border-brand-green/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
