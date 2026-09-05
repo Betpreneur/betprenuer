@@ -24,6 +24,20 @@ export const Route = createFileRoute("/slip-review/$id")({
       { name: "description", content: "View your SportyBet slip review details." },
     ],
   }),
+  errorComponent: ({ error }) => (
+    <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+      <div className="p-6 rounded-2xl bg-danger-red/10 border border-danger-red/30">
+        <h1 className="text-xl font-bold text-danger-red mb-2">Something went wrong</h1>
+        <p className="text-muted-foreground mb-4">{error.message}</p>
+        <Link
+          to="/slip-reviews"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-green text-primary-foreground hover:bg-brand-green/90"
+        >
+          Back to Slip Reviews
+        </Link>
+      </div>
+    </div>
+  ),
   component: SlipReviewDetailPage,
 });
 
@@ -284,7 +298,7 @@ function SlipReviewDetailPage() {
       {review && (
         <div className="space-y-6">
           {/* Summary Cards */}
-          {review.ticket && (
+          {review.ticket && review.ticket.user_picks && review.ticket.recommended_picks && (
             <div className="grid gap-4 md:grid-cols-2">
               {/* Original Confidence */}
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-jet-surface-2 border border-border p-5">
@@ -297,7 +311,7 @@ function SlipReviewDetailPage() {
                 <div className="text-3xl font-black text-foreground mb-1">{review.ticket.user_picks.confidence_score}%</div>
                 <div className="text-sm font-medium text-muted-foreground mb-3">{review.ticket.user_picks.label}</div>
                 <div className="flex gap-2 flex-wrap">
-                  {Object.entries(review.ticket.user_picks.summary).map(([key, val]) => (
+                  {review.ticket.user_picks.summary && Object.entries(review.ticket.user_picks.summary).map(([key, val]) => (
                     <span key={key} className="text-[10px] px-2 py-1 rounded bg-subtle-bg text-muted-foreground capitalize">
                       {key}: {val}
                     </span>
@@ -331,7 +345,7 @@ function SlipReviewDetailPage() {
           )}
 
           {/* Verdict */}
-          {review.ticket?.verdict && (
+          {review.ticket?.verdict && review.ticket?.recommended_picks && (
             <div className={`p-4 rounded-2xl border ${
               review.ticket.recommended_picks.changes > 0 
                 ? "bg-amber-500/5 border-amber-500/30" 

@@ -1072,8 +1072,8 @@ export interface SlipReviewPublic {
   status: SlipReviewStatus;
   created_at: string;
   updated_at: string;
-  progress: SlipReviewProgress;
-  latest_event_id: number;
+  progress?: SlipReviewProgress;
+  latest_event_id?: number;
   ticket?: SlipReviewTicket;
   games: GameData[];
   recommended_ticket?: RecommendedTicket;
