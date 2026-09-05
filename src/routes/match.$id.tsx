@@ -229,9 +229,6 @@ function MatchPage() {
         
         // Look for markets array - check various possible field names
         const markets = g.markets || g.all_markets || g.analysed_markets || g.markets_list || [];
-        
-        // Look for markets array - check various possible field names
-        const markets = g.markets || g.all_markets || g.analysed_markets || g.markets_list || [];
         console.log("[MatchPage] markets found:", markets.length, "items");
         console.log("[MatchPage] markets sample:", markets.slice(0, 3));
         
