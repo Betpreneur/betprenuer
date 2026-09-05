@@ -225,13 +225,15 @@ function MatchPage() {
         const analysis = g.analysis || null;
         const recentForm = g.recent_form || {};
         const lineups = g.lineups || null;
-        const marketSummary = g.market_summary || null;
+        const corners = g.corners || null;
         
-        // Look for markets array - check various possible field names
+        // Look for markets array
         const markets = g.markets || g.all_markets || g.analysed_markets || g.markets_list || [];
         console.log("[MatchPage] markets found:", markets.length, "items");
-        console.log("[MatchPage] markets sample:", markets.slice(0, 3));
         
+        console.log("[MatchPage] analysis:", analysis);
+        console.log("[MatchPage] lineups:", lineups);
+        console.log("[MatchPage] corners:", corners);
         console.log("[MatchPage] recommended_market:", rm);
         
         // If no recommended_market, show error (no pick available)
@@ -253,7 +255,7 @@ function MatchPage() {
           };
         };
         
-        setPick({
+        const pickData = {
           id: Number(g.id) || 0,
           match: fixture.name || g.match_id || "",
           fixture: fixture.name || g.match_id || "",
@@ -275,26 +277,23 @@ function MatchPage() {
           country_flag: fixture.competition?.country_flag || "",
           form_home: formatForm(recentForm.home),
           form_away: formatForm(recentForm.away),
-          goals_profile: rm?.positive_evidence || [],
-          risk_flags: rm?.risk_evidence || [],
-          risk_level: "",
+          goals_profile: analysis?.key_points || [],
+          risk_flags: analysis?.risks || [],
+          risk_level: analysis?.verdict || "",
           user_backed: g.backed_by_me || false,
           backed_count: g.backed_count || 0,
-          reasoning: rm?.summary || "",
+          reasoning: analysis?.explanation || rm?.summary || "",
           insights: analysis,
           team_news: null,
           home_news: null,
           away_news: null,
           market: rm?.market || "",
           odds: rm?.odds || "",
-          confidence: rm?.confidence_score || 0,
-          tier: rm?.confidence_label || "",
-          stake: "",
+          confidence: rm?.confidence_score || analysis?.confidence_score || 0,
+          tier: rm?.confidence_label || analysis?.confidence_label || "",
+          stake: 0,
           ev: (rm?.fair_odds && rm?.odds) ? (rm.odds - rm.fair_odds) / rm.fair_odds : 0,
           // Map new fields
-          market_count: marketSummary?.analysed || 0,
-          markets_70_plus: marketSummary?.strong_markets || 0,
-          markets_65_plus: marketSummary?.markets_65_plus || 0,
           official_pick_count: g.official_pick_count || 0,
           official_pick: rm,
           official_picks: rm ? [rm] : [],
@@ -303,13 +302,13 @@ function MatchPage() {
           competition_info: fixture.competition,
           prediction: null,
           // Store structures for UI rendering
-          insights: analysis,
-          fixture_context: { statpal: lineups },
           lineups: lineups,
-          market_summary: marketSummary,
+          market_summary: null,
           top_market: rm,
-          corner_profile: null,
-        });
+          corner_profile: corners,
+        } as unknown as PickDetail;
+        
+        setPick(pickData);
       })
       .catch((err) => {
         // If 401/unauthorized, session expired - redirect to login
@@ -821,43 +820,191 @@ function MatchPage() {
         </div>
       )}
 
-      {/* Positive Evidence */}
-      {(pick as any).official_pick?.positive_evidence?.length > 0 && (
+      {/* Key Points / Analysis */}
+      {(pick as any).insights?.key_points?.length > 0 && (
         <section className="bg-win-green-bg/30 border border-win-green/20 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 className="!text-base font-bold text-win-green">Positive Evidence</h2>
+            <h2 className="!text-base font-bold text-win-green">Key Analysis Points</h2>
           </div>
           <ul className="space-y-2 text-sm">
-            {((pick as any).official_pick?.positive_evidence || []).map((evidence: string, i: number) => (
+            {((pick as any).insights?.key_points || []).map((point: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span className="text-win-green">•</span>
-                <span>{evidence}</span>
+                <span>{point}</span>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      {/* Risk Evidence */}
-      {(pick as any).official_pick?.risk_evidence?.length > 0 && (
+      {/* Risks */}
+      {(pick as any).insights?.risks?.length > 0 && (
         <section className="bg-danger-bg/30 border border-danger-red/20 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-5 h-5 text-danger-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            <h2 className="!text-base font-bold text-danger-red">Risk Evidence</h2>
+            <h2 className="!text-base font-bold text-danger-red">Risks</h2>
           </div>
           <ul className="space-y-2 text-sm">
-            {((pick as any).official_pick?.risk_evidence || []).map((evidence: string, i: number) => (
+            {((pick as any).insights?.risks || []).map((risk: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span className="text-danger-red">•</span>
-                <span>{evidence}</span>
+                <span>{risk}</span>
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Lineups with Injuries/Suspensions */}
+      {(pick as any).lineups && (
+        <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-info-blue/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Lineups</h2>
+          </div>
+          
+          {/* Status */}
+          {(pick as any).lineups?.status && (
+            <div className="mb-4 text-center">
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                (pick as any).lineups.status === 'available' ? 'bg-win-green/20 text-win-green' : 'bg-amber-500/20 text-amber-500'
+              }`}>
+                Status: {(pick as any).lineups.status}
+              </span>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* Home Team */}
+            {(pick as any).lineups?.home && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-win-green mb-2">{pick.home_team}</div>
+                {(pick as any).lineups?.home?.formation && (
+                  <div className="text-lg font-bold mb-2">{(pick as any).lineups.home.formation}</div>
+                )}
+                {/* Injuries */}
+                {(pick as any).lineups?.home?.injuries?.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-danger-red font-semibold">Injuries</div>
+                    {((pick as any).lineups.home.injuries as any[]).map((injury: any, i: number) => (
+                      <div key={i} className="text-xs text-muted-foreground">
+                        {injury.name} - {injury.reason}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Suspensions */}
+                {(pick as any).lineups?.home?.suspensions?.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-amber-500 font-semibold">Suspensions</div>
+                    {((pick as any).lineups.home.suspensions as any[]).map((susp: any, i: number) => (
+                      <div key={i} className="text-xs text-muted-foreground">{susp.name}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Away Team */}
+            {(pick as any).lineups?.away && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-danger-red mb-2">{pick.away_team}</div>
+                {(pick as any).lineups?.away?.formation && (
+                  <div className="text-lg font-bold mb-2">{(pick as any).lineups.away.formation}</div>
+                )}
+                {/* Injuries */}
+                {(pick as any).lineups?.away?.injuries?.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-danger-red font-semibold">Injuries</div>
+                    {((pick as any).lineups.away.injuries as any[]).map((injury: any, i: number) => (
+                      <div key={i} className="text-xs text-muted-foreground">
+                        {injury.name} - {injury.reason}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Suspensions */}
+                {(pick as any).lineups?.away?.suspensions?.length > 0 && (
+                  <div className="mt-2">
+                    <div className="text-xs text-amber-500 font-semibold">Suspensions</div>
+                    {((pick as any).lineups.away.suspensions as any[]).map((susp: any, i: number) => (
+                      <div key={i} className="text-xs text-muted-foreground">{susp.name}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Corners */}
+      {(pick as any).corner_profile && (
+        <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </span>
+            <h2 className="!text-base font-bold">Corner Stats</h2>
+          </div>
+          
+          {/* Status */}
+          {(pick as any).corner_profile?.status && (
+            <div className="mb-4 text-center">
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                (pick as any).corner_profile.status === 'available' ? 'bg-win-green/20 text-win-green' : 'bg-amber-500/20 text-amber-500'
+              }`}>
+                Status: {(pick as any).corner_profile.status} ({(pick as any).corner_profile.data_quality || 'N/A'})
+              </span>
+            </div>
+          )}
+          
+          {/* Expected Total */}
+          {(pick as any).corner_profile?.expected_total && (
+            <div className="text-center mb-4">
+              <span className="text-2xl font-bold">{(pick as any).corner_profile.expected_total?.toFixed(1)}</span>
+              <span className="text-muted-foreground text-sm ml-2">Expected Corners</span>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* Home Team */}
+            {(pick as any).corner_profile?.home && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-win-green mb-2">{pick.home_team}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-muted-foreground">Avg For</span>
+                  <span className="font-medium">{(pick as any).corner_profile.home.avg_for?.toFixed(1) || '-'}</span>
+                  <span className="text-muted-foreground">Expected</span>
+                  <span className="font-medium">{(pick as any).corner_profile.home.expected_for?.toFixed(1) || '-'}</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Away Team */}
+            {(pick as any).corner_profile?.away && (
+              <div className="bg-muted/30 rounded-lg p-3">
+                <div className="font-semibold text-danger-red mb-2">{pick.away_team}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-muted-foreground">Avg For</span>
+                  <span className="font-medium">{(pick as any).corner_profile.away.avg_for?.toFixed(1) || '-'}</span>
+                  <span className="text-muted-foreground">Expected</span>
+                  <span className="font-medium">{(pick as any).corner_profile.away.expected_for?.toFixed(1) || '-'}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </section>
       )}
 
