@@ -698,7 +698,7 @@ function MatchPage() {
       )}
 
       {/* Key Analysis Points */}
-      {(pick as any).insights?.key_points?.length > 0 && (
+      {((pick as any).insights?.key_points?.length ?? 0) > 0 && (
         <section className="bg-win-green-bg/30 border border-win-green/20 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-5 h-5 text-win-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -738,7 +738,7 @@ function MatchPage() {
                   <div className="text-lg font-bold mb-2">{(pick as any).lineups.home.formation}</div>
                 )}
                 {/* Injuries */}
-                {(pick as any).lineups?.home?.injuries?.length > 0 && (
+                {((pick as any).lineups?.home?.injuries?.length ?? 0) > 0 && (
                   <div className="mt-2">
                     <div className="text-xs text-danger-red font-semibold">Injuries</div>
                     {((pick as any).lineups.home.injuries as any[]).map((injury: any, i: number) => (
@@ -749,7 +749,7 @@ function MatchPage() {
                   </div>
                 )}
                 {/* Suspensions */}
-                {(pick as any).lineups?.home?.suspensions?.length > 0 && (
+                {((pick as any).lineups?.home?.suspensions?.length ?? 0) > 0 && (
                   <div className="mt-2">
                     <div className="text-xs text-amber-500 font-semibold">Suspensions</div>
                     {((pick as any).lineups.home.suspensions as any[]).map((susp: any, i: number) => (
@@ -768,7 +768,7 @@ function MatchPage() {
                   <div className="text-lg font-bold mb-2">{(pick as any).lineups.away.formation}</div>
                 )}
                 {/* Injuries */}
-                {(pick as any).lineups?.away?.injuries?.length > 0 && (
+                {((pick as any).lineups?.away?.injuries?.length ?? 0) > 0 && (
                   <div className="mt-2">
                     <div className="text-xs text-danger-red font-semibold">Injuries</div>
                     {((pick as any).lineups.away.injuries as any[]).map((injury: any, i: number) => (
@@ -779,7 +779,7 @@ function MatchPage() {
                   </div>
                 )}
                 {/* Suspensions */}
-                {(pick as any).lineups?.away?.suspensions?.length > 0 && (
+                {((pick as any).lineups?.away?.suspensions?.length ?? 0) > 0 && (
                   <div className="mt-2">
                     <div className="text-xs text-amber-500 font-semibold">Suspensions</div>
                     {((pick as any).lineups.away.suspensions as any[]).map((susp: any, i: number) => (
@@ -887,7 +887,7 @@ function MatchPage() {
       )}
 
       {/* All Analyzed Markets */}
-      {(pick as any).markets?.length > 0 && (
+      {((pick as any).markets?.length ?? 0) > 0 && (
         <section className="bg-card/80 backdrop-blur border border-border/50 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -1185,7 +1185,7 @@ function MatchPage() {
       )}
 
       {/* All Available Markets */}
-      {(pick as any)?.markets?.length > 0 && (
+      {((pick as any)?.markets?.length ?? 0) > 0 && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">All Available Markets</h2>
           <div className="max-h-64 overflow-y-auto space-y-2 text-[13px]">
@@ -1323,7 +1323,7 @@ function MatchPage() {
       )}
 
       {/* All Picks */}
-      {(pick as any).all_picks?.length > 0 && (
+      {((pick as any).all_picks?.length ?? 0) > 0 && (
         <section className="bg-card border border-brand-border rounded-lg p-5">
           <h2 className="mb-3">All Picks ({((pick as any).all_picks?.length)})</h2>
           <div className="space-y-2 max-h-80 overflow-y-auto">
