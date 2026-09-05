@@ -278,7 +278,7 @@ function SlipReviewDetailPage() {
                 </div>
                 <div className="font-medium text-foreground text-sm truncate">{game.match}</div>
                 <div className="text-xs text-muted-foreground">{game.user_pick?.market}</div>
-                {game.user_pick?.confidence_score !== undefined && (
+                {game.user_pick?.confidence_score != null && (
                   <div className="text-xs font-medium text-info-blue mt-1">
                     Confidence: {game.user_pick.confidence_score}%
                   </div>
@@ -308,7 +308,7 @@ function SlipReviewDetailPage() {
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your Slip</span>
                   </div>
                 </div>
-                <div className="text-3xl font-black text-foreground mb-1">{review.ticket.user_picks.confidence_score}%</div>
+                <div className="text-3xl font-black text-foreground mb-1">{review.ticket.user_picks.confidence_score ?? 0}%</div>
                 <div className="text-sm font-medium text-muted-foreground mb-3">{review.ticket.user_picks.label}</div>
                 <div className="flex gap-2 flex-wrap">
                   {review.ticket.user_picks.summary && Object.entries(review.ticket.user_picks.summary).map(([key, val]) => (
@@ -328,11 +328,11 @@ function SlipReviewDetailPage() {
                     <span className="text-xs font-bold uppercase tracking-wider text-brand-green">With AI Picks</span>
                   </div>
                 </div>
-                <div className="text-3xl font-black text-brand-green mb-1">{review.ticket.recommended_picks.confidence_score}%</div>
+                <div className="text-3xl font-black text-brand-green mb-1">{review.ticket.recommended_picks.confidence_score ?? 0}%</div>
                 <div className="text-sm font-medium text-muted-foreground mb-3">{review.ticket.recommended_picks.label}</div>
                 <div className="flex gap-2 flex-wrap">
                   <span className="text-[10px] px-2 py-1 rounded bg-brand-green/10 text-brand-green">
-                    Est. odds: {review.ticket.recommended_picks.estimated_odds}
+                    Est. odds: {review.ticket.recommended_picks.estimated_odds ?? 'N/A'}
                   </span>
                   {review.ticket.recommended_picks.changes > 0 && (
                     <span className="text-[10px] px-2 py-1 rounded bg-amber-500/10 text-amber-400">
@@ -419,7 +419,7 @@ function SlipReviewDetailPage() {
                     <div className="text-xs text-muted-foreground">Games</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.confidence_score}%</div>
+                    <div className="text-2xl font-black text-brand-green">{randomizedTicket.ticket.confidence_score ?? 0}%</div>
                     <div className="text-xs text-muted-foreground">Confidence</div>
                   </div>
                   <div>
@@ -449,7 +449,7 @@ function SlipReviewDetailPage() {
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-brand-green">{pick.odds ? `@${pick.odds}` : '--'}</div>
-                        <div className="text-xs text-muted-foreground">{pick.confidence_score}%</div>
+                        <div className="text-xs text-muted-foreground">{pick.confidence_score ?? 0}%</div>
                       </div>
                     </div>
                   ))}

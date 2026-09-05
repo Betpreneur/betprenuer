@@ -78,7 +78,7 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
             </div>
             <div className="flex items-center justify-between">
               <span className="font-semibold text-foreground">{game.user_pick.market}</span>
-              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds.toFixed(2)}</span>
+              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds?.toFixed(2) ?? 'N/A'}</span>
             </div>
             <div className="mt-2 text-xs text-info-blue">
               {game.user_pick.market} has not been backed by enough reliable match evidence for this league/team yet
@@ -92,17 +92,17 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
             </div>
             <div className="flex items-center justify-between">
               <span className="font-semibold text-foreground">{game.user_pick.market}</span>
-              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds.toFixed(2)}</span>
+              <span className="text-sm font-mono text-muted-foreground">@{game.user_pick.odds?.toFixed(2) ?? 'N/A'}</span>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex-1 h-1.5 bg-background rounded-full overflow-hidden">
                 <div
                   className={`h-full ${confidenceStyle.bar}`}
-                  style={{ width: `${Math.min(100, game.user_pick.confidence_score)}%` }}
+                  style={{ width: `${Math.min(100, game.user_pick.confidence_score ?? 0)}%` }}
                 />
               </div>
               <span className={`text-[11px] font-bold ${confidenceStyle.text}`}>
-                {game.user_pick.confidence_score}%
+                {game.user_pick.confidence_score ?? 0}%
               </span>
             </div>
           </div>
@@ -117,7 +117,7 @@ export function SlipReviewCard({ game, order, recommendedPick }: SlipReviewCardP
             </div>
             <div className="flex items-center justify-between">
               <span className="font-semibold text-foreground">{recPick.market}</span>
-              <span className="text-sm font-mono text-brand-green">{recPick.confidence_score}%</span>
+              <span className="text-sm font-mono text-brand-green">{recPick.confidence_score ?? 0}%</span>
             </div>
           </div>
         )}
